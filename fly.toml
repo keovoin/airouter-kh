@@ -17,7 +17,6 @@ primary_region = "iad"  # change to closest region: https://fly.io/docs/referenc
   BASE_URL = "https://airouter-kh.fly.dev"
   CLOUD_URL = "https://9router.com"
   AUTH_COOKIE_SECURE = "true"
-  REQUIRE_API_KEY = "false"
   OBSERVABILITY_ENABLED = "true"
 
 # Persistent volume so SQLite, OAuth tokens, JWT secret, and certs survive restarts.
@@ -41,13 +40,14 @@ primary_region = "iad"  # change to closest region: https://fly.io/docs/referenc
     soft_limit = 200
     hard_limit = 250
 
-  # Cheap health probe. /api/settings returns JSON without auth.
+  # Cheap, no-auth, no-DB health probe. Generous grace_period for cold start
+  # (first boot runs SQLite migrations and links a 119-route Next.js app).
   [[http_service.checks]]
-    grace_period = "30s"
+    grace_period = "120s"
     interval = "30s"
     method = "GET"
-    timeout = "5s"
-    path = "/api/settings"
+    timeout = "10s"
+    path = "/api/health"
 
 [[vm]]
   size = "shared-cpu-1x"

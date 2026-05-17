@@ -19,6 +19,8 @@ import {
 } from "@/lib/telegram/conversations.js";
 import { toTelegramHtml, splitForTelegram, helpText } from "@/lib/telegram/formatter.js";
 import { buildModelsList } from "@/app/api/v1/models/route.js";
+import { getTodaySummary, getWeekDailyTokens, getWeekByProvider, formatNum, formatCost } from "@/lib/telegram/usage.js";
+import { renderDailyTokens, renderTokensByProvider, renderProvidersOverTime } from "@/lib/telegram/charts.js";
 
 const SYSTEM_PROMPT = "You are a helpful assistant responding in Telegram. Keep replies concise unless asked for detail. When showing code, use fenced code blocks.";
 
@@ -120,6 +122,11 @@ async function handle(chatId, text) {
     return safeSend(chatId, lines.join("\n\n"));
   }
 
+  if (text === "/usage" || text.startsWith("/usage ")) {
+    const arg = text === "/usage" ? "" : text.slice(7).trim().toLowerCase();
+    return handleUsage(chatId, arg);
+  }
+
   if (text.startsWith("/")) {
     return safeSend(chatId, `Unknown command. Send <code>/help</code> for the list.`);
   }
@@ -174,6 +181,66 @@ async function chat(chatId, userText) {
   }
 }
 
+async function handleUsage(chatId, mode) {
+  await telegram.sendChatAction(chatId, "upload_photo").catch(() => {});
+
+  // /usage detail or /usage text → no chart, just summary
+  if (mode === "detail" || mode === "text") {
+    const s = await getTodaySummary();
+    const lines = [
+      `<b>Today</b> — ${formatNum(s.totalRequests)} req, ${formatNum(s.totalTokens)} tokens, ${formatCost(s.totalCost)}`,
+      "",
+      "<b>By provider</b>",
+      ...(s.byProvider.length === 0
+        ? ["(none yet)"]
+        : s.byProvider.map((p) => `• ${escapeForCode(p.provider)}: ${formatNum(p.tokens)} tokens · ${p.requests} req · ${formatCost(p.cost)}`)),
+    ];
+    return safeSend(chatId, lines.join("\n"));
+  }
+
+  // /usage today → bar chart per provider
+  if (mode === "today") {
+    const s = await getTodaySummary();
+    if (s.byProvider.length === 0) {
+      return safeSend(chatId, "No usage today yet.");
+    }
+    const png = await renderTokensByProvider(s.byProvider, { title: "Tokens by provider — today" });
+    const caption = `<b>Today</b>\n${formatNum(s.totalRequests)} req · ${formatNum(s.totalTokens)} tokens · ${formatCost(s.totalCost)}`;
+    return safeSendPhoto(chatId, png, caption);
+  }
+
+  // /usage week → multi-line per-provider chart
+  if (mode === "week" || mode === "7d") {
+    const { providers, labels } = await getWeekByProvider();
+    if (providers.length === 0) {
+      return safeSend(chatId, "No usage in the last 7 days.");
+    }
+    const png = await renderProvidersOverTime(providers, labels, { title: "Tokens per provider — last 7 days" });
+    return safeSendPhoto(chatId, png, "<b>Last 7 days</b>");
+  }
+
+  // /usage (default) → today's totals + a 7-day stacked bar chart
+  const todayP = getTodaySummary();
+  const weekP = getWeekDailyTokens();
+  const [today, week] = await Promise.all([todayP, weekP]);
+
+  const caption = [
+    `<b>Today</b>`,
+    `${formatNum(today.totalRequests)} req · ${formatNum(today.totalTokens)} tokens · ${formatCost(today.totalCost)}`,
+    "",
+    today.byProvider.length === 0
+      ? "(no usage today)"
+      : today.byProvider.slice(0, 5).map((p) => `${escapeForCode(p.provider)}: ${formatNum(p.tokens)}`).join(" · "),
+  ].join("\n");
+
+  if (week.length === 0 || week.every((d) => d.totalTokens === 0)) {
+    return safeSend(chatId, caption);
+  }
+
+  const png = await renderDailyTokens(week, { title: "Tokens — last 7 days" });
+  return safeSendPhoto(chatId, png, caption);
+}
+
 async function countActiveProviders() {
   try {
     // Reuse buildModelsList LLM list. Distinct owners == providers.
@@ -194,5 +261,15 @@ async function safeSend(chatId, html) {
     await telegram.sendMessage(chatId, html);
   } catch (e) {
     console.error("[telegram] sendMessage failed:", e?.message);
+  }
+}
+
+async function safeSendPhoto(chatId, pngBuffer, caption) {
+  try {
+    await telegram.sendPhoto(chatId, pngBuffer, { caption });
+  } catch (e) {
+    console.error("[telegram] sendPhoto failed:", e?.message);
+    // Fall back to text so the user still gets *something*
+    await safeSend(chatId, `${caption}\n\n<i>(chart render failed: ${escapeForCode(e?.message || "unknown")})</i>`);
   }
 }

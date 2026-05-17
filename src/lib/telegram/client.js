@@ -23,6 +23,30 @@ async function call(method, body) {
   return data.result;
 }
 
+// Multipart upload for sendPhoto/sendDocument. Telegram accepts photos via either
+// a file URL or a multipart blob. We always upload the buffer, no temp files.
+async function callMultipart(method, fields) {
+  const form = new FormData();
+  for (const [k, v] of Object.entries(fields)) {
+    if (v == null) continue;
+    if (v instanceof Uint8Array || v instanceof Buffer) {
+      form.append(k, new Blob([v], { type: "image/png" }), `${k}.png`);
+    } else {
+      form.append(k, String(v));
+    }
+  }
+  const res = await fetch(`${API_BASE}/bot${token()}/${method}`, {
+    method: "POST",
+    body: form,
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok || data?.ok === false) {
+    const desc = data?.description || res.statusText || "unknown";
+    throw new Error(`telegram ${method} failed: ${desc}`);
+  }
+  return data.result;
+}
+
 export const telegram = {
   sendMessage(chatId, text, opts = {}) {
     return call("sendMessage", {
@@ -48,6 +72,17 @@ export const telegram = {
 
   sendChatAction(chatId, action = "typing") {
     return call("sendChatAction", { chat_id: chatId, action });
+  },
+
+  // Upload an image (Buffer or Uint8Array of PNG bytes). Optional caption is
+  // rendered in HTML mode.
+  sendPhoto(chatId, photoBuffer, opts = {}) {
+    return callMultipart("sendPhoto", {
+      chat_id: chatId,
+      photo: photoBuffer,
+      caption: opts.caption || undefined,
+      parse_mode: opts.caption ? "HTML" : undefined,
+    });
   },
 
   answerCallback(callbackQueryId, text) {

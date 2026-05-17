@@ -12,9 +12,9 @@ primary_region = "iad"  # change to closest region: https://fly.io/docs/referenc
   HOSTNAME = "0.0.0.0"
   DATA_DIR = "/app/data"
   # NEXT_PUBLIC_* are baked into the client at build time. Update + redeploy if hostname changes.
-  NEXT_PUBLIC_BASE_URL = "https://airouter.khfinder.com"
+  NEXT_PUBLIC_BASE_URL = "https://airouter-kh.fly.dev"
   NEXT_PUBLIC_CLOUD_URL = "https://9router.com"
-  BASE_URL = "https://airouter.khfinder.com"
+  BASE_URL = "https://airouter-kh.fly.dev"
   CLOUD_URL = "https://9router.com"
   AUTH_COOKIE_SECURE = "true"
   OBSERVABILITY_ENABLED = "true"

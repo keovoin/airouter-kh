@@ -3,6 +3,7 @@ import { FORMATS } from "../formats.js";
 import { buildChunk } from "../helpers/chunkBuilder.js";
 import { buildUsage } from "../helpers/usageHelper.js";
 import { reasoningDelta } from "../helpers/reasoningHelper.js";
+import { toOpenAIFinish } from "../concerns/finishReasonMap.js";
 
 // Create OpenAI chunk helper
 function createChunk(state, delta, finishReason = null) {
@@ -164,16 +165,7 @@ export function claudeToOpenAIResponse(chunk, state) {
   return results.length > 0 ? results : null;
 }
 
-// Convert Claude stop_reason to OpenAI finish_reason
-function convertStopReason(reason) {
-  switch (reason) {
-    case "end_turn": return "stop";
-    case "max_tokens": return "length";
-    case "tool_use": return "tool_calls";
-    case "stop_sequence": return "stop";
-    default: return "stop";
-  }
-}
+const convertStopReason = (reason) => toOpenAIFinish(reason, "claude");
 
 // Register
 register(FORMATS.CLAUDE, FORMATS.OPENAI, null, claudeToOpenAIResponse);

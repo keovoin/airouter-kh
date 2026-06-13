@@ -19,6 +19,7 @@ import { register } from "../index.js";
 import { FORMATS } from "../formats.js";
 import { buildChunk } from "../helpers/chunkBuilder.js";
 import { reasoningDelta } from "../helpers/reasoningHelper.js";
+import { toOpenAIFinish } from "../concerns/finishReasonMap.js";
 
 function ensureState(state, model) {
   if (!state.responseId) {
@@ -43,17 +44,7 @@ function makeChunk(state, delta, finishReason = null) {
   );
 }
 
-function mapFinishReason(reason) {
-  switch (reason) {
-    case "stop": return "stop";
-    case "length": return "length";
-    case "tool-calls":
-    case "tool_use": return "tool_calls";
-    case "content-filter": return "content_filter";
-    case "error": return "stop";
-    default: return reason || "stop";
-  }
-}
+const mapFinishReason = (reason) => toOpenAIFinish(reason, "commandcode");
 
 export function convertCommandCodeToOpenAI(chunk, state) {
   if (!chunk) return null;

@@ -1,5 +1,6 @@
 import { register } from "../index.js";
 import { FORMATS } from "../formats.js";
+import { fromOpenAIFinish } from "../concerns/finishReasonMap.js";
 
 // Prefix for Claude OAuth tool names (must match request translator)
 const CLAUDE_OAUTH_TOOL_PREFIX = "proxy_";
@@ -252,15 +253,7 @@ export function openaiToClaudeResponse(chunk, state) {
   return results.length > 0 ? results : null;
 }
 
-// Convert OpenAI finish_reason to Claude stop_reason
-function convertFinishReason(reason) {
-  switch (reason) {
-    case "stop": return "end_turn";
-    case "length": return "max_tokens";
-    case "tool_calls": return "tool_use";
-    default: return "end_turn";
-  }
-}
+const convertFinishReason = (reason) => fromOpenAIFinish(reason, "claude");
 
 // Register
 register(FORMATS.OPENAI, FORMATS.CLAUDE, null, openaiToClaudeResponse);

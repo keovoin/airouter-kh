@@ -6,12 +6,16 @@ import "./registerAll.js";
 import { translateResponse, initState } from "../../open-sse/translator/index.js";
 import { FORMATS } from "../../open-sse/translator/formats.js";
 
-// Chuẩn hoá field động (Date.now trong created + gemini tool id) để snapshot ổn định.
+// Chuẩn hoá field động (Date.now trong created + id) để snapshot ổn định.
 function stripVolatile(chunks) {
   return JSON.parse(JSON.stringify(chunks), (key, val) => {
     if (key === "created") return 0;
-    // gemini sinh id = `${name}-${Date.now()}-${idx}` → chuẩn hoá phần timestamp
-    if (key === "id" && typeof val === "string") return val.replace(/-\d{10,}-(\d+)$/, "-<TS>-$1");
+    if (key === "id" && typeof val === "string") {
+      return val
+        .replace(/-\d{10,}-(\d+)$/, "-<TS>-$1")   // gemini: name-<ts>-idx
+        .replace(/^chatcmpl-\d{10,}$/, "chatcmpl-<TS>")  // kiro/ollama stream id
+        .replace(/^call_(\d+)_\d{10,}$/, "call_$1_<TS>"); // ollama tool id
+    }
     return val;
   });
 }
@@ -65,5 +69,29 @@ describe("GOLDEN response stream: Gemini → OpenAI", () => {
       { candidates: [{ finishReason: "STOP" }] },
     ];
     expect(runStream(FORMATS.GEMINI, FORMATS.OPENAI, events)).toMatchSnapshot();
+  });
+});
+
+describe("GOLDEN response stream: Kiro → OpenAI", () => {
+  it("text + reasoning + toolUse + usage + stop", () => {
+    const events = [
+      { assistantResponseEvent: { content: "Hello" }, _eventType: "assistantResponseEvent" },
+      { reasoningContentEvent: { text: "thinking" }, _eventType: "reasoningContentEvent" },
+      { toolUseEvent: { toolUseId: "tu_1", name: "get_weather", input: { city: "NYC" } }, _eventType: "toolUseEvent" },
+      { usageEvent: { inputTokens: 10, outputTokens: 5 }, _eventType: "usageEvent" },
+      { _eventType: "messageStopEvent" },
+    ];
+    expect(runStream(FORMATS.KIRO, FORMATS.OPENAI, events)).toMatchSnapshot();
+  });
+});
+
+describe("GOLDEN response stream: Ollama → OpenAI", () => {
+  it("content + thinking + tool_calls + done usage", () => {
+    const events = [
+      { model: "qwen3", message: { role: "assistant", content: "Hi", thinking: "reason" } },
+      { model: "qwen3", message: { role: "assistant", tool_calls: [{ function: { name: "search", arguments: { q: "x" } } }] } },
+      { model: "qwen3", done: true, done_reason: "stop", prompt_eval_count: 8, eval_count: 4 },
+    ];
+    expect(runStream(FORMATS.OLLAMA, FORMATS.OPENAI, events)).toMatchSnapshot();
   });
 });

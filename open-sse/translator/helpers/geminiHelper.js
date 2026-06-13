@@ -1,5 +1,7 @@
 // Gemini helper functions for translator
 
+import { safeParseJSON } from "./jsonUtil.js";
+
 // Unsupported JSON Schema constraints that should be removed for Antigravity
 export const UNSUPPORTED_SCHEMA_CONSTRAINTS = [
   // Basic constraints (not supported by Gemini API)
@@ -90,14 +92,9 @@ export function extractTextContent(content) {
   return "";
 }
 
-// Try parse JSON safely
+// Try parse JSON safely (null fallback on parse error; re-export keeps legacy API)
 export function tryParseJSON(str) {
-  if (typeof str !== "string") return str;
-  try {
-    return JSON.parse(str);
-  } catch {
-    return null;
-  }
+  return safeParseJSON(str, null);
 }
 
 // Generate request ID

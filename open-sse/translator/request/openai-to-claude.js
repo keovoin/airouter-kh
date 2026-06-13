@@ -2,6 +2,7 @@ import { register } from "../index.js";
 import { FORMATS } from "../formats.js";
 import { CLAUDE_SYSTEM_PROMPT } from "../../config/appConstants.js";
 import { adjustMaxTokens } from "../helpers/maxTokensHelper.js";
+import { safeParseJSON } from "../helpers/jsonUtil.js";
 
 // Empty prefix matches real Claude Code behavior (no tool name prefix).
 // Previously "proxy_" was used but this is a detectable fingerprint difference.
@@ -281,7 +282,7 @@ function getContentBlocksFromMessage(msg, toolNameMap = new Map()) {
             type: "tool_use",
             id: tc.id,
             name: toolName,
-            input: tryParseJSON(tc.function.arguments)
+            input: safeParseJSON(tc.function.arguments, tc.function.arguments)
           });
         }
       }
@@ -330,16 +331,6 @@ function extractTextContent(content) {
     return content.filter(c => c.type === "text").map(c => c.text).join("\n");
   }
   return "";
-}
-
-// Try parse JSON
-function tryParseJSON(str) {
-  if (typeof str !== "string") return str;
-  try {
-    return JSON.parse(str);
-  } catch {
-    return str;
-  }
 }
 
 // OpenAI -> Claude format for Antigravity (without system prompt modifications)

@@ -1,5 +1,5 @@
 import { PROVIDERS } from "../config/providers.js";
-import { buildClineHeaders } from "../../src/shared/utils/clineAuth.js";
+import { buildClineHeaders } from "../shared/clineAuth.js";
 
 const OPENAI_COMPATIBLE_PREFIX = "openai-compatible-";
 const OPENAI_COMPATIBLE_DEFAULTS = {

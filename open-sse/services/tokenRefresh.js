@@ -614,6 +614,28 @@ export async function refreshCopilotToken(githubAccessToken, log) {
   }, log);
 }
 
+// Single source of per-provider refresh dispatch (logic stays in each refreshXxx fn).
+// Each handler: (credentials, log) => Promise<tokens|null>
+const REFRESH_HANDLERS = {
+  "gemini-cli": (c, log) => refreshGoogleToken(c.refreshToken, PROVIDERS["gemini-cli"].clientId, PROVIDERS["gemini-cli"].clientSecret, log),
+  antigravity: (c, log) => refreshGoogleToken(c.refreshToken, PROVIDERS.antigravity.clientId, PROVIDERS.antigravity.clientSecret, log),
+  claude: (c, log) => refreshClaudeOAuthToken(c.refreshToken, log),
+  codex: (c, log) => refreshCodexToken(c.refreshToken, log),
+  qwen: (c, log) => refreshQwenToken(c.refreshToken, log),
+  iflow: (c, log) => refreshIflowToken(c.refreshToken, log),
+  github: (c, log) => refreshGitHubToken(c.refreshToken, log),
+  kiro: (c, log) => refreshKiroToken(c.refreshToken, c.providerSpecificData, log),
+  xai: (c, log) => refreshXaiToken(c.refreshToken, log),
+  vertex: vertexRefreshHandler,
+  "vertex-partner": vertexRefreshHandler
+};
+
+function vertexRefreshHandler(c, log) {
+  const saJson = parseVertexSaJson(c.apiKey);
+  if (!saJson) return null;
+  return refreshVertexToken(saJson, log);
+}
+
 /**
  * Get access token for a specific provider (with in-flight dedup).
  * If a refresh is already in-flight for same provider+token, share the promise
@@ -629,53 +651,16 @@ export async function getAccessToken(provider, credentials, log) {
 }
 
 async function _getAccessTokenInternal(provider, credentials, log) {
-  switch (provider) {
-    case "gemini":
-    case "gemini-cli":
-    case "antigravity":
-      return await refreshGoogleToken(
-        credentials.refreshToken,
-        PROVIDERS[provider].clientId,
-        PROVIDERS[provider].clientSecret,
-        log
-      );
-
-    case "claude":
-      return await refreshClaudeOAuthToken(credentials.refreshToken, log);
-
-    case "codex":
-      return await refreshCodexToken(credentials.refreshToken, log);
-
-    case "qwen":
-      return await refreshQwenToken(credentials.refreshToken, log);
-
-    case "iflow":
-      return await refreshIflowToken(credentials.refreshToken, log);
-
-    case "github":
-      return await refreshGitHubToken(credentials.refreshToken, log);
-
-    case "kiro":
-      return await refreshKiroToken(
-        credentials.refreshToken,
-        credentials.providerSpecificData,
-        log
-      );
-
-    case "xai":
-      return await refreshXaiToken(credentials.refreshToken, log);
-
-    case "vertex":
-    case "vertex-partner": {
-      const saJson = parseVertexSaJson(credentials.apiKey);
-      if (!saJson) return null;
-      return await refreshVertexToken(saJson, log);
-    }
-
-    default:
-      log?.warn?.("TOKEN_REFRESH", `Unsupported provider for token refresh: ${provider}`);
-      return null;
+  // "gemini" shares Google refresh here (unlike refreshTokenByProvider)
+  if (provider === "gemini") {
+    return refreshGoogleToken(credentials.refreshToken, PROVIDERS.gemini.clientId, PROVIDERS.gemini.clientSecret, log);
   }
+  const handler = REFRESH_HANDLERS[provider];
+  if (!handler) {
+    log?.warn?.("TOKEN_REFRESH", `Unsupported provider for token refresh: ${provider}`);
+    return null;
+  }
+  return handler(credentials, log);
 }
 
 /**
@@ -683,43 +668,9 @@ async function _getAccessTokenInternal(provider, credentials, log) {
  */
 export async function refreshTokenByProvider(provider, credentials, log) {
   if (!credentials.refreshToken) return null;
-
-  switch (provider) {
-    case "gemini-cli":
-    case "antigravity":
-      return refreshGoogleToken(
-        credentials.refreshToken,
-        PROVIDERS[provider].clientId,
-        PROVIDERS[provider].clientSecret,
-        log
-      );
-    case "claude":
-      return refreshClaudeOAuthToken(credentials.refreshToken, log);
-    case "codex":
-      return refreshCodexToken(credentials.refreshToken, log);
-    case "qwen":
-      return refreshQwenToken(credentials.refreshToken, log);
-    case "iflow":
-      return refreshIflowToken(credentials.refreshToken, log);
-    case "github":
-      return refreshGitHubToken(credentials.refreshToken, log);
-    case "kiro":
-      return refreshKiroToken(
-        credentials.refreshToken,
-        credentials.providerSpecificData,
-        log
-      );
-    case "xai":
-      return refreshXaiToken(credentials.refreshToken, log);
-    case "vertex":
-    case "vertex-partner": {
-      const saJson = parseVertexSaJson(credentials.apiKey);
-      if (!saJson) return null;
-      return refreshVertexToken(saJson, log);
-    }
-    default:
-      return refreshAccessToken(provider, credentials.refreshToken, credentials, log);
-  }
+  const handler = REFRESH_HANDLERS[provider];
+  // default: generic refresh (note: "gemini" is NOT special-cased here, by design)
+  return handler ? handler(credentials, log) : refreshAccessToken(provider, credentials.refreshToken, credentials, log);
 }
 
 /**

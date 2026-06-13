@@ -245,10 +245,6 @@ export const PROVIDERS = defineProviders({
     baseUrl: "https://api.kilo.ai/api/openrouter/chat/completions",
     headers: {}
   },
-  opencode: {
-    baseUrl: "http://localhost:4096/v1/chat/completions",
-    headers: {}
-  },
   cline: {
     baseUrl: "https://api.cline.bot/api/v1/chat/completions",
     headers: {

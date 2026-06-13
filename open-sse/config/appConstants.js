@@ -1,4 +1,5 @@
 import { platform, arch } from "os";
+import { PROVIDERS } from "./providers.js";
 
 // === Gemini CLI ===
 export const GEMINI_CLI_VERSION = "0.34.0";
@@ -169,11 +170,11 @@ export const OAUTH_ENDPOINTS = {
     auth: "https://accounts.google.com/o/oauth2/auth"
   },
   openai: {
-    token: "https://auth.openai.com/oauth/token",
+    token: PROVIDERS.codex.tokenUrl,
     auth: "https://auth.openai.com/oauth/authorize"
   },
   anthropic: {
-    token: "https://api.anthropic.com/v1/oauth/token",
+    token: PROVIDERS.claude.tokenUrl,
     auth: "https://api.anthropic.com/v1/oauth/authorize"
   },
   qwen: {
@@ -181,7 +182,7 @@ export const OAUTH_ENDPOINTS = {
     auth: "https://qwen.ai/api/v1/oauth2/device/code"
   },
   iflow: {
-    token: "https://iflow.cn/oauth/token",
+    token: PROVIDERS.iflow.tokenUrl,
     auth: "https://iflow.cn/oauth"
   },
   github: {

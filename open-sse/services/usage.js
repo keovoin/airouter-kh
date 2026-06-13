@@ -63,6 +63,25 @@ const CLAUDE_CONFIG = {
  * @param {Object} connection - Provider connection with accessToken
  * @returns {Object} Usage data with quotas
  */
+// provider → usage handler (ctx carries every arg each handler needs)
+const USAGE_HANDLERS = {
+  github: (c) => getGitHubUsage(c.accessToken, c.providerSpecificData, c.proxyOptions),
+  "gemini-cli": (c) => getGeminiUsage(c.accessToken, c.providerDataWithProjectId, c.proxyOptions),
+  antigravity: (c) => getAntigravityUsage(c.accessToken, c.providerSpecificData, c.proxyOptions),
+  claude: (c) => getClaudeUsage(c.accessToken, c.proxyOptions),
+  codex: (c) => getCodexUsage(c.accessToken, c.proxyOptions),
+  kiro: (c) => getKiroUsage(c.accessToken, c.providerSpecificData, c.proxyOptions),
+  qoder: (c) => getQoderUsage(c.accessToken, c.proxyOptions),
+  qwen: (c) => getQwenUsage(c.accessToken, c.providerSpecificData),
+  iflow: (c) => getIflowUsage(c.accessToken),
+  ollama: (c) => getOllamaUsage(c.accessToken),
+  glm: (c) => getGlmUsage(c.apiKey, c.provider, c.proxyOptions),
+  "glm-cn": (c) => getGlmUsage(c.apiKey, c.provider, c.proxyOptions),
+  minimax: (c) => getMiniMaxUsage(c.apiKey, c.provider, c.proxyOptions),
+  "minimax-cn": (c) => getMiniMaxUsage(c.apiKey, c.provider, c.proxyOptions),
+  "vercel-ai-gateway": (c) => getVercelAiGatewayUsage(c.apiKey, c.proxyOptions),
+};
+
 export async function getUsageForProvider(connection, proxyOptions = null) {
   const { provider, accessToken, apiKey, providerSpecificData, projectId } = connection;
   const providerDataWithProjectId = {
@@ -70,38 +89,9 @@ export async function getUsageForProvider(connection, proxyOptions = null) {
     ...(projectId ? { projectId } : {}),
   };
 
-  switch (provider) {
-    case "github":
-      return await getGitHubUsage(accessToken, providerSpecificData, proxyOptions);
-    case "gemini-cli":
-      return await getGeminiUsage(accessToken, providerDataWithProjectId, proxyOptions);
-    case "antigravity":
-      return await getAntigravityUsage(accessToken, providerSpecificData, proxyOptions);
-    case "claude":
-      return await getClaudeUsage(accessToken, proxyOptions);
-    case "codex":
-      return await getCodexUsage(accessToken, proxyOptions);
-    case "kiro":
-      return await getKiroUsage(accessToken, providerSpecificData, proxyOptions);
-    case "qoder":
-      return await getQoderUsage(accessToken, proxyOptions);
-    case "qwen":
-      return await getQwenUsage(accessToken, providerSpecificData);
-    case "iflow":
-      return await getIflowUsage(accessToken);
-    case "ollama":
-      return await getOllamaUsage(accessToken);
-    case "glm":
-    case "glm-cn":
-      return await getGlmUsage(apiKey, provider, proxyOptions);
-    case "minimax":
-    case "minimax-cn":
-      return await getMiniMaxUsage(apiKey, provider, proxyOptions);
-    case "vercel-ai-gateway":
-      return await getVercelAiGatewayUsage(apiKey, proxyOptions);
-    default:
-      return { message: `Usage API not implemented for ${provider}` };
-  }
+  const handler = USAGE_HANDLERS[provider];
+  if (!handler) return { message: `Usage API not implemented for ${provider}` };
+  return await handler({ provider, accessToken, apiKey, providerSpecificData, providerDataWithProjectId, proxyOptions });
 }
 
 /**

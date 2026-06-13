@@ -1,6 +1,7 @@
 import { PROVIDERS } from "./providers.js";
 // PROVIDER_MODELS now built from providers/registry (transport + models co-located)
 import { PROVIDER_MODELS } from "../providers/index.js";
+import { modelQuotaFamily, modelStrip, modelTargetFormat } from "../providers/models/schema.js";
 
 export { PROVIDER_MODELS };
 
@@ -34,8 +35,7 @@ export function findModelName(aliasOrId, modelId) {
 export function getModelTargetFormat(aliasOrId, modelId) {
   const models = PROVIDER_MODELS[aliasOrId];
   if (!models) return null;
-  const found = models.find(m => m.id === modelId);
-  return found?.targetFormat || null;
+  return modelTargetFormat(models.find(m => m.id === modelId));
 }
 
 export function getModelType(aliasOrId, modelId) {
@@ -57,8 +57,7 @@ export function getModelUpstreamId(aliasOrId, modelId) {
 
 export function getModelQuotaFamily(aliasOrId, modelId) {
   const models = PROVIDER_MODELS[aliasOrId];
-  const found = models?.find(m => m.id === modelId);
-  return found?.quotaFamily || "normal";
+  return modelQuotaFamily(models?.find(m => m.id === modelId));
 }
 
 // OAuth providers that use short aliases (everything else: alias = id)
@@ -96,6 +95,5 @@ export function getModelsByProviderId(providerId) {
 // Get strip list for a model entry (explicit opt-in only)
 // Returns array of content types to strip, e.g. ["image", "audio"]
 export function getModelStrip(alias, modelId) {
-  const entry = PROVIDER_MODELS[alias]?.find(m => m.id === modelId);
-  return entry?.strip || [];
+  return modelStrip(PROVIDER_MODELS[alias]?.find(m => m.id === modelId));
 }

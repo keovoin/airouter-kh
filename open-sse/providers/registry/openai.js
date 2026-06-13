@@ -2,7 +2,8 @@ export default {
   "id": "openai",
   "alias": "openai",
   "transport": {
-    "baseUrl": "https://api.openai.com/v1/chat/completions"
+    "baseUrl": "https://api.openai.com/v1/chat/completions",
+    "forceStream": true
   },
   "models": [
     {

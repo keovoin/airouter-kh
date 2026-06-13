@@ -6,6 +6,7 @@ export default {
   transport: {
     baseUrl: "https://chatgpt.com/backend-api/codex/responses",
     format: "openai-responses",
+    forceStream: true,
     headers: {
       "originator": "codex_cli_rs",
       "User-Agent": "codex_cli_rs/0.136.0"

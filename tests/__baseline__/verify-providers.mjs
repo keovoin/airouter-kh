@@ -8,8 +8,14 @@ import { PROVIDERS } from "../../open-sse/config/providers.js";
 const here = dirname(fileURLToPath(import.meta.url));
 const baseline = JSON.parse(readFileSync(join(here, "providers-baseline.json"), "utf8"));
 
-// Normalize via JSON roundtrip so function/undefined are dropped identically.
+// Fields intentionally added during refactor (verified by dedicated runtime tests, not byte-baseline).
+const ADDED_FIELDS = new Set(["forceStream", "urlSuffix"]);
+
+// Normalize via JSON roundtrip so function/undefined are dropped identically; drop added fields.
 const current = JSON.parse(JSON.stringify(PROVIDERS));
+for (const id of Object.keys(current)) {
+  for (const f of ADDED_FIELDS) delete current[id][f];
+}
 
 const diffs = [];
 const allIds = new Set([...Object.keys(baseline), ...Object.keys(current)]);

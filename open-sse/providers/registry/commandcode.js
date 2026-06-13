@@ -4,6 +4,7 @@ export default {
   "transport": {
     "baseUrl": "https://api.commandcode.ai/alpha/generate",
     "format": "commandcode",
+    "forceStream": true,
     "headers": {
       "x-command-code-version": "0.25.7",
       "x-cli-environment": "cli"

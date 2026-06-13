@@ -25,9 +25,13 @@ const ALIAS_TOKENS = [
   "sambanova","samba","nscale","baseten","publicai","nous-research","nous","glhf","bb","blackbox",
 ];
 
+// Sort idToAlias by key — runtime accesses by key, order is irrelevant (content-based)
+const sortedIdToAlias = Object.fromEntries(
+  Object.keys(PROVIDER_ID_TO_ALIAS).sort().map(k => [k, PROVIDER_ID_TO_ALIAS[k]])
+);
 const resolved = {
   aliasToId: Object.fromEntries(ALIAS_TOKENS.map(a => [a, resolveProviderAlias(a)])),
-  idToAlias: PROVIDER_ID_TO_ALIAS,
+  idToAlias: sortedIdToAlias,
   modelKeys: Object.keys(PROVIDER_MODELS).sort(),
 };
 const current = JSON.parse(JSON.stringify(resolved));

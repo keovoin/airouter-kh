@@ -1,0 +1,64 @@
+export default {
+  "id": "black-forest-labs",
+  "alias": "black-forest-labs",
+  "transport": null,
+  "models": [
+    {
+      "id": "flux-pro-1.1",
+      "name": "FLUX Pro 1.1",
+      "type": "image",
+      "params": [
+        "n",
+        "size"
+      ]
+    },
+    {
+      "id": "flux-pro-1.1-ultra",
+      "name": "FLUX Pro 1.1 Ultra",
+      "type": "image",
+      "params": [
+        "size"
+      ]
+    },
+    {
+      "id": "flux-pro",
+      "name": "FLUX Pro",
+      "type": "image",
+      "params": [
+        "n",
+        "size"
+      ]
+    },
+    {
+      "id": "flux-dev",
+      "name": "FLUX Dev",
+      "type": "image",
+      "params": [
+        "n",
+        "size"
+      ]
+    },
+    {
+      "id": "flux-kontext-pro",
+      "name": "FLUX Kontext Pro (Edit)",
+      "type": "image",
+      "params": [
+        "size"
+      ],
+      "capabilities": [
+        "edit"
+      ]
+    },
+    {
+      "id": "flux-kontext-max",
+      "name": "FLUX Kontext Max (Edit)",
+      "type": "image",
+      "params": [
+        "size"
+      ],
+      "capabilities": [
+        "edit"
+      ]
+    }
+  ]
+};

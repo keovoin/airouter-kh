@@ -4,6 +4,7 @@
  */
 import { register } from "../index.js";
 import { FORMATS } from "../formats.js";
+import { buildChunk } from "../helpers/chunkBuilder.js";
 
 /**
  * Translate OpenAI chunk to Responses API events
@@ -377,17 +378,11 @@ export function openaiResponsesToOpenAIResponse(chunk, state) {
     state.finishReasonSent = true;
     state.finishReason = finishReason;
 
-    const finalChunk = {
-      id: state.chatId || `chatcmpl-${Date.now()}`,
-      object: "chat.completion.chunk",
-      created: state.created || Math.floor(Date.now() / 1000),
-      model: state.model || "unknown",
-      choices: [{
-        index: 0,
-        delta: {},
-        finish_reason: finishReason
-      }]
-    };
+    const finalChunk = buildChunk(
+      { id: state.chatId || `chatcmpl-${Date.now()}`, created: state.created || Math.floor(Date.now() / 1000), model: state.model || "unknown" },
+      {},
+      finishReason
+    );
 
     if (state.usage && typeof state.usage === "object") {
       finalChunk.usage = state.usage;
@@ -414,17 +409,10 @@ export function openaiResponsesToOpenAIResponse(chunk, state) {
     const delta = data.delta || "";
     if (!delta) return null;
 
-    return {
-      id: state.chatId,
-      object: "chat.completion.chunk",
-      created: state.created,
-      model: state.model || "unknown",
-      choices: [{
-        index: 0,
-        delta: { content: delta },
-        finish_reason: null
-      }]
-    };
+    return buildChunk(
+      { id: state.chatId, created: state.created, model: state.model || "unknown" },
+      { content: delta }
+    );
   }
 
   // Text content done (ignore, we handle via delta)
@@ -437,27 +425,17 @@ export function openaiResponsesToOpenAIResponse(chunk, state) {
     const item = data.item;
     state.currentToolCallId = item.call_id || `call_${Date.now()}`;
 
-    return {
-      id: state.chatId,
-      object: "chat.completion.chunk",
-      created: state.created,
-      model: state.model || "unknown",
-      choices: [{
-        index: 0,
-        delta: {
-          tool_calls: [{
-            index: state.toolCallIndex,
-            id: state.currentToolCallId,
-            type: "function",
-            function: {
-              name: item.name || "",
-              arguments: ""
-            }
-          }]
-        },
-        finish_reason: null
-      }]
-    };
+    return buildChunk(
+      { id: state.chatId, created: state.created, model: state.model || "unknown" },
+      {
+        tool_calls: [{
+          index: state.toolCallIndex,
+          id: state.currentToolCallId,
+          type: "function",
+          function: { name: item.name || "", arguments: "" }
+        }]
+      }
+    );
   }
 
   // Function call arguments delta (standard or custom_tool_call variant)
@@ -465,22 +443,10 @@ export function openaiResponsesToOpenAIResponse(chunk, state) {
     const argsDelta = data.delta || "";
     if (!argsDelta) return null;
 
-    return {
-      id: state.chatId,
-      object: "chat.completion.chunk",
-      created: state.created,
-      model: state.model || "unknown",
-      choices: [{
-        index: 0,
-        delta: {
-          tool_calls: [{
-            index: state.toolCallIndex,
-            function: { arguments: argsDelta }
-          }]
-        },
-        finish_reason: null
-      }]
-    };
+    return buildChunk(
+      { id: state.chatId, created: state.created, model: state.model || "unknown" },
+      { tool_calls: [{ index: state.toolCallIndex, function: { arguments: argsDelta } }] }
+    );
   }
 
   // Function call done (standard or custom_tool_call variant)
@@ -520,18 +486,12 @@ export function openaiResponsesToOpenAIResponse(chunk, state) {
       state.finishReasonSent = true;
       state.finishReason = finishReason; // Mark for usage injection in stream.js
       
-      const finalChunk = {
-        id: state.chatId,
-        object: "chat.completion.chunk",
-        created: state.created,
-        model: state.model || "unknown",
-        choices: [{
-          index: 0,
-          delta: {},
-          finish_reason: finishReason
-        }]
-      };
-      
+      const finalChunk = buildChunk(
+        { id: state.chatId, created: state.created, model: state.model || "unknown" },
+        {},
+        finishReason
+      );
+
       // Include usage in final chunk if available
       if (state.usage && typeof state.usage === "object") {
         finalChunk.usage = state.usage;
@@ -553,17 +513,11 @@ export function openaiResponsesToOpenAIResponse(chunk, state) {
       state.finishReasonSent = true;
 
       // Surface the error as an OpenAI-compatible error chunk
-      return {
-        id: state.chatId || `chatcmpl-${Date.now()}`,
-        object: "chat.completion.chunk",
-        created: state.created || Math.floor(Date.now() / 1000),
-        model: state.model || "unknown",
-        choices: [{
-          index: 0,
-          delta: { content: `[Error] ${error.message || JSON.stringify(error)}` },
-          finish_reason: "stop"
-        }]
-      };
+      return buildChunk(
+        { id: state.chatId || `chatcmpl-${Date.now()}`, created: state.created || Math.floor(Date.now() / 1000), model: state.model || "unknown" },
+        { content: `[Error] ${error.message || JSON.stringify(error)}` },
+        "stop"
+      );
     }
     return null;
   }
@@ -572,13 +526,10 @@ export function openaiResponsesToOpenAIResponse(chunk, state) {
   if (eventType === "response.reasoning_summary_text.delta") {
     const delta = data.delta || "";
     if (!delta) return null;
-    return {
-      id: state.chatId,
-      object: "chat.completion.chunk",
-      created: state.created,
-      model: state.model || "unknown",
-      choices: [{ index: 0, delta: { reasoning_content: delta }, finish_reason: null }]
-    };
+    return buildChunk(
+      { id: state.chatId, created: state.created, model: state.model || "unknown" },
+      { reasoning_content: delta }
+    );
   }
 
   // Ignore other events

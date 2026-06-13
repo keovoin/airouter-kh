@@ -17,6 +17,7 @@
  */
 import { register } from "../index.js";
 import { FORMATS } from "../formats.js";
+import { buildChunk } from "../helpers/chunkBuilder.js";
 
 function ensureState(state, model) {
   if (!state.responseId) {
@@ -34,13 +35,11 @@ function ensureState(state, model) {
 }
 
 function makeChunk(state, delta, finishReason = null) {
-  return {
-    id: state.responseId,
-    object: "chat.completion.chunk",
-    created: state.created,
-    model: state.model,
-    choices: [{ index: 0, delta, finish_reason: finishReason }],
-  };
+  return buildChunk(
+    { id: state.responseId, created: state.created, model: state.model },
+    delta,
+    finishReason
+  );
 }
 
 function mapFinishReason(reason) {

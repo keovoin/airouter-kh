@@ -1,5 +1,6 @@
 import { register } from "../index.js";
 import { FORMATS } from "../formats.js";
+import { buildChunk } from "../helpers/chunkBuilder.js";
 
 /**
  * Convert Ollama NDJSON response to OpenAI SSE format
@@ -36,18 +37,9 @@ export function ollamaToOpenAI(chunk, state) {
       finishReason = "tool_calls";
     }
 
-    return {
-      id: id,
-      object: "chat.completion.chunk",
-      created: created,
-      model: model,
-      choices: [{
-        index: 0,
-        delta: {},
-        finish_reason: finishReason
-      }],
-      usage: usage
-    };
+    const doneChunk = buildChunk({ id, created, model }, {}, finishReason);
+    doneChunk.usage = usage;
+    return doneChunk;
   }
 
   // Content chunk
@@ -79,17 +71,7 @@ export function ollamaToOpenAI(chunk, state) {
     delta.tool_calls = convertToolCalls(toolCalls);
   }
 
-  return {
-    id: id,
-    object: "chat.completion.chunk",
-    created: created,
-    model: model,
-    choices: [{
-      index: 0,
-      delta: delta,
-      finish_reason: null
-    }]
-  };
+  return buildChunk({ id, created, model }, delta, null);
 }
 
 /**

@@ -95,3 +95,24 @@ describe("GOLDEN response stream: Ollama → OpenAI", () => {
     expect(runStream(FORMATS.OLLAMA, FORMATS.OPENAI, events)).toMatchSnapshot();
   });
 });
+
+describe("GOLDEN response stream: OpenAI-Responses (codex) → OpenAI", () => {
+  it("text + reasoning + tool_call + completed usage", () => {
+    const events = [
+      { type: "response.output_text.delta", delta: "Hello" },
+      { type: "response.reasoning_summary_text.delta", delta: "thinking" },
+      { type: "response.output_item.added", item: { type: "function_call", call_id: "call_1", name: "get_weather" } },
+      { type: "response.function_call_arguments.delta", delta: '{"city":"NYC"}' },
+      { type: "response.output_item.done", item: { type: "function_call" } },
+      { type: "response.completed", response: { usage: { input_tokens: 10, output_tokens: 5, input_tokens_details: { cached_tokens: 3 } } } },
+    ];
+    expect(runStream(FORMATS.OPENAI_RESPONSES, FORMATS.OPENAI, events)).toMatchSnapshot();
+  });
+
+  it("error event → error chunk (fallback id/created)", () => {
+    const events = [
+      { type: "error", error: { message: "model_not_found" } },
+    ];
+    expect(runStream(FORMATS.OPENAI_RESPONSES, FORMATS.OPENAI, events)).toMatchSnapshot();
+  });
+});

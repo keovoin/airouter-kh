@@ -1,5 +1,11 @@
 import { register } from "../index.js";
 import { FORMATS } from "../formats.js";
+import { buildChunk } from "../helpers/chunkBuilder.js";
+
+// Build chunk meta for current gemini state
+function chunkMeta(state) {
+  return { id: `chatcmpl-${state.messageId}`, created: Math.floor(Date.now() / 1000), model: state.model };
+}
 
 // Convert Gemini response chunk to OpenAI format
 export function geminiToOpenAIResponse(chunk, state) {
@@ -18,17 +24,7 @@ export function geminiToOpenAIResponse(chunk, state) {
     state.messageId = response.responseId || `msg_${Date.now()}`;
     state.model = response.modelVersion || "gemini";
     state.functionIndex = 0;
-    results.push({
-      id: `chatcmpl-${state.messageId}`,
-      object: "chat.completion.chunk",
-      created: Math.floor(Date.now() / 1000),
-      model: state.model,
-      choices: [{
-        index: 0,
-        delta: { role: "assistant" },
-        finish_reason: null
-      }]
-    });
+    results.push(buildChunk(chunkMeta(state), { role: "assistant" }, null));
   }
 
   // Process parts
@@ -43,19 +39,11 @@ export function geminiToOpenAIResponse(chunk, state) {
         const hasFunctionCall = !!part.functionCall;
         
         if (hasTextContent) {
-          results.push({
-            id: `chatcmpl-${state.messageId}`,
-            object: "chat.completion.chunk",
-            created: Math.floor(Date.now() / 1000),
-            model: state.model,
-            choices: [{
-              index: 0,
-              delta: isThought 
-                ? { reasoning_content: part.text }
-                : { content: part.text },
-              finish_reason: null
-            }]
-          });
+          results.push(buildChunk(
+            chunkMeta(state),
+            isThought ? { reasoning_content: part.text } : { content: part.text },
+            null
+          ));
         }
         
         if (hasFunctionCall) {
@@ -77,17 +65,7 @@ export function geminiToOpenAIResponse(chunk, state) {
           
           state.toolCalls.set(toolCallIndex, toolCall);
           
-          results.push({
-            id: `chatcmpl-${state.messageId}`,
-            object: "chat.completion.chunk",
-            created: Math.floor(Date.now() / 1000),
-            model: state.model,
-            choices: [{
-              index: 0,
-              delta: { tool_calls: [toolCall] },
-              finish_reason: null
-            }]
-          });
+          results.push(buildChunk(chunkMeta(state), { tool_calls: [toolCall] }, null));
         }
         continue;
       }
@@ -97,19 +75,11 @@ export function geminiToOpenAIResponse(chunk, state) {
       // can also stream thought parts without a signature; those must not be
       // surfaced as normal assistant content in OpenAI-compatible clients.
       if (part.text !== undefined && part.text !== "") {
-        results.push({
-          id: `chatcmpl-${state.messageId}`,
-          object: "chat.completion.chunk",
-          created: Math.floor(Date.now() / 1000),
-          model: state.model,
-          choices: [{
-            index: 0,
-            delta: isThought
-              ? { reasoning_content: part.text }
-              : { content: part.text },
-            finish_reason: null
-          }]
-        });
+        results.push(buildChunk(
+          chunkMeta(state),
+          isThought ? { reasoning_content: part.text } : { content: part.text },
+          null
+        ));
       }
 
       // Function call
@@ -132,39 +102,23 @@ export function geminiToOpenAIResponse(chunk, state) {
         
         state.toolCalls.set(toolCallIndex, toolCall);
         
-        results.push({
-          id: `chatcmpl-${state.messageId}`,
-          object: "chat.completion.chunk",
-          created: Math.floor(Date.now() / 1000),
-          model: state.model,
-          choices: [{
-            index: 0,
-            delta: { tool_calls: [toolCall] },
-            finish_reason: null
-          }]
-        });
+        results.push(buildChunk(chunkMeta(state), { tool_calls: [toolCall] }, null));
       }
 
       // Inline data (images)
       const inlineData = part.inlineData || part.inline_data;
       if (inlineData?.data) {
         const mimeType = inlineData.mimeType || inlineData.mime_type || "image/png";
-        results.push({
-          id: `chatcmpl-${state.messageId}`,
-          object: "chat.completion.chunk",
-          created: Math.floor(Date.now() / 1000),
-          model: state.model,
-          choices: [{
-            index: 0,
-            delta: {
-              images: [{
-                type: "image_url",
-                image_url: { url: `data:${mimeType};base64,${inlineData.data}` }
-              }]
-            },
-            finish_reason: null
-          }]
-        });
+        results.push(buildChunk(
+          chunkMeta(state),
+          {
+            images: [{
+              type: "image_url",
+              image_url: { url: `data:${mimeType};base64,${inlineData.data}` }
+            }]
+          },
+          null
+        ));
       }
     }
   }
@@ -218,17 +172,7 @@ export function geminiToOpenAIResponse(chunk, state) {
       finishReason = "tool_calls";
     }
     
-    const finalChunk = {
-      id: `chatcmpl-${state.messageId}`,
-      object: "chat.completion.chunk",
-      created: Math.floor(Date.now() / 1000),
-      model: state.model,
-      choices: [{
-        index: 0,
-        delta: {},
-        finish_reason: finishReason
-      }]
-    };
+    const finalChunk = buildChunk(chunkMeta(state), {}, finishReason);
     
     // Include usage in final chunk for downstream translators
     if (state.usage) {

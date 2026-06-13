@@ -1,19 +1,14 @@
 import { register } from "../index.js";
 import { FORMATS } from "../formats.js";
+import { buildChunk } from "../helpers/chunkBuilder.js";
 
 // Create OpenAI chunk helper
 function createChunk(state, delta, finishReason = null) {
-  return {
-    id: `chatcmpl-${state.messageId}`,
-    object: "chat.completion.chunk",
-    created: Math.floor(Date.now() / 1000),
-    model: state.model,
-    choices: [{
-      index: 0,
-      delta,
-      finish_reason: finishReason
-    }]
-  };
+  return buildChunk(
+    { id: `chatcmpl-${state.messageId}`, created: Math.floor(Date.now() / 1000), model: state.model },
+    delta,
+    finishReason
+  );
 }
 
 // Convert Claude stream chunk to OpenAI format
@@ -129,13 +124,7 @@ export function claudeToOpenAIResponse(chunk, state) {
 
       if (chunk.delta?.stop_reason) {
         state.finishReason = convertStopReason(chunk.delta.stop_reason);
-        const finalChunk = {
-          id: `chatcmpl-${state.messageId}`,
-          object: "chat.completion.chunk",
-          created: Math.floor(Date.now() / 1000),
-          model: state.model,
-          choices: [{ index: 0, delta: {}, finish_reason: state.finishReason }]
-        };
+        const finalChunk = createChunk(state, {}, state.finishReason);
 
         if (state.usage) {
           finalChunk.usage = {
@@ -169,18 +158,7 @@ export function claudeToOpenAIResponse(chunk, state) {
             total_tokens: (state.usage.input_tokens || 0) + (state.usage.output_tokens || 0)
           }
         } : {};
-        results.push({
-          id: `chatcmpl-${state.messageId}`,
-          object: "chat.completion.chunk",
-          created: Math.floor(Date.now() / 1000),
-          model: state.model,
-          choices: [{
-            index: 0,
-            delta: {},
-            finish_reason: finishReason
-          }],
-          ...usageObj
-        });
+        results.push({ ...createChunk(state, {}, finishReason), ...usageObj });
         state.finishReasonSent = true;
       }
       break;

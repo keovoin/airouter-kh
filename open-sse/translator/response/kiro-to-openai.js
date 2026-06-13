@@ -4,6 +4,12 @@
  */
 import { register } from "../index.js";
 import { FORMATS } from "../formats.js";
+import { buildChunk } from "../helpers/chunkBuilder.js";
+
+// Build chunk meta for current kiro state
+function chunkMeta(state) {
+  return { id: state.responseId, created: state.created, model: state.model || "kiro" };
+}
 
 /**
  * Parse Kiro SSE event and convert to OpenAI format
@@ -66,20 +72,10 @@ export function convertKiroToOpenAI(chunk, state) {
     const content = data.assistantResponseEvent?.content || data.content || "";
     if (!content) return null;
 
-    const openaiChunk = {
-      id: state.responseId,
-      object: "chat.completion.chunk",
-      created: state.created,
-      model: state.model || "kiro",
-      choices: [{
-        index: 0,
-        delta: {
-          ...(state.chunkIndex === 0 ? { role: "assistant" } : {}),
-          content: content
-        },
-        finish_reason: null
-      }]
-    };
+    const openaiChunk = buildChunk(chunkMeta(state), {
+      ...(state.chunkIndex === 0 ? { role: "assistant" } : {}),
+      content: content
+    }, null);
 
     state.chunkIndex++;
     return openaiChunk;
@@ -97,20 +93,10 @@ export function convertKiroToOpenAI(chunk, state) {
       : (reasoning.text || reasoning.content || data.content || "");
     if (!content) return null;
 
-    const openaiChunk = {
-      id: state.responseId,
-      object: "chat.completion.chunk",
-      created: state.created,
-      model: state.model || "kiro",
-      choices: [{
-        index: 0,
-        delta: {
-          ...(state.chunkIndex === 0 ? { role: "assistant" } : {}),
-          reasoning_content: content
-        },
-        finish_reason: null
-      }]
-    };
+    const openaiChunk = buildChunk(chunkMeta(state), {
+      ...(state.chunkIndex === 0 ? { role: "assistant" } : {}),
+      reasoning_content: content
+    }, null);
 
     state.chunkIndex++;
     return openaiChunk;
@@ -123,28 +109,18 @@ export function convertKiroToOpenAI(chunk, state) {
     const toolName = toolUse.name || "";
     const toolInput = toolUse.input || {};
 
-    const openaiChunk = {
-      id: state.responseId,
-      object: "chat.completion.chunk",
-      created: state.created,
-      model: state.model || "kiro",
-      choices: [{
+    const openaiChunk = buildChunk(chunkMeta(state), {
+      ...(state.chunkIndex === 0 ? { role: "assistant" } : {}),
+      tool_calls: [{
         index: 0,
-        delta: {
-          ...(state.chunkIndex === 0 ? { role: "assistant" } : {}),
-          tool_calls: [{
-            index: 0,
-            id: toolCallId,
-            type: "function",
-            function: {
-              name: toolName,
-              arguments: JSON.stringify(toolInput)
-            }
-          }]
-        },
-        finish_reason: null
+        id: toolCallId,
+        type: "function",
+        function: {
+          name: toolName,
+          arguments: JSON.stringify(toolInput)
+        }
       }]
-    };
+    }, null);
 
     state.chunkIndex++;
     return openaiChunk;
@@ -154,17 +130,7 @@ export function convertKiroToOpenAI(chunk, state) {
   if (eventType === "messageStopEvent" || eventType === "done" || data.messageStopEvent) {
     state.finishReason = "stop"; // Mark for usage injection in stream.js
     
-    const openaiChunk = {
-      id: state.responseId,
-      object: "chat.completion.chunk",
-      created: state.created,
-      model: state.model || "kiro",
-      choices: [{
-        index: 0,
-        delta: {},
-        finish_reason: "stop"
-      }]
-    };
+    const openaiChunk = buildChunk(chunkMeta(state), {}, "stop");
 
     // Include usage in final chunk if available
     if (state.usage && typeof state.usage === "object") {

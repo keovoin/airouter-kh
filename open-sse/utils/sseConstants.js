@@ -13,3 +13,11 @@ export const SSE_HEADERS_NO_BUFFER = {
   "Cache-Control": "no-cache",
   "X-Accel-Buffering": "no"
 };
+
+// Variant for client-facing SSE responses (adds permissive CORS)
+export const SSE_HEADERS_CORS = {
+  "Content-Type": "text/event-stream",
+  "Cache-Control": "no-cache",
+  "Connection": "keep-alive",
+  "Access-Control-Allow-Origin": "*"
+};

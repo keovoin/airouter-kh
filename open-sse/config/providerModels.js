@@ -896,7 +896,8 @@ export function getModelQuotaFamily(aliasOrId, modelId) {
 }
 
 // OAuth providers that use short aliases (everything else: alias = id)
-const OAUTH_ALIASES = {
+// Single source of canonical id→alias; services/model.js derives the reverse.
+export const OAUTH_ALIASES = {
   claude: "cc",
   codex: "cx",
   "gemini-cli": "gc",

@@ -1,20 +1,16 @@
-// Provider alias to ID mapping
+import { OAUTH_ALIASES } from "../config/providerModels.js";
+
+// Reverse OAuth aliases (id→alias) into alias→id; "mmf" intentionally excluded to preserve behavior
+const OAUTH_ALIAS_TO_ID = Object.fromEntries(
+  Object.entries(OAUTH_ALIASES)
+    .filter(([id]) => id !== "mimo-free")
+    .map(([id, alias]) => [alias, id])
+);
+
+// Provider alias to ID mapping (OAuth short aliases derived above)
 const ALIAS_TO_PROVIDER_ID = {
-  cc: "claude",
-  cx: "codex",
-  gc: "gemini-cli",
-  qw: "qwen",
-  if: "iflow",
-  ag: "antigravity",
-  gh: "github",
-  kr: "kiro",
-  cu: "cursor",
-  kc: "kilocode",
-  kmc: "kimi-coding",
-  cl: "cline",
-  oc: "opencode",
+  ...OAUTH_ALIAS_TO_ID,
   ocg: "opencode-go",
-  qd: "qoder",
   qoder: "qoder",
   // TTS providers
   el: "elevenlabs",

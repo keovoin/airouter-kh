@@ -18,6 +18,7 @@
 import { register } from "../index.js";
 import { FORMATS } from "../formats.js";
 import { buildChunk } from "../helpers/chunkBuilder.js";
+import { buildUsage } from "../helpers/usageHelper.js";
 import { reasoningDelta } from "../helpers/reasoningHelper.js";
 import { toOpenAIFinish } from "../concerns/finishReasonMap.js";
 
@@ -157,11 +158,12 @@ export function convertCommandCodeToOpenAI(chunk, state) {
       const finalChunk = makeChunk(state, {}, finishReason);
       const totalUsage = event.totalUsage || state.usage;
       if (totalUsage) {
-        finalChunk.usage = {
-          prompt_tokens: totalUsage.inputTokens ?? 0,
-          completion_tokens: totalUsage.outputTokens ?? 0,
-          total_tokens: totalUsage.totalTokens ?? ((totalUsage.inputTokens ?? 0) + (totalUsage.outputTokens ?? 0)),
-        };
+        const inTok = totalUsage.inputTokens ?? 0, outTok = totalUsage.outputTokens ?? 0;
+        finalChunk.usage = buildUsage({
+          promptTokens: inTok,
+          completionTokens: outTok,
+          totalTokens: totalUsage.totalTokens ?? (inTok + outTok),
+        });
       }
       out.push(finalChunk);
       break;

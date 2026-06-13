@@ -5,6 +5,7 @@
 import { register } from "../index.js";
 import { FORMATS } from "../formats.js";
 import { buildChunk } from "../helpers/chunkBuilder.js";
+import { buildUsage } from "../helpers/usageHelper.js";
 import { fallbackToolCallId } from "../helpers/toolCallHelper.js";
 import { reasoningDelta } from "../helpers/reasoningHelper.js";
 
@@ -143,11 +144,8 @@ export function convertKiroToOpenAI(chunk, state) {
   if (eventType === "usageEvent" || data.usageEvent) {
     const usage = data.usageEvent || data;
     if (usage && typeof usage === 'object') {
-      state.usage = {
-        prompt_tokens: usage.inputTokens || 0,
-        completion_tokens: usage.outputTokens || 0,
-        total_tokens: (usage.inputTokens || 0) + (usage.outputTokens || 0)
-      };
+      const inTok = usage.inputTokens || 0, outTok = usage.outputTokens || 0;
+      state.usage = buildUsage({ promptTokens: inTok, completionTokens: outTok, totalTokens: inTok + outTok });
     }
     return null;
   }

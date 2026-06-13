@@ -1,6 +1,7 @@
 import { register } from "../index.js";
 import { FORMATS } from "../formats.js";
 import { buildChunk } from "../helpers/chunkBuilder.js";
+import { buildUsage } from "../helpers/usageHelper.js";
 import { fallbackToolCallId } from "../helpers/toolCallHelper.js";
 
 /**
@@ -79,11 +80,8 @@ export function ollamaToOpenAI(chunk, state) {
  * Extract usage stats from Ollama response
  */
 function extractUsage(ollamaChunk) {
-  return {
-    prompt_tokens: ollamaChunk.prompt_eval_count || 0,
-    completion_tokens: ollamaChunk.eval_count || 0,
-    total_tokens: (ollamaChunk.prompt_eval_count || 0) + (ollamaChunk.eval_count || 0)
-  };
+  const inTok = ollamaChunk.prompt_eval_count || 0, outTok = ollamaChunk.eval_count || 0;
+  return buildUsage({ promptTokens: inTok, completionTokens: outTok, totalTokens: inTok + outTok });
 }
 
 /**

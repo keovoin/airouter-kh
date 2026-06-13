@@ -1,0 +1,37 @@
+// Verify refactored PROVIDERS is byte-for-byte equal to baseline JSON.
+// Exit 1 + print precise per-provider/per-field diff on mismatch.
+import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+import { dirname, join } from "node:path";
+import { PROVIDERS } from "../../open-sse/config/providers.js";
+
+const here = dirname(fileURLToPath(import.meta.url));
+const baseline = JSON.parse(readFileSync(join(here, "providers-baseline.json"), "utf8"));
+
+// Normalize via JSON roundtrip so function/undefined are dropped identically.
+const current = JSON.parse(JSON.stringify(PROVIDERS));
+
+const diffs = [];
+const allIds = new Set([...Object.keys(baseline), ...Object.keys(current)]);
+for (const id of allIds) {
+  const a = baseline[id];
+  const b = current[id];
+  if (a === undefined) { diffs.push(`+ provider added: ${id}`); continue; }
+  if (b === undefined) { diffs.push(`- provider removed: ${id}`); continue; }
+  const sa = JSON.stringify(a);
+  const sb = JSON.stringify(b);
+  if (sa === sb) continue;
+  const keys = new Set([...Object.keys(a), ...Object.keys(b)]);
+  for (const k of keys) {
+    const va = JSON.stringify(a[k]);
+    const vb = JSON.stringify(b[k]);
+    if (va !== vb) diffs.push(`~ ${id}.${k}: ${va} -> ${vb}`);
+  }
+}
+
+if (diffs.length) {
+  console.error(`❌ PROVIDERS mismatch (${diffs.length} field diffs):`);
+  for (const d of diffs) console.error("  " + d);
+  process.exit(1);
+}
+console.log(`✅ PROVIDERS byte-for-byte equal (${Object.keys(current).length} providers).`);

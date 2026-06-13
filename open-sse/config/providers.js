@@ -47,7 +47,17 @@ const CLAUDE_CLI_SPOOF_HEADERS = {
 // Shared baseUrls
 const KIMI_CODING_BASE_URL = "https://api.kimi.com/coding/v1/messages";
 
-export const PROVIDERS = {
+// Apply shared transport defaults without changing output shape
+function defineProviders(raw) {
+  const out = {};
+  for (const [id, cfg] of Object.entries(raw)) {
+    out[id] = { ...cfg };
+    if (!out[id].format) out[id].format = "openai";
+  }
+  return out;
+}
+
+export const PROVIDERS = defineProviders({
   claude: {
     baseUrl: "https://api.anthropic.com/v1/messages",
     format: "claude",
@@ -79,14 +89,12 @@ export const PROVIDERS = {
   },
   qwen: {
     baseUrl: "https://portal.qwen.ai/v1/chat/completions",
-    format: "openai",
     clientId: "f0304373b74a44d2b584a3fb70ca9e56",
     tokenUrl: "https://chat.qwen.ai/api/v1/oauth2/token",
     authUrl: "https://chat.qwen.ai/api/v1/oauth2/device/code"
   },
   iflow: {
     baseUrl: "https://apis.iflow.cn/v1/chat/completions",
-    format: "openai",
     headers: { "User-Agent": "iFlow-Cli" },
     clientId: "10009311001",
     clientSecret: "4Z3YjXycVsQvyGF1etiNlIBB4RsqSDtW",
@@ -99,7 +107,6 @@ export const PROVIDERS = {
     // rewriting). baseUrl is kept for compatibility with introspection
     // helpers but the executor ignores it.
     baseUrl: "https://api3.qoder.sh/algo/api/v2/service/pro/sse/agent_chat_generation",
-    format: "openai",
     headers: {},
     // Reasoning models think long before first byte; raise both timeouts.
     timeoutMs: 120000,
@@ -117,7 +124,6 @@ export const PROVIDERS = {
   },
   openrouter: {
     baseUrl: "https://openrouter.ai/api/v1/chat/completions",
-    format: "openai",
     headers: {
       "HTTP-Referer": "https://endpoint-proxy.local",
       "X-Title": "Endpoint Proxy"
@@ -125,11 +131,9 @@ export const PROVIDERS = {
   },
   openai: {
     baseUrl: "https://api.openai.com/v1/chat/completions",
-    format: "openai"
   },
   "vercel-ai-gateway": {
     baseUrl: "https://ai-gateway.vercel.sh/v1/chat/completions",
-    format: "openai",
     retry: { 429: 2 }
   },
   glm: {
@@ -139,7 +143,6 @@ export const PROVIDERS = {
   },
   "glm-cn": {
     baseUrl: "https://open.bigmodel.cn/api/coding/paas/v4/chat/completions",
-    format: "openai",
     headers: {}
   },
   kimi: {
@@ -159,28 +162,23 @@ export const PROVIDERS = {
   },
   alicode: {
     baseUrl: "https://coding.dashscope.aliyuncs.com/v1/chat/completions",
-    format: "openai",
     headers: {}
   },
   "alicode-intl": {
     baseUrl: "https://coding-intl.dashscope.aliyuncs.com/v1/chat/completions",
-    format: "openai",
     headers: {}
   },
   "volcengine-ark": {
     baseUrl: "https://ark.cn-beijing.volces.com/api/coding/v3/chat/completions",
-    format: "openai",
     headers: {}
   },
   byteplus: {
     baseUrl: "https://ark.ap-southeast.bytepluses.com/api/coding/v3/chat/completions",
-    format: "openai",
     headers: {}
   },
   github: {
     baseUrl: "https://api.githubcopilot.com/chat/completions",
     responsesUrl: "https://api.githubcopilot.com/responses",
-    format: "openai",
     headers: {
       "copilot-integration-id": "vscode-chat",
       "editor-version": "vscode/1.110.0",
@@ -245,17 +243,14 @@ export const PROVIDERS = {
   },
   kilocode: {
     baseUrl: "https://api.kilo.ai/api/openrouter/chat/completions",
-    format: "openai",
     headers: {}
   },
   opencode: {
     baseUrl: "http://localhost:4096/v1/chat/completions",
-    format: "openai",
     headers: {}
   },
   cline: {
     baseUrl: "https://api.cline.bot/api/v1/chat/completions",
-    format: "openai",
     headers: {
       "HTTP-Referer": "https://cline.bot",
       "X-Title": "Cline"
@@ -265,7 +260,6 @@ export const PROVIDERS = {
   },
   nvidia: {
     baseUrl: "https://integrate.api.nvidia.com/v1/chat/completions",
-    format: "openai"
   },
   anthropic: {
     baseUrl: "https://api.anthropic.com/v1/messages",
@@ -274,7 +268,6 @@ export const PROVIDERS = {
   },
   deepseek: {
     baseUrl: "https://api.deepseek.com/chat/completions",
-    format: "openai"
   },
   commandcode: {
     baseUrl: "https://api.commandcode.ai/alpha/generate",
@@ -286,67 +279,52 @@ export const PROVIDERS = {
   },
   groq: {
     baseUrl: "https://api.groq.com/openai/v1/chat/completions",
-    format: "openai"
   },
   xai: {
     baseUrl: "https://api.x.ai/v1/chat/completions",
     responsesUrl: "https://api.x.ai/v1/responses",
-    format: "openai",
     clientId: "b1a00492-073a-47ea-816f-4c329264a828",
     tokenUrl: "https://auth.x.ai/oauth2/token",
     refreshUrl: "https://auth.x.ai/oauth2/token"
   },
   mistral: {
     baseUrl: "https://api.mistral.ai/v1/chat/completions",
-    format: "openai"
   },
   perplexity: {
     baseUrl: "https://api.perplexity.ai/chat/completions",
-    format: "openai"
   },
   together: {
     baseUrl: "https://api.together.xyz/v1/chat/completions",
-    format: "openai"
   },
   fireworks: {
     baseUrl: "https://api.fireworks.ai/inference/v1/chat/completions",
-    format: "openai"
   },
   cerebras: {
     baseUrl: "https://api.cerebras.ai/v1/chat/completions",
-    format: "openai"
   },
   cohere: {
     baseUrl: "https://api.cohere.ai/v1/chat/completions",
-    format: "openai"
   },
   nebius: {
     baseUrl: "https://api.studio.nebius.ai/v1/chat/completions",
-    format: "openai"
   },
   siliconflow: {
     baseUrl: "https://api.siliconflow.com/v1/chat/completions",
-    format: "openai"
   },
   hyperbolic: {
     baseUrl: "https://api.hyperbolic.xyz/v1/chat/completions",
-    format: "openai"
   },
   deepgram: {
     baseUrl: "https://api.deepgram.com/v1/listen",
-    format: "openai"
   },
   assemblyai: {
     baseUrl: "https://api.assemblyai.com/v1/audio/transcriptions",
-    format: "openai"
   },
   nanobanana: {
     baseUrl: "https://api.nanobananaapi.ai/v1/chat/completions",
-    format: "openai"
   },
   chutes: {
     baseUrl: "https://llm.chutes.ai/v1/chat/completions",
-    format: "openai"
   },
   ollama: {
     baseUrl: "https://ollama.com/api/chat",
@@ -366,27 +344,22 @@ export const PROVIDERS = {
   // Uses OpenAI-compatible global endpoint (or rawPredict for Anthropic)
   "vertex-partner": {
     baseUrl: "https://aiplatform.googleapis.com",
-    format: "openai"
   },
   // GitLab Duo - OpenAI-compatible chat endpoint
   gitlab: {
     baseUrl: "https://gitlab.com/api/v4/chat/completions",
-    format: "openai",
   },
   // CodeBuddy (Tencent) - uses device_code polling auth, no chat completions baseUrl needed
   codebuddy: {
     baseUrl: "https://copilot.tencent.com/v1/chat/completions",
-    format: "openai",
   },
   opencode: {
     baseUrl: "https://opencode.ai",
-    format: "openai",
     headers: { "x-opencode-client": "desktop" },
     noAuth: true
   },
   "opencode-go": {
     baseUrl: "https://opencode.ai/zen/go/v1/chat/completions",
-    format: "openai",
     headers: {}
   },
   "grok-web": {
@@ -401,23 +374,19 @@ export const PROVIDERS = {
   },
   azure: {
     baseUrl: "",
-    format: "openai",
     headers: {}
   },
   // Cloudflare Workers AI - {accountId} resolved from credentials.providerSpecificData.accountId
   "cloudflare-ai": {
     baseUrl: "https://api.cloudflare.com/client/v4/accounts/{accountId}/ai/v1/chat/completions",
-    format: "openai"
   },
   "xiaomi-mimo": {
     baseUrl: "https://api.xiaomimimo.com/v1/chat/completions",
-    format: "openai"
   },
-  "mimo-free": { baseUrl: "https://api.xiaomimimo.com/api/free-ai/openai/chat", format: "openai", noAuth: true },
-  mmf: { baseUrl: "https://api.xiaomimimo.com/api/free-ai/openai/chat", format: "openai", noAuth: true },
+  "mimo-free": { baseUrl: "https://api.xiaomimimo.com/api/free-ai/openai/chat", noAuth: true },
+  mmf: { baseUrl: "https://api.xiaomimimo.com/api/free-ai/openai/chat", noAuth: true },
   "xiaomi-tokenplan": {
     baseUrl: "https://token-plan-sgp.xiaomimimo.com/v1/chat/completions",
-    format: "openai"
   },
   // Region map for Xiaomi MiMo Token Plan (keys are cluster-specific)
   // Used by resolveXiaomiTokenplanBaseUrl below
@@ -425,37 +394,37 @@ export const PROVIDERS = {
   // Claude-format with Claude CLI header spoofing (auth: x-api-key)
   agentrouter: { baseUrl: "https://agentrouter.org/v1/messages", format: "claude", headers: { ...CLAUDE_CLI_SPOOF_HEADERS } },
   // OpenAI-compatible (auth: bearer)
-  aimlapi: { baseUrl: "https://api.aimlapi.com/v1/chat/completions", format: "openai" },
-  novita: { baseUrl: "https://api.novita.ai/v3/openai/chat/completions", format: "openai" },
-  modal: { baseUrl: "https://api.modal.com/v1/chat/completions", format: "openai" },
-  reka: { baseUrl: "https://api.reka.ai/v1/chat/completions", format: "openai" },
-  nlpcloud: { baseUrl: "https://api.nlpcloud.io/v1/gpu/chatbot", format: "openai" },
-  bazaarlink: { baseUrl: "https://bazaarlink.ai/api/v1/chat/completions", format: "openai" },
-  completions: { baseUrl: "https://completions.me/api/v1/chat/completions", format: "openai" },
+  aimlapi: { baseUrl: "https://api.aimlapi.com/v1/chat/completions" },
+  novita: { baseUrl: "https://api.novita.ai/v3/openai/chat/completions" },
+  modal: { baseUrl: "https://api.modal.com/v1/chat/completions" },
+  reka: { baseUrl: "https://api.reka.ai/v1/chat/completions" },
+  nlpcloud: { baseUrl: "https://api.nlpcloud.io/v1/gpu/chatbot" },
+  bazaarlink: { baseUrl: "https://bazaarlink.ai/api/v1/chat/completions" },
+  completions: { baseUrl: "https://completions.me/api/v1/chat/completions" },
   // enally uses X-API-Key header (not bearer); handled in validate route
-  enally: { baseUrl: "https://ai.enally.in/v1/chat/completions", format: "openai", authHeader: "x-api-key" },
-  freetheai: { baseUrl: "https://api.freetheai.xyz/v1/chat/completions", format: "openai" },
-  llm7: { baseUrl: "https://api.llm7.io/v1/chat/completions", format: "openai" },
-  lepton: { baseUrl: "https://api.lepton.ai/api/v1/chat/completions", format: "openai" },
-  kluster: { baseUrl: "https://api.kluster.ai/v1/chat/completions", format: "openai" },
-  ai21: { baseUrl: "https://api.ai21.com/studio/v1/chat/completions", format: "openai" },
-  "inference-net": { baseUrl: "https://api.inference.net/v1/chat/completions", format: "openai" },
-  predibase: { baseUrl: "https://serving.app.predibase.com/v1/chat/completions", format: "openai" },
-  bytez: { baseUrl: "https://api.bytez.com/models/v2", format: "openai" },
-  morph: { baseUrl: "https://api.morphllm.com/v1/chat/completions", format: "openai" },
-  longcat: { baseUrl: "https://api.longcat.chat/openai/v1/chat/completions", format: "openai" },
-  puter: { baseUrl: "https://api.puter.com/puterai/openai/v1/chat/completions", format: "openai" },
-  uncloseai: { baseUrl: "https://hermes.ai.unturf.com/v1/chat/completions", format: "openai", noAuth: true },
-  scaleway: { baseUrl: "https://api.scaleway.ai/v1/chat/completions", format: "openai" },
-  deepinfra: { baseUrl: "https://api.deepinfra.com/v1/openai/chat/completions", format: "openai" },
-  sambanova: { baseUrl: "https://api.sambanova.ai/v1/chat/completions", format: "openai" },
-  nscale: { baseUrl: "https://inference.api.nscale.com/v1/chat/completions", format: "openai" },
-  baseten: { baseUrl: "https://inference.baseten.co/v1/chat/completions", format: "openai" },
-  publicai: { baseUrl: "https://api.publicai.co/v1/chat/completions", format: "openai" },
-  "nous-research": { baseUrl: "https://inference-api.nousresearch.com/v1/chat/completions", format: "openai" },
-  glhf: { baseUrl: "https://glhf.chat/api/openai/v1/chat/completions", format: "openai" },
-  blackbox: { baseUrl: "https://api.blackbox.ai/chat/completions", format: "openai" },
-};
+  enally: { baseUrl: "https://ai.enally.in/v1/chat/completions", authHeader: "x-api-key" },
+  freetheai: { baseUrl: "https://api.freetheai.xyz/v1/chat/completions" },
+  llm7: { baseUrl: "https://api.llm7.io/v1/chat/completions" },
+  lepton: { baseUrl: "https://api.lepton.ai/api/v1/chat/completions" },
+  kluster: { baseUrl: "https://api.kluster.ai/v1/chat/completions" },
+  ai21: { baseUrl: "https://api.ai21.com/studio/v1/chat/completions" },
+  "inference-net": { baseUrl: "https://api.inference.net/v1/chat/completions" },
+  predibase: { baseUrl: "https://serving.app.predibase.com/v1/chat/completions" },
+  bytez: { baseUrl: "https://api.bytez.com/models/v2" },
+  morph: { baseUrl: "https://api.morphllm.com/v1/chat/completions" },
+  longcat: { baseUrl: "https://api.longcat.chat/openai/v1/chat/completions" },
+  puter: { baseUrl: "https://api.puter.com/puterai/openai/v1/chat/completions" },
+  uncloseai: { baseUrl: "https://hermes.ai.unturf.com/v1/chat/completions", noAuth: true },
+  scaleway: { baseUrl: "https://api.scaleway.ai/v1/chat/completions" },
+  deepinfra: { baseUrl: "https://api.deepinfra.com/v1/openai/chat/completions" },
+  sambanova: { baseUrl: "https://api.sambanova.ai/v1/chat/completions" },
+  nscale: { baseUrl: "https://inference.api.nscale.com/v1/chat/completions" },
+  baseten: { baseUrl: "https://inference.baseten.co/v1/chat/completions" },
+  publicai: { baseUrl: "https://api.publicai.co/v1/chat/completions" },
+  "nous-research": { baseUrl: "https://inference-api.nousresearch.com/v1/chat/completions" },
+  glhf: { baseUrl: "https://glhf.chat/api/openai/v1/chat/completions" },
+  blackbox: { baseUrl: "https://api.blackbox.ai/chat/completions" },
+});
 
 export const OLLAMA_LOCAL_DEFAULT_HOST = "http://localhost:11434";
 

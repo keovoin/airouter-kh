@@ -5,6 +5,7 @@
 import { CLIENT_METADATA, getPlatformUserAgent } from "../config/appConstants.js";
 import { proxyAwareFetch } from "../utils/proxyFetch.js";
 import { resolveDefaultProfileArn } from "../config/kiroConstants.js";
+import { ANTIGRAVITY_OAUTH_CLIENT } from "../providers/shared.js";
 
 // GitHub API config
 const GITHUB_CONFIG = {
@@ -40,8 +41,7 @@ const ANTIGRAVITY_CONFIG = {
   quotaApiUrl: "https://cloudcode-pa.googleapis.com/v1internal:fetchAvailableModels",
   loadProjectApiUrl: "https://cloudcode-pa.googleapis.com/v1internal:loadCodeAssist",
   tokenUrl: "https://oauth2.googleapis.com/token",
-  clientId: "1071006060591-tmhssin2h21lcre235vtolojh4g403ep.apps.googleusercontent.com",
-  clientSecret: "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",
+  ...ANTIGRAVITY_OAUTH_CLIENT,
   userAgent: getPlatformUserAgent(),
 };
 

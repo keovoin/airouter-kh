@@ -1,4 +1,5 @@
 import { platform, arch } from "os";
+import { ANTIGRAVITY_OAUTH_CLIENT } from "../shared.js";
 
 export default {
   id: "antigravity",
@@ -10,8 +11,7 @@ export default {
     ],
     format: "antigravity",
     headers: { "User-Agent": `antigravity/1.107.0 ${platform()}/${arch()}` },
-    clientId: "1071006060591-tmhssin2h21lcre235vtolojh4g403ep.apps.googleusercontent.com",
-    clientSecret: "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"
+    ...ANTIGRAVITY_OAUTH_CLIENT
   },
   models: [
     { id: "gemini-3-flash-agent", name: "Gemini 3.5 Flash (High)" },

@@ -3,6 +3,7 @@ import { FORMATS } from "../formats.js";
 import { buildChunk } from "../helpers/chunkBuilder.js";
 import { buildUsage } from "../helpers/usageHelper.js";
 import { reasoningDelta } from "../helpers/reasoningHelper.js";
+import { encodeDataUri } from "../helpers/imageHelper.js";
 
 // Build chunk meta for current gemini state
 function chunkMeta(state) {
@@ -116,7 +117,7 @@ export function geminiToOpenAIResponse(chunk, state) {
           {
             images: [{
               type: "image_url",
-              image_url: { url: `data:${mimeType};base64,${inlineData.data}` }
+              image_url: { url: encodeDataUri(mimeType, inlineData.data) }
             }]
           },
           null

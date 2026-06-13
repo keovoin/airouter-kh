@@ -1,6 +1,7 @@
 import { register } from "../index.js";
 import { FORMATS } from "../formats.js";
 import { adjustMaxTokens } from "../helpers/maxTokensHelper.js";
+import { encodeDataUri } from "../helpers/imageHelper.js";
 
 function stripAnthropicBillingHeader(text) {
   if (typeof text !== "string") return "";
@@ -140,7 +141,7 @@ function convertClaudeMessage(msg) {
             parts.push({
               type: "image_url",
               image_url: {
-                url: `data:${block.source.media_type};base64,${block.source.data}`
+                url: encodeDataUri(block.source.media_type, block.source.data)
               }
             });
           }

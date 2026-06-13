@@ -1,6 +1,7 @@
 import { register } from "../index.js";
 import { FORMATS } from "../formats.js";
 import { adjustMaxTokens } from "../helpers/maxTokensHelper.js";
+import { encodeDataUri } from "../helpers/imageHelper.js";
 
 // Convert Antigravity request to OpenAI format
 // Antigravity body: { project, model, userAgent, requestType, requestId, request: { contents, systemInstruction, tools, toolConfig, generationConfig, sessionId } }
@@ -156,7 +157,7 @@ function convertContent(content) {
       textParts.push({
         type: "image_url",
         image_url: {
-          url: `data:${part.inlineData.mimeType};base64,${part.inlineData.data}`
+          url: encodeDataUri(part.inlineData.mimeType, part.inlineData.data)
         }
       });
     }

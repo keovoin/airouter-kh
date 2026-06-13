@@ -31,8 +31,6 @@ export {
 export { 
   detectFormat, 
   getProviderConfig, 
-  buildProviderUrl, 
-  buildProviderHeaders, 
   getTargetFormat 
 } from "./services/provider.js";
 

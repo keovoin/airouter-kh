@@ -2,6 +2,7 @@ import { register } from "../index.js";
 import { FORMATS } from "../formats.js";
 import { buildChunk } from "../helpers/chunkBuilder.js";
 import { buildUsage } from "../helpers/usageHelper.js";
+import { reasoningDelta } from "../helpers/reasoningHelper.js";
 
 // Create OpenAI chunk helper
 function createChunk(state, delta, finishReason = null) {
@@ -67,7 +68,7 @@ export function claudeToOpenAIResponse(chunk, state) {
       if (delta?.type === "text_delta" && delta.text) {
         results.push(createChunk(state, { content: delta.text }));
       } else if (delta?.type === "thinking_delta" && delta.thinking) {
-        results.push(createChunk(state, { reasoning_content: delta.thinking }));
+        results.push(createChunk(state, reasoningDelta(delta.thinking)));
       } else if (delta?.type === "input_json_delta" && delta.partial_json) {
         const toolCall = state.toolCalls.get(chunk.index);
         if (toolCall) {

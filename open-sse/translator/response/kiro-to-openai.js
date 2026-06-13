@@ -6,6 +6,7 @@ import { register } from "../index.js";
 import { FORMATS } from "../formats.js";
 import { buildChunk } from "../helpers/chunkBuilder.js";
 import { fallbackToolCallId } from "../helpers/toolCallHelper.js";
+import { reasoningDelta } from "../helpers/reasoningHelper.js";
 
 // Build chunk meta for current kiro state
 function chunkMeta(state) {
@@ -94,10 +95,7 @@ export function convertKiroToOpenAI(chunk, state) {
       : (reasoning.text || reasoning.content || data.content || "");
     if (!content) return null;
 
-    const openaiChunk = buildChunk(chunkMeta(state), {
-      ...(state.chunkIndex === 0 ? { role: "assistant" } : {}),
-      reasoning_content: content
-    }, null);
+    const openaiChunk = buildChunk(chunkMeta(state), reasoningDelta(content, state.chunkIndex === 0), null);
 
     state.chunkIndex++;
     return openaiChunk;

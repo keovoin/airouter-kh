@@ -18,6 +18,7 @@
 import { register } from "../index.js";
 import { FORMATS } from "../formats.js";
 import { buildChunk } from "../helpers/chunkBuilder.js";
+import { reasoningDelta } from "../helpers/reasoningHelper.js";
 
 function ensureState(state, model) {
   if (!state.responseId) {
@@ -96,9 +97,7 @@ export function convertCommandCodeToOpenAI(chunk, state) {
       const text = event.text || "";
       if (!text) break;
       // Map reasoning to OpenAI "reasoning_content" field (used by deepseek-reasoner-style clients).
-      const delta = state.chunkIndex === 0
-        ? { role: "assistant", reasoning_content: text }
-        : { reasoning_content: text };
+      const delta = reasoningDelta(text, state.chunkIndex === 0);
       state.chunkIndex++;
       out.push(makeChunk(state, delta));
       break;

@@ -2,6 +2,7 @@ import { register } from "../index.js";
 import { FORMATS } from "../formats.js";
 import { buildChunk } from "../helpers/chunkBuilder.js";
 import { buildUsage } from "../helpers/usageHelper.js";
+import { reasoningDelta } from "../helpers/reasoningHelper.js";
 
 // Build chunk meta for current gemini state
 function chunkMeta(state) {
@@ -42,7 +43,7 @@ export function geminiToOpenAIResponse(chunk, state) {
         if (hasTextContent) {
           results.push(buildChunk(
             chunkMeta(state),
-            isThought ? { reasoning_content: part.text } : { content: part.text },
+            isThought ? reasoningDelta(part.text) : { content: part.text },
             null
           ));
         }
@@ -78,7 +79,7 @@ export function geminiToOpenAIResponse(chunk, state) {
       if (part.text !== undefined && part.text !== "") {
         results.push(buildChunk(
           chunkMeta(state),
-          isThought ? { reasoning_content: part.text } : { content: part.text },
+          isThought ? reasoningDelta(part.text) : { content: part.text },
           null
         ));
       }

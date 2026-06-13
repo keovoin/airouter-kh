@@ -7,6 +7,7 @@ import { FORMATS } from "../formats.js";
 import { buildChunk } from "../helpers/chunkBuilder.js";
 import { buildUsage } from "../helpers/usageHelper.js";
 import { fallbackToolCallId } from "../helpers/toolCallHelper.js";
+import { reasoningDelta } from "../helpers/reasoningHelper.js";
 
 /**
  * Translate OpenAI chunk to Responses API events
@@ -519,7 +520,7 @@ export function openaiResponsesToOpenAIResponse(chunk, state) {
     if (!delta) return null;
     return buildChunk(
       { id: state.chatId, created: state.created, model: state.model || "unknown" },
-      { reasoning_content: delta }
+      reasoningDelta(delta)
     );
   }
 

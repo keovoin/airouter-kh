@@ -27,6 +27,18 @@ const resolved = {
     iflow: PROVIDERS.iflow?.authUrl,
     kiro: PROVIDERS.kiro?.authUrl,
   },
+  refreshUrls: {
+    cline: PROVIDERS.cline?.refreshUrl,
+    "kimi-coding": PROVIDERS["kimi-coding"]?.refreshUrl,
+    xai: PROVIDERS.xai?.refreshUrl,
+  },
+  clientIds: {
+    claude: PROVIDERS.claude?.clientId,
+    codex: PROVIDERS.codex?.clientId,
+    qwen: PROVIDERS.qwen?.clientId,
+    iflow: PROVIDERS.iflow?.clientId,
+    "kimi-coding": PROVIDERS["kimi-coding"]?.clientId,
+  },
 };
 const current = JSON.parse(JSON.stringify(resolved));
 

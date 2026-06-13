@@ -61,7 +61,6 @@ export class DefaultExecutor extends BaseExecutor {
       case "kimi":
       case "minimax":
       case "minimax-cn":
-        return `${this.config.baseUrl}?beta=true`;
       case "kimi-coding":
         return `${this.config.baseUrl}?beta=true`;
       case "gemini":
@@ -282,7 +281,7 @@ export class DefaultExecutor extends BaseExecutor {
 
   async refreshCline(refreshToken, proxyOptions = null) {
     console.log('[DEBUG] Refreshing Cline token, refreshToken length:', refreshToken?.length);
-    const response = await proxyAwareFetch("https://api.cline.bot/api/v1/auth/refresh", {
+    const response = await proxyAwareFetch(PROVIDERS.cline.refreshUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json", "Accept": "application/json" },
       body: JSON.stringify({ refreshToken, grantType: "refresh_token", clientType: "extension" })
@@ -304,14 +303,14 @@ export class DefaultExecutor extends BaseExecutor {
 
   async refreshKimiCoding(refreshToken, proxyOptions = null) {
     const kimiHeaders = buildKimiHeaders();
-    const response = await proxyAwareFetch("https://auth.kimi.com/api/oauth/token", {
+    const response = await proxyAwareFetch(PROVIDERS["kimi-coding"].refreshUrl, {
       method: "POST",
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
         "Accept": "application/json",
         ...kimiHeaders
       },
-      body: new URLSearchParams({ grant_type: "refresh_token", refresh_token: refreshToken, client_id: "17e5f671-d194-4dfb-9706-5516cb48c098" })
+      body: new URLSearchParams({ grant_type: "refresh_token", refresh_token: refreshToken, client_id: PROVIDERS["kimi-coding"].clientId })
     }, proxyOptions);
     if (!response.ok) return null;
     const tokens = await response.json();

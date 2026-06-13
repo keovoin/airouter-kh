@@ -1,0 +1,304 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`GOLDEN response stream: Claude → OpenAI > text + thinking + tool_use + usage + finish 1`] = `
+[
+  {
+    "choices": [
+      {
+        "delta": {
+          "role": "assistant",
+        },
+        "finish_reason": null,
+        "index": 0,
+      },
+    ],
+    "created": 0,
+    "id": "chatcmpl-msg_1",
+    "model": "claude-opus-4-6",
+    "object": "chat.completion.chunk",
+  },
+  {
+    "choices": [
+      {
+        "delta": {
+          "content": "<think>",
+        },
+        "finish_reason": null,
+        "index": 0,
+      },
+    ],
+    "created": 0,
+    "id": "chatcmpl-msg_1",
+    "model": "claude-opus-4-6",
+    "object": "chat.completion.chunk",
+  },
+  {
+    "choices": [
+      {
+        "delta": {
+          "reasoning_content": "let me think",
+        },
+        "finish_reason": null,
+        "index": 0,
+      },
+    ],
+    "created": 0,
+    "id": "chatcmpl-msg_1",
+    "model": "claude-opus-4-6",
+    "object": "chat.completion.chunk",
+  },
+  {
+    "choices": [
+      {
+        "delta": {
+          "content": "</think>",
+        },
+        "finish_reason": null,
+        "index": 0,
+      },
+    ],
+    "created": 0,
+    "id": "chatcmpl-msg_1",
+    "model": "claude-opus-4-6",
+    "object": "chat.completion.chunk",
+  },
+  {
+    "choices": [
+      {
+        "delta": {
+          "content": "Hello",
+        },
+        "finish_reason": null,
+        "index": 0,
+      },
+    ],
+    "created": 0,
+    "id": "chatcmpl-msg_1",
+    "model": "claude-opus-4-6",
+    "object": "chat.completion.chunk",
+  },
+  {
+    "choices": [
+      {
+        "delta": {
+          "tool_calls": [
+            {
+              "function": {
+                "arguments": "{"city":"NYC"}",
+                "name": "get_weather",
+              },
+              "id": "tu_1",
+              "index": 0,
+              "type": "function",
+            },
+          ],
+        },
+        "finish_reason": null,
+        "index": 0,
+      },
+    ],
+    "created": 0,
+    "id": "chatcmpl-msg_1",
+    "model": "claude-opus-4-6",
+    "object": "chat.completion.chunk",
+  },
+  {
+    "choices": [
+      {
+        "delta": {
+          "tool_calls": [
+            {
+              "function": {
+                "arguments": "{"city":"NYC"}",
+              },
+              "id": "tu_1",
+              "index": 0,
+            },
+          ],
+        },
+        "finish_reason": null,
+        "index": 0,
+      },
+    ],
+    "created": 0,
+    "id": "chatcmpl-msg_1",
+    "model": "claude-opus-4-6",
+    "object": "chat.completion.chunk",
+  },
+  {
+    "choices": [
+      {
+        "delta": {},
+        "finish_reason": "tool_calls",
+        "index": 0,
+      },
+    ],
+    "created": 0,
+    "id": "chatcmpl-msg_1",
+    "model": "claude-opus-4-6",
+    "object": "chat.completion.chunk",
+    "usage": {
+      "completion_tokens": 5,
+      "prompt_tokens": 13,
+      "prompt_tokens_details": {
+        "cached_tokens": 3,
+      },
+      "total_tokens": 18,
+    },
+  },
+]
+`;
+
+exports[`GOLDEN response stream: Gemini → OpenAI > image output (inlineData → delta.images) 1`] = `
+[
+  {
+    "choices": [
+      {
+        "delta": {
+          "role": "assistant",
+        },
+        "finish_reason": null,
+        "index": 0,
+      },
+    ],
+    "created": 0,
+    "id": "chatcmpl-resp_2",
+    "model": "gemini-3-flash-image",
+    "object": "chat.completion.chunk",
+  },
+  {
+    "choices": [
+      {
+        "delta": {
+          "images": [
+            {
+              "image_url": {
+                "url": "data:image/png;base64,BASE64DATA",
+              },
+              "type": "image_url",
+            },
+          ],
+        },
+        "finish_reason": null,
+        "index": 0,
+      },
+    ],
+    "created": 0,
+    "id": "chatcmpl-resp_2",
+    "model": "gemini-3-flash-image",
+    "object": "chat.completion.chunk",
+  },
+  {
+    "choices": [
+      {
+        "delta": {},
+        "finish_reason": "stop",
+        "index": 0,
+      },
+    ],
+    "created": 0,
+    "id": "chatcmpl-resp_2",
+    "model": "gemini-3-flash-image",
+    "object": "chat.completion.chunk",
+  },
+]
+`;
+
+exports[`GOLDEN response stream: Gemini → OpenAI > text + thought(no-sig) + functionCall + usage + finish 1`] = `
+[
+  {
+    "choices": [
+      {
+        "delta": {
+          "role": "assistant",
+        },
+        "finish_reason": null,
+        "index": 0,
+      },
+    ],
+    "created": 0,
+    "id": "chatcmpl-resp_1",
+    "model": "gemini-3-pro",
+    "object": "chat.completion.chunk",
+  },
+  {
+    "choices": [
+      {
+        "delta": {
+          "reasoning_content": "thinking part",
+        },
+        "finish_reason": null,
+        "index": 0,
+      },
+    ],
+    "created": 0,
+    "id": "chatcmpl-resp_1",
+    "model": "gemini-3-pro",
+    "object": "chat.completion.chunk",
+  },
+  {
+    "choices": [
+      {
+        "delta": {
+          "content": "Answer",
+        },
+        "finish_reason": null,
+        "index": 0,
+      },
+    ],
+    "created": 0,
+    "id": "chatcmpl-resp_1",
+    "model": "gemini-3-pro",
+    "object": "chat.completion.chunk",
+  },
+  {
+    "choices": [
+      {
+        "delta": {
+          "tool_calls": [
+            {
+              "function": {
+                "arguments": "{"q":"x"}",
+                "name": "search",
+              },
+              "id": "search-<TS>-0",
+              "index": 0,
+              "type": "function",
+            },
+          ],
+        },
+        "finish_reason": null,
+        "index": 0,
+      },
+    ],
+    "created": 0,
+    "id": "chatcmpl-resp_1",
+    "model": "gemini-3-pro",
+    "object": "chat.completion.chunk",
+  },
+  {
+    "choices": [
+      {
+        "delta": {},
+        "finish_reason": "tool_calls",
+        "index": 0,
+      },
+    ],
+    "created": 0,
+    "id": "chatcmpl-resp_1",
+    "model": "gemini-3-pro",
+    "object": "chat.completion.chunk",
+    "usage": {
+      "completion_tokens": 6,
+      "completion_tokens_details": {
+        "reasoning_tokens": 2,
+      },
+      "prompt_tokens": 8,
+      "prompt_tokens_details": {
+        "cached_tokens": 1,
+      },
+      "total_tokens": 14,
+    },
+  },
+]
+`;

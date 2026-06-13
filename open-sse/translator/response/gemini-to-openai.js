@@ -1,6 +1,7 @@
 import { register } from "../index.js";
 import { FORMATS } from "../formats.js";
 import { buildChunk } from "../helpers/chunkBuilder.js";
+import { buildUsage } from "../helpers/usageHelper.js";
 
 // Build chunk meta for current gemini state
 function chunkMeta(state) {
@@ -144,25 +145,7 @@ export function geminiToOpenAIResponse(chunk, state) {
     // completion_tokens = candidatesTokenCount + thoughtsTokenCount (match Go code)
     const completionTokens = candidatesTokens + thoughtsTokens;
     
-    state.usage = {
-      prompt_tokens: promptTokens,
-      completion_tokens: completionTokens,
-      total_tokens: totalTokens
-    };
-    
-    // Add prompt_tokens_details if cached tokens exist
-    if (cachedTokens > 0) {
-      state.usage.prompt_tokens_details = {
-        cached_tokens: cachedTokens
-      };
-    }
-    
-    // Add completion_tokens_details if reasoning tokens exist
-    if (thoughtsTokens > 0) {
-      state.usage.completion_tokens_details = {
-        reasoning_tokens: thoughtsTokens
-      };
-    }
+    state.usage = buildUsage({ promptTokens, completionTokens, totalTokens, cachedTokens, reasoningTokens: thoughtsTokens });
   }
 
   // Finish reason - include usage in final chunk

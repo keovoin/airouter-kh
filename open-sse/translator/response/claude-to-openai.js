@@ -1,6 +1,7 @@
 import { register } from "../index.js";
 import { FORMATS } from "../formats.js";
 import { buildChunk } from "../helpers/chunkBuilder.js";
+import { buildUsage } from "../helpers/usageHelper.js";
 
 // Create OpenAI chunk helper
 function createChunk(state, delta, finishReason = null) {
@@ -127,19 +128,13 @@ export function claudeToOpenAIResponse(chunk, state) {
         const finalChunk = createChunk(state, {}, state.finishReason);
 
         if (state.usage) {
-          finalChunk.usage = {
-            prompt_tokens: state.usage.prompt_tokens,
-            completion_tokens: state.usage.completion_tokens,
-            total_tokens: state.usage.total_tokens
-          };
-
-          const cacheRead = state.usage.cache_read_input_tokens;
-          const cacheCreate = state.usage.cache_creation_input_tokens;
-          if (cacheRead > 0 || cacheCreate > 0) {
-            finalChunk.usage.prompt_tokens_details = {};
-            if (cacheRead > 0) finalChunk.usage.prompt_tokens_details.cached_tokens = cacheRead;
-            if (cacheCreate > 0) finalChunk.usage.prompt_tokens_details.cache_creation_tokens = cacheCreate;
-          }
+          finalChunk.usage = buildUsage({
+            promptTokens: state.usage.prompt_tokens,
+            completionTokens: state.usage.completion_tokens,
+            totalTokens: state.usage.total_tokens,
+            cachedTokens: state.usage.cache_read_input_tokens || 0,
+            cacheCreationTokens: state.usage.cache_creation_input_tokens || 0
+          });
         }
 
         results.push(finalChunk);

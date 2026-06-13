@@ -5,6 +5,7 @@
 import { register } from "../index.js";
 import { FORMATS } from "../formats.js";
 import { buildChunk } from "../helpers/chunkBuilder.js";
+import { buildUsage } from "../helpers/usageHelper.js";
 
 /**
  * Translate OpenAI chunk to Responses API events
@@ -466,18 +467,7 @@ export function openaiResponsesToOpenAIResponse(chunk, state) {
       // Cache info is in input_tokens_details.cached_tokens
       const cacheReadTokens = responseUsage.input_tokens_details?.cached_tokens || responseUsage.cache_read_input_tokens || 0;
       
-      state.usage = {
-        prompt_tokens: inputTokens,
-        completion_tokens: outputTokens,
-        total_tokens: inputTokens + outputTokens
-      };
-      
-      // Add prompt_tokens_details if cache tokens exist
-      if (cacheReadTokens > 0) {
-        state.usage.prompt_tokens_details = {
-          cached_tokens: cacheReadTokens
-        };
-      }
+      state.usage = buildUsage({ promptTokens: inputTokens, completionTokens: outputTokens, totalTokens: inputTokens + outputTokens, cachedTokens: cacheReadTokens });
     }
     
     if (!state.finishReasonSent) {

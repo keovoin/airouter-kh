@@ -3,6 +3,11 @@
 // Anthropic tool_use.id must match: ^[a-zA-Z0-9_-]+$
 const TOOL_ID_PATTERN = /^[a-zA-Z0-9_-]+$/;
 
+// Fallback streaming tool_call id when provider omits one (index optional)
+export function fallbackToolCallId(index) {
+  return index === undefined ? `call_${Date.now()}` : `call_${index}_${Date.now()}`;
+}
+
 // Generate deterministic tool call ID from position + tool name (cache-friendly)
 export function generateToolCallId(msgIndex = 0, tcIndex = 0, toolName = "") {
   const name = toolName ? `_${toolName.replace(/[^a-zA-Z0-9_-]/g, "")}` : "";

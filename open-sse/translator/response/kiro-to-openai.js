@@ -5,6 +5,7 @@
 import { register } from "../index.js";
 import { FORMATS } from "../formats.js";
 import { buildChunk } from "../helpers/chunkBuilder.js";
+import { fallbackToolCallId } from "../helpers/toolCallHelper.js";
 
 // Build chunk meta for current kiro state
 function chunkMeta(state) {
@@ -105,7 +106,7 @@ export function convertKiroToOpenAI(chunk, state) {
   // Handle tool use events
   if (eventType === "toolUseEvent" || data.toolUseEvent) {
     const toolUse = data.toolUseEvent || data;
-    const toolCallId = toolUse.toolUseId || `call_${Date.now()}`;
+    const toolCallId = toolUse.toolUseId || fallbackToolCallId();
     const toolName = toolUse.name || "";
     const toolInput = toolUse.input || {};
 

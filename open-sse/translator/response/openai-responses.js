@@ -6,6 +6,7 @@ import { register } from "../index.js";
 import { FORMATS } from "../formats.js";
 import { buildChunk } from "../helpers/chunkBuilder.js";
 import { buildUsage } from "../helpers/usageHelper.js";
+import { fallbackToolCallId } from "../helpers/toolCallHelper.js";
 
 /**
  * Translate OpenAI chunk to Responses API events
@@ -424,7 +425,7 @@ export function openaiResponsesToOpenAIResponse(chunk, state) {
   // Function call started (standard function_call or custom_tool_call)
   if (eventType === "response.output_item.added" && (data.item?.type === "function_call" || data.item?.type === "custom_tool_call")) {
     const item = data.item;
-    state.currentToolCallId = item.call_id || `call_${Date.now()}`;
+    state.currentToolCallId = item.call_id || fallbackToolCallId();
 
     return buildChunk(
       { id: state.chatId, created: state.created, model: state.model || "unknown" },

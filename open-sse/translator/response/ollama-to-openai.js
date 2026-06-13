@@ -1,6 +1,7 @@
 import { register } from "../index.js";
 import { FORMATS } from "../formats.js";
 import { buildChunk } from "../helpers/chunkBuilder.js";
+import { fallbackToolCallId } from "../helpers/toolCallHelper.js";
 
 /**
  * Convert Ollama NDJSON response to OpenAI SSE format
@@ -91,7 +92,7 @@ function extractUsage(ollamaChunk) {
 function convertToolCalls(toolCalls) {
   return toolCalls.map((tc, i) => ({
     index: tc.function?.index ?? i,
-    id: tc.id || `call_${i}_${Date.now()}`,
+    id: tc.id || fallbackToolCallId(i),
     type: "function",
     function: {
       name: tc.function?.name || "",

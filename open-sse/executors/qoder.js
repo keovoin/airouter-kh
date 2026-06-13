@@ -28,6 +28,7 @@ import { createHash } from "crypto";
 import { BaseExecutor } from "./base.js";
 import { PROVIDERS } from "../config/providers.js";
 import { proxyAwareFetch } from "../utils/proxyFetch.js";
+import { SSE_DONE } from "../utils/sseConstants.js";
 import { FETCH_CONNECT_TIMEOUT_MS } from "../config/runtimeConfig.js";
 import {
   QODER_CHAT_URL_ENCODED,
@@ -241,7 +242,7 @@ function wrapQoderSSE(response, model) {
 
     const data = trimmed.slice(5).trimStart();
     if (data === "[DONE]") {
-      controller.enqueue(encoder.encode("data: [DONE]\n\n"));
+      controller.enqueue(encoder.encode(SSE_DONE));
       doneEmitted = true;
       return;
     }
@@ -260,13 +261,13 @@ function wrapQoderSSE(response, model) {
         choices: [{ index: 0, delta: { content: `\n[qoder error ${statusVal}: ${truncate(msg, 200)}]` }, finish_reason: "stop" }],
       });
       controller.enqueue(encoder.encode(`data: ${errChunk}\n\n`));
-      controller.enqueue(encoder.encode("data: [DONE]\n\n"));
+      controller.enqueue(encoder.encode(SSE_DONE));
       doneEmitted = true;
       return;
     }
     if (!inner) return;
     if (inner === "[DONE]") {
-      controller.enqueue(encoder.encode("data: [DONE]\n\n"));
+      controller.enqueue(encoder.encode(SSE_DONE));
       doneEmitted = true;
       return;
     }
@@ -301,7 +302,7 @@ function wrapQoderSSE(response, model) {
         buffer = "";
       }
       if (!doneEmitted) {
-        controller.enqueue(encoder.encode("data: [DONE]\n\n"));
+        controller.enqueue(encoder.encode(SSE_DONE));
         doneEmitted = true;
       }
     },

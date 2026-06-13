@@ -8,6 +8,7 @@ import {
 } from "../utils/cursorProtobuf.js";
 import { buildCursorHeaders } from "../utils/cursorChecksum.js";
 import { estimateUsage } from "../utils/usageTracking.js";
+import { SSE_DONE, SSE_HEADERS } from "../utils/sseConstants.js";
 import { FORMATS } from "../translator/formats.js";
 import { proxyAwareFetch } from "../utils/proxyFetch.js";
 import zlib from "zlib";
@@ -775,15 +776,11 @@ export class CursorExecutor extends BaseExecutor {
         usage
       })}\n\n`
     );
-    chunks.push("data: [DONE]\n\n");
+    chunks.push(SSE_DONE);
 
     return new Response(chunks.join(""), {
       status: 200,
-      headers: {
-        "Content-Type": "text/event-stream",
-        "Cache-Control": "no-cache",
-        "Connection": "keep-alive"
-      }
+      headers: { ...SSE_HEADERS }
     });
   }
 

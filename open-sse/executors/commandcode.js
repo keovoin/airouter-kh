@@ -2,6 +2,7 @@ import { randomUUID } from "crypto";
 import { BaseExecutor } from "./base.js";
 import { PROVIDERS } from "../config/providers.js";
 import { convertCommandCodeToOpenAI } from "../translator/response/commandcode-to-openai.js";
+import { SSE_DONE } from "../utils/sseConstants.js";
 
 /**
  * CommandCodeExecutor — talks to https://api.commandcode.ai/alpha/generate
@@ -78,7 +79,7 @@ function wrapNdjsonAsOpenAISse(originalResponse, model) {
       if (trimmed) {
         emitChunks(convertCommandCodeToOpenAI(trimmed, state), controller);
       }
-      controller.enqueue(encoder.encode("data: [DONE]\n\n"));
+      controller.enqueue(encoder.encode(SSE_DONE));
     },
   });
 

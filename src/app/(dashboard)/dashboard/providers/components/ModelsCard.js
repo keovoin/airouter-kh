@@ -206,14 +206,14 @@ export default function ModelsCard({ providerId, kindFilter, providerAliasOverri
   const builtInModels = kindFilter
     ? allBuiltIn.filter((m) => {
         if (m.kinds) return m.kinds.includes(kindFilter);
-        return (m.type || "llm") === kindFilter;
+        return (m.kind || m.type || "llm") === kindFilter;
       })
     : allBuiltIn;
 
   // Custom models for this provider + kind, dedupe vs built-in
   const myCustomModels = customModels.filter(
     (m) => m.providerAlias === providerAlias
-      && (m.type || "llm") === effectiveType
+      && (m.kind || m.type || "llm") === effectiveType
       && !builtInModels.some((b) => b.id === m.id)
   );
 

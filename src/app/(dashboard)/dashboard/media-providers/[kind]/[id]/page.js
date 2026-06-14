@@ -134,7 +134,7 @@ const KIND_EXAMPLE_CONFIG = {
 function EmbeddingExampleCard({ providerId, customAlias }) {
   const isCustom = isCustomEmbeddingProvider(providerId);
   const providerAlias = isCustom ? (customAlias || providerId) : getProviderAlias(providerId);
-  const embeddingModels = isCustom ? [] : getModelsByProviderId(providerId).filter((m) => m.type === "embedding");
+  const embeddingModels = isCustom ? [] : getModelsByProviderId(providerId).filter((m) => (m.kind || m.type) === "embedding");
 
   const [selectedModel, setSelectedModel] = useState(embeddingModels[0]?.id ?? "");
   const [input, setInput] = useState("The quick brown fox jumps over the lazy dog");
@@ -431,7 +431,7 @@ function TtsExampleCard({ providerId }) {
       // Use per-model voices if available, else flat list
       const voices = (config.voicesPerModel && defaultModel)
         ? (getTtsVoicesForModel(providerId, defaultModel) || [])
-        : getModelsByProviderId(config.voiceKey || providerId).filter((m) => m.type === "tts");
+        : getModelsByProviderId(config.voiceKey || providerId).filter((m) => (m.kind || m.type) === "tts");
       if (voices.length) {
         if (config.hasBrowseButton) {
           // Google TTS: pre-select "en" (English) as default, show as single voice chip
@@ -475,7 +475,7 @@ function TtsExampleCard({ providerId }) {
       if (config.voiceSource === "hardcoded") {
         // Build languages/byLang from static providerModels data
         const voiceKey = config.voiceKey || providerId;
-        const voices = getModelsByProviderId(voiceKey).filter((m) => m.type === "tts");
+        const voices = getModelsByProviderId(voiceKey).filter((m) => (m.kind || m.type) === "tts");
         const byLangMap = {};
         for (const v of voices) {
           if (!byLangMap[v.id]) byLangMap[v.id] = { code: v.id, name: v.name, voices: [{ id: v.id, name: v.name }] };
@@ -735,13 +735,13 @@ function TtsExampleCard({ providerId }) {
               <select
                 value={selectedVoice}
                 onChange={(e) => {
-                  const m = getModelsByProviderId(providerId).filter((m) => m.type === "tts").find((m) => m.id === e.target.value);
+                  const m = getModelsByProviderId(providerId).filter((m) => (m.kind || m.type) === "tts").find((m) => m.id === e.target.value);
                   setSelectedVoice(e.target.value);
                   setSelectedVoiceName(m?.name || e.target.value);
                 }}
                 className="w-full px-3 py-1.5 text-sm border border-border rounded-lg bg-background focus:outline-none focus:border-primary"
               >
-                {getModelsByProviderId(providerId).filter((m) => m.type === "tts").map((m) => (
+                {getModelsByProviderId(providerId).filter((m) => (m.kind || m.type) === "tts").map((m) => (
                   <option key={m.id} value={m.id}>{m.name || m.id}</option>
                 ))}
               </select>
@@ -925,7 +925,7 @@ function GenericExampleCard({ providerId, kind }) {
   const safeExConfig = exConfig || {};
 
   // Get models for this kind (e.g., type="image")
-  const kindModels = getModelsByProviderId(providerId).filter((m) => m.type === kind);
+  const kindModels = getModelsByProviderId(providerId).filter((m) => (m.kind || m.type) === kind);
   // Kinds that need a model identifier in the request (image/video/music)
   const KIND_NEEDS_MODEL = new Set(["image", "video", "music", "imageToText"]);
   const needsModel = KIND_NEEDS_MODEL.has(kind);
@@ -1429,7 +1429,7 @@ function GenericExampleCard({ providerId, kind }) {
 // ─── STT Example Card ────────────────────────────────────────────────────────
 function SttExampleCard({ providerId }) {
   const providerAlias = getProviderAlias(providerId);
-  const builtinSttModels = getModelsByProviderId(providerId).filter((m) => m.type === "stt");
+  const builtinSttModels = getModelsByProviderId(providerId).filter((m) => (m.kind || m.type) === "stt");
   const [customSttModels, setCustomSttModels] = useState([]);
   const sttModels = [...builtinSttModels, ...customSttModels];
 
@@ -1467,7 +1467,7 @@ function SttExampleCard({ providerId }) {
       fetch("/api/models/custom", { cache: "no-store" })
         .then((r) => r.json())
         .then((d) => {
-          const list = (d.models || []).filter((m) => m.type === "stt" && m.providerAlias === providerAlias);
+          const list = (d.models || []).filter((m) => (m.kind || m.type) === "stt" && m.providerAlias === providerAlias);
           setCustomSttModels(list);
         })
         .catch(() => {});

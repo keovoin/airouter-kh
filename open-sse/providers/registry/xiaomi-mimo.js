@@ -1,5 +1,6 @@
 export default {
   id: "xiaomi-mimo",
+  priority: 290,
   alias: "xiaomi-mimo",
   aliases: [
     "mimo",

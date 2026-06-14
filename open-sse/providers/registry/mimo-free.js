@@ -1,5 +1,7 @@
 export default {
   id: "mimo-free",
+  priority: 120,
+  hasFree: true,
   alias: "mmf",
   uiAlias: "mmf",
   display: {

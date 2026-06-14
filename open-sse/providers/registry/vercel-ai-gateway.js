@@ -1,5 +1,6 @@
 export default {
   id: "vercel-ai-gateway",
+  priority: 160,
   alias: "vercel-ai-gateway",
   aliases: [
     "vercel",

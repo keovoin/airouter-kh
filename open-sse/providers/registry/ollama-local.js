@@ -1,5 +1,7 @@
 export default {
   id: "ollama-local",
+  priority: 50,
+  hasFree: true,
   alias: "ollama-local",
   display: {
     name: "Ollama Local",

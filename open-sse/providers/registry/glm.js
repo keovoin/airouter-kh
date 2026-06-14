@@ -2,6 +2,7 @@ import { CLAUDE_API_HEADERS } from "../shared.js";
 
 export default {
   id: "glm",
+  priority: 140,
   alias: "glm",
   display: {
     name: "GLM Coding",

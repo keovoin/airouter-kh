@@ -122,6 +122,9 @@ export default function ProvidersPage() {
 
   const sortByPriority = (entries, authType) =>
     [...entries].sort(([ka, a], [kb, b]) => {
+      const pa = a.priority ?? 999;
+      const pb = b.priority ?? 999;
+      if (pa !== pb) return pa - pb;
       const sa = getProviderStats(ka, authType);
       const sb = getProviderStats(kb, authType);
       const ca = sa.connected > 0 ? 1 : 0;
@@ -132,6 +135,9 @@ export default function ProvidersPage() {
 
   const sortItemsByPriority = (items, authType) =>
     [...items].sort((a, b) => {
+      const pa = a.priority ?? 999;
+      const pb = b.priority ?? 999;
+      if (pa !== pb) return pa - pb;
       const sa = getProviderStats(a.id, authType);
       const sb = getProviderStats(b.id, authType);
       const ca = sa.connected > 0 ? 1 : 0;
@@ -273,15 +279,22 @@ export default function ProvidersPage() {
     }))
     .filter((p) => matchSearch(p.name));
 
-  const oauthEntries = Object.entries(OAUTH_PROVIDERS).filter(
-    ([, info]) => !info.hidden && matchSearch(info.name),
+  const oauthEntries = sortByPriority(
+    Object.entries(OAUTH_PROVIDERS).filter(([, info]) => !info.hidden && matchSearch(info.name)),
+    "oauth",
   );
   const freeEntries = Object.entries(FREE_PROVIDERS).filter(
     ([, info]) => !info.hidden && matchSearch(info.name),
   );
-  const freeTierEntries = Object.entries(FREE_TIER_PROVIDERS).filter(
-    ([, info]) => !info.hidden && matchSearch(info.name),
-  );
+  const freeTierEntries = Object.entries(FREE_TIER_PROVIDERS)
+    .filter(([, info]) => !info.hidden && matchSearch(info.name))
+    .sort(([, a], [, b]) => {
+      // hasFree providers first, then by priority
+      const fa = a.hasFree ? 0 : 1;
+      const fb = b.hasFree ? 0 : 1;
+      if (fa !== fb) return fa - fb;
+      return (a.priority ?? 999) - (b.priority ?? 999);
+    });
   const apikeyEntries = sortByPriority(
     Object.entries(APIKEY_PROVIDERS).filter(
       ([, info]) =>

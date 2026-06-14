@@ -1,5 +1,6 @@
 export default {
   id: "commandcode",
+  priority: 100,
   alias: "commandcode",
   aliases: [
     "cmc",

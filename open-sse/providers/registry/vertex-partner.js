@@ -1,5 +1,6 @@
 export default {
   id: "vertex-partner",
+  priority: 260,
   alias: "vertex-partner",
   aliases: [
     "vxp",

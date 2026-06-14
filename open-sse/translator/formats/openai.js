@@ -1,8 +1,8 @@
 // OpenAI helper functions for translator
+import { ROLE, OPENAI_BLOCK, CLAUDE_BLOCK, VALID_OPENAI_CONTENT_TYPES, VALID_OPENAI_MESSAGE_TYPES } from "../schema/index.js";
 
-// Valid OpenAI content block types
-export const VALID_OPENAI_CONTENT_TYPES = ["text", "image_url", "image", "input_audio", "audio_url"];
-export const VALID_OPENAI_MESSAGE_TYPES = ["text", "image_url", "image", "tool_calls", "tool_result"];
+// Re-export valid-type lists (moved to schema/blocks.js) to keep existing importers working.
+export { VALID_OPENAI_CONTENT_TYPES, VALID_OPENAI_MESSAGE_TYPES };
 
 // Filter messages to OpenAI standard format
 // Remove: thinking, redacted_thinking, signature, and other non-OpenAI blocks
@@ -11,13 +11,13 @@ export function filterToOpenAIFormat(body) {
   
   body.messages = body.messages.map(msg => {
     // Normalize developer role to system (many providers don't support developer)
-    if (msg.role === "developer") msg = { ...msg, role: "system" };
+    if (msg.role === ROLE.DEVELOPER) msg = { ...msg, role: ROLE.SYSTEM };
     
     // Keep tool messages as-is (OpenAI format)
-    if (msg.role === "tool") return msg;
+    if (msg.role === ROLE.TOOL) return msg;
     
     // Keep assistant messages with tool_calls as-is
-    if (msg.role === "assistant" && msg.tool_calls) return msg;
+    if (msg.role === ROLE.ASSISTANT && msg.tool_calls) return msg;
     
     // Handle string content
     if (typeof msg.content === "string") return msg;
@@ -28,17 +28,17 @@ export function filterToOpenAIFormat(body) {
       
       for (const block of msg.content) {
         // Skip thinking blocks
-        if (block.type === "thinking" || block.type === "redacted_thinking") continue;
+        if (block.type === CLAUDE_BLOCK.THINKING || block.type === CLAUDE_BLOCK.REDACTED_THINKING) continue;
         
         // Only keep valid OpenAI content types
         if (VALID_OPENAI_CONTENT_TYPES.includes(block.type)) {
           // Remove signature field if exists
           const { signature, cache_control, ...cleanBlock } = block;
           filteredContent.push(cleanBlock);
-        } else if (block.type === "tool_use") {
+        } else if (block.type === CLAUDE_BLOCK.TOOL_USE) {
           // Convert tool_use to tool_calls format (handled separately)
           continue;
-        } else if (block.type === "tool_result") {
+        } else if (block.type === CLAUDE_BLOCK.TOOL_RESULT) {
           // Keep tool_result but clean it
           const { signature, cache_control, ...cleanBlock } = block;
           filteredContent.push(cleanBlock);
@@ -47,7 +47,7 @@ export function filterToOpenAIFormat(body) {
       
       // If all content was filtered, add empty text
       if (filteredContent.length === 0) {
-        filteredContent.push({ type: "text", text: "" });
+        filteredContent.push({ type: OPENAI_BLOCK.TEXT, text: "" });
       }
       
       return { ...msg, content: filteredContent };
@@ -59,15 +59,15 @@ export function filterToOpenAIFormat(body) {
   // Filter out messages with only empty text (but NEVER filter tool messages)
   body.messages = body.messages.filter(msg => {
     // Always keep tool messages
-    if (msg.role === "tool") return true;
+    if (msg.role === ROLE.TOOL) return true;
     // Always keep assistant messages with tool_calls
-    if (msg.role === "assistant" && msg.tool_calls) return true;
+    if (msg.role === ROLE.ASSISTANT && msg.tool_calls) return true;
     
     if (typeof msg.content === "string") return msg.content.trim() !== "";
     if (Array.isArray(msg.content)) {
       return msg.content.some(b => 
-        (b.type === "text" && b.text?.trim()) ||
-        b.type !== "text"
+        (b.type === OPENAI_BLOCK.TEXT && b.text?.trim()) ||
+        b.type !== OPENAI_BLOCK.TEXT
       );
     }
     return true;
@@ -82,12 +82,12 @@ export function filterToOpenAIFormat(body) {
   if (body.tools && Array.isArray(body.tools) && body.tools.length > 0) {
     body.tools = body.tools.map(tool => {
       // Already OpenAI format
-      if (tool.type === "function" && tool.function) return tool;
+      if (tool.type === OPENAI_BLOCK.FUNCTION && tool.function) return tool;
       
       // Claude format: {name, description, input_schema}
       if (tool.name && (tool.input_schema || tool.description)) {
         return {
-          type: "function",
+          type: OPENAI_BLOCK.FUNCTION,
           function: {
             name: tool.name,
             description: String(tool.description || ""),
@@ -99,7 +99,7 @@ export function filterToOpenAIFormat(body) {
       // Gemini format: {functionDeclarations: [{name, description, parameters}]}
       if (tool.functionDeclarations && Array.isArray(tool.functionDeclarations)) {
         return tool.functionDeclarations.map(fn => ({
-          type: "function",
+          type: OPENAI_BLOCK.FUNCTION,
           function: {
             name: fn.name,
             description: String(fn.description || ""),
@@ -121,7 +121,7 @@ export function filterToOpenAIFormat(body) {
     } else if (choice.type === "any") {
       body.tool_choice = "required";
     } else if (choice.type === "tool" && choice.name) {
-      body.tool_choice = { type: "function", function: { name: choice.name } };
+      body.tool_choice = { type: OPENAI_BLOCK.FUNCTION, function: { name: choice.name } };
     }
   }
 

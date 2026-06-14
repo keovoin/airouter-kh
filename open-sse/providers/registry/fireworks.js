@@ -1,5 +1,6 @@
 export default {
   id: "fireworks",
+  priority: 50,
   alias: "fireworks",
   display: {
     name: "Fireworks AI",
@@ -23,5 +24,6 @@ export default {
     { id: "accounts/fireworks/models/qwen3-235b-a22b", name: "Qwen3 235B" },
     { id: "nomic-ai/nomic-embed-text-v1.5", name: "Nomic Embed Text v1.5", kind: "embedding" },
   ],
+  serviceKinds: ["llm", "embedding"],
   embeddingConfig: { baseUrl: "https://api.fireworks.ai/inference/v1/embeddings" },
 };

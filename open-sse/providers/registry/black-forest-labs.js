@@ -1,5 +1,6 @@
 export default {
   id: "black-forest-labs",
+  priority: 50,
   alias: "black-forest-labs",
   aliases: [
     "bfl",

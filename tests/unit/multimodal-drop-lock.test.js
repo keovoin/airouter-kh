@@ -1,7 +1,7 @@
 // Locks multimodal quirks flagged in docs 11 §4: image_url.detail drop + input_audio per-format.
 import { describe, it, expect } from "vitest";
 import { openaiToClaudeRequest } from "../../open-sse/translator/request/openai-to-claude.js";
-import { convertOpenAIContentToParts } from "../../open-sse/translator/helpers/geminiHelper.js";
+import { convertOpenAIContentToParts } from "../../open-sse/translator/formats/gemini.js";
 
 function userImage(detail) {
   return {

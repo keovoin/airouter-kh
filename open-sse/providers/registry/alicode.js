@@ -1,5 +1,6 @@
 export default {
   id: "alicode",
+  priority: 20,
   alias: "alicode",
   display: {
     name: "Alibaba",

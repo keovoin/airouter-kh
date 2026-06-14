@@ -3,6 +3,7 @@ import { ANTIGRAVITY_OAUTH_CLIENT } from "../shared.js";
 
 export default {
   id: "antigravity",
+  priority: 20,
   alias: "ag",
   uiAlias: "ag",
   display: {

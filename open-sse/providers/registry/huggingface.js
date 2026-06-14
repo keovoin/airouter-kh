@@ -1,5 +1,7 @@
 export default {
   id: "huggingface",
+  priority: 70,
+  hasFree: true,
   alias: "huggingface",
   aliases: [
     "hf",
@@ -27,5 +29,6 @@ export default {
     { id: "openai/whisper-large-v3", name: "Whisper Large v3 (HF)", params: ["language"], kind: "stt" },
     { id: "openai/whisper-small", name: "Whisper Small (HF)", params: ["language"], kind: "stt" },
   ],
+  serviceKinds: ["image", "stt"],
   imageConfig: { baseUrl: "https://api-inference.huggingface.co/models" },
 };

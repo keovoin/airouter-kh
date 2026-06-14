@@ -1,7 +1,7 @@
 // Locks edge cases flagged in docs 11 §1/§4 that were only covered indirectly.
 import { describe, it, expect } from "vitest";
-import { normalizeClaudePassthrough } from "../../open-sse/translator/helpers/claudeHelper.js";
-import { parseDataUri, encodeDataUri } from "../../open-sse/translator/helpers/imageHelper.js";
+import { normalizeClaudePassthrough } from "../../open-sse/translator/formats/claude.js";
+import { parseDataUri, encodeDataUri } from "../../open-sse/translator/concerns/image.js";
 
 describe("normalizeClaudePassthrough — haiku adaptive thinking (docs 11 §1)", () => {
   it("downgrades adaptive thinking to enabled+budget for haiku models", () => {

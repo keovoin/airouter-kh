@@ -1,5 +1,6 @@
 export default {
   id: "siliconflow",
+  priority: 250,
   alias: "siliconflow",
   display: {
     name: "SiliconFlow",

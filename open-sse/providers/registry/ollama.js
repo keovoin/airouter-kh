@@ -1,5 +1,7 @@
 export default {
   id: "ollama",
+  priority: 40,
+  hasFree: true,
   alias: "ollama",
   display: {
     name: "Ollama Cloud",

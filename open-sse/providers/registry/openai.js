@@ -1,5 +1,6 @@
 export default {
   id: "openai",
+  priority: 30,
   alias: "openai",
   display: {
     name: "OpenAI",

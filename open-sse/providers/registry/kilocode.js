@@ -1,5 +1,6 @@
 export default {
   id: "kilocode",
+  priority: 60,
   alias: "kc",
   uiAlias: "kc",
   display: {

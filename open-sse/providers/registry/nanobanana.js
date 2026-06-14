@@ -1,5 +1,7 @@
 export default {
   id: "nanobanana",
+  priority: 80,
+  hasFree: true,
   alias: "nanobanana",
   aliases: [
     "nb",

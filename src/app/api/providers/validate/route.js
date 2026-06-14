@@ -3,8 +3,7 @@ import { getProviderNodeById } from "@/models";
 import { isOpenAICompatibleProvider, isAnthropicCompatibleProvider, isCustomEmbeddingProvider, AI_PROVIDERS } from "@/shared/constants/providers";
 import { getDefaultModel } from "open-sse/config/providerModels.js";
 import { resolveOllamaLocalHost, resolveXiaomiTokenplanBaseUrl, PROVIDERS } from "open-sse/config/providers.js";
-import { openaiToCommandCode } from "open-sse/translator/request/openai-to-commandcode.js";
-import { PROVIDER_ENDPOINTS } from "@/shared/constants/config";
+import { openaiToCommandCodeRequest } from "open-sse/translator/request/openai-to-commandcode.js";
 import { normalizeProviderId } from "@/lib/providerNormalization";
 
 // Probe a webSearch/webFetch provider using its searchConfig/fetchConfig.
@@ -326,7 +325,7 @@ export async function POST(request) {
         }
         case "volcengine-ark":
         case "byteplus": {
-          const res = await fetch(PROVIDER_ENDPOINTS[provider], {
+          const res = await fetch(PROVIDERS[provider]?.baseUrl, {
             method: "POST",
             headers: {
               "Authorization": `Bearer ${apiKey}`,
@@ -400,7 +399,7 @@ export async function POST(request) {
         case "commandcode": {
           const cfg = PROVIDERS.commandcode;
           const model = getDefaultModel("commandcode");
-          const payload = openaiToCommandCode(model, {
+          const payload = openaiToCommandCodeRequest(model, {
             messages: [{ role: "user", content: "ping" }],
             max_tokens: 1,
             stream: false,

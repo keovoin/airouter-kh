@@ -2,6 +2,7 @@ import { CLAUDE_CLI_SPOOF_HEADERS } from "../shared.js";
 
 export default {
   id: "claude",
+  priority: 10,
   alias: "cc",
   uiAlias: "cc",
   display: {

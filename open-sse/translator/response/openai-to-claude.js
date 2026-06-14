@@ -1,8 +1,12 @@
 import { register } from "../index.js";
 import { FORMATS } from "../formats.js";
-import { fromOpenAIFinish } from "../concerns/finishReasonMap.js";
+import { ROLE, CLAUDE_BLOCK, MODEL_FALLBACK } from "../schema/index.js";
+import { fromOpenAIFinish } from "../concerns/finishReason.js";
 
-// Prefix for Claude OAuth tool names (must match request translator)
+// Legacy "proxy_" prefix used by older request translators. Response strips it
+// defensively so tool names from such turns resolve back (e.g. proxy_Read → Read
+// for arg sanitization). Current request translator emits no prefix ("") — strip
+// is then a no-op. Kept intentionally; do NOT couple to request's empty prefix.
 const CLAUDE_OAUTH_TOOL_PREFIX = "proxy_";
 
 // Sanitize tool call arguments to fix bad params from non-Anthropic models
@@ -113,14 +117,14 @@ export function openaiToClaudeResponse(chunk, state) {
         chunk.extend_fields?.traceId ||
         `msg_${Date.now()}`;
     }
-    state.model = chunk.model || "unknown";
+    state.model = chunk.model || MODEL_FALLBACK;
     state.nextBlockIndex = 0;
     results.push({
       type: "message_start",
       message: {
         id: state.messageId,
         type: "message",
-        role: "assistant",
+        role: ROLE.ASSISTANT,
         model: state.model,
         content: [],
         stop_reason: null,
@@ -141,7 +145,7 @@ export function openaiToClaudeResponse(chunk, state) {
       results.push({
         type: "content_block_start",
         index: state.thinkingBlockIndex,
-        content_block: { type: "thinking", thinking: "" }
+        content_block: { type: CLAUDE_BLOCK.THINKING, thinking: "" }
       });
     }
 
@@ -163,7 +167,7 @@ export function openaiToClaudeResponse(chunk, state) {
       results.push({
         type: "content_block_start",
         index: state.textBlockIndex,
-        content_block: { type: "text", text: "" }
+        content_block: { type: CLAUDE_BLOCK.TEXT, text: "" }
       });
     }
 
@@ -196,7 +200,7 @@ export function openaiToClaudeResponse(chunk, state) {
           type: "content_block_start",
           index: toolBlockIndex,
           content_block: {
-            type: "tool_use",
+            type: CLAUDE_BLOCK.TOOL_USE,
             id: tc.id,
             name: toolName,
             input: {}

@@ -2,6 +2,7 @@ import { CLAUDE_API_HEADERS, KIMI_CODING_BASE_URL } from "../shared.js";
 
 export default {
   id: "kimi-coding",
+  priority: 180,
   alias: "kmc",
   display: {
     name: "Kimi Coding",

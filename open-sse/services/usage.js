@@ -6,15 +6,15 @@ import { CLIENT_METADATA, getPlatformUserAgent } from "../config/appConstants.js
 import { proxyAwareFetch } from "../utils/proxyFetch.js";
 import { resolveDefaultProfileArn } from "../config/kiroConstants.js";
 import { ANTIGRAVITY_OAUTH_CLIENT, ANTHROPIC_API_VERSION } from "../providers/shared.js";
-import { PROVIDERS } from "../providers/index.js";
+import { PROVIDERS, PROVIDER_OAUTH } from "../providers/index.js";
 
 // usage endpoints: single source from registry transport.usage
 const U = (id) => PROVIDERS[id]?.usage || {};
 
-// GitHub API config
+// GitHub API config — single source from registry oauth block
 const GITHUB_CONFIG = {
-  apiVersion: "2022-11-28",
-  userAgent: "GitHubCopilotChat/0.26.7",
+  apiVersion: PROVIDER_OAUTH.github?.apiVersion,
+  userAgent: PROVIDER_OAUTH.github?.userAgent,
 };
 
 // GLM quota endpoints (region-aware) — url from registry transport.usage

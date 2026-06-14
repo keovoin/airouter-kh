@@ -6,8 +6,8 @@ import {
   refreshProviderCredentials,
   shouldRefreshCredentials,
 } from "../services/oauthCredentialManager.js";
-import { normalizeResponsesInput } from "../translator/helpers/responsesApiHelper.js";
-import { fetchImageAsBase64 } from "../translator/helpers/imageHelper.js";
+import { normalizeResponsesInput } from "../translator/formats/responsesApi.js";
+import { fetchImageAsBase64 } from "../translator/concerns/image.js";
 import { getModelUpstreamId } from "../config/providerModels.js";
 import { getConsistentMachineId } from "../shared/machineId.js";
 import { DEFAULT_RETRY_CONFIG, resolveRetryEntry } from "../config/runtimeConfig.js";

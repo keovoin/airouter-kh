@@ -1,9 +1,10 @@
 import { register } from "../index.js";
 import { FORMATS } from "../formats.js";
-import { buildChunk } from "../helpers/chunkBuilder.js";
-import { buildUsage } from "../helpers/usageHelper.js";
-import { reasoningDelta } from "../helpers/reasoningHelper.js";
-import { toOpenAIFinish } from "../concerns/finishReasonMap.js";
+import { ROLE, OPENAI_BLOCK, CLAUDE_BLOCK, OPENAI_FINISH } from "../schema/index.js";
+import { buildChunk } from "../concerns/chunk.js";
+import { toOpenAIUsage } from "../concerns/usage.js";
+import { reasoningDelta } from "../concerns/reasoning.js";
+import { toOpenAIFinish } from "../concerns/finishReason.js";
 
 // Create OpenAI chunk helper
 function createChunk(state, delta, finishReason = null) {
@@ -26,7 +27,7 @@ export function claudeToOpenAIResponse(chunk, state) {
       state.messageId = chunk.message?.id || `msg_${Date.now()}`;
       state.model = chunk.message?.model;
       state.toolCallIndex = 0;
-      results.push(createChunk(state, { role: "assistant" }));
+      results.push(createChunk(state, { role: ROLE.ASSISTANT }));
       break;
     }
 
@@ -37,20 +38,20 @@ export function claudeToOpenAIResponse(chunk, state) {
         state.serverToolBlockIndex = chunk.index;
         break;
       }
-      if (block?.type === "text") {
+      if (block?.type === CLAUDE_BLOCK.TEXT) {
         state.textBlockStarted = true;
-      } else if (block?.type === "thinking") {
+      } else if (block?.type === CLAUDE_BLOCK.THINKING) {
         state.inThinkingBlock = true;
         state.currentBlockIndex = chunk.index;
         results.push(createChunk(state, { content: "<think>" }));
-      } else if (block?.type === "tool_use") {
+      } else if (block?.type === CLAUDE_BLOCK.TOOL_USE) {
         const toolCallIndex = state.toolCallIndex++;
         // Restore original tool name from mapping (Claude OAuth)
         const toolName = state.toolNameMap?.get(block.name) || block.name;
         const toolCall = {
           index: toolCallIndex,
           id: block.id,
-          type: "function",
+          type: OPENAI_BLOCK.FUNCTION,
           function: {
             name: toolName,
             arguments: ""
@@ -130,13 +131,7 @@ export function claudeToOpenAIResponse(chunk, state) {
         const finalChunk = createChunk(state, {}, state.finishReason);
 
         if (state.usage) {
-          finalChunk.usage = buildUsage({
-            promptTokens: state.usage.prompt_tokens,
-            completionTokens: state.usage.completion_tokens,
-            totalTokens: state.usage.total_tokens,
-            cachedTokens: state.usage.cache_read_input_tokens || 0,
-            cacheCreationTokens: state.usage.cache_creation_input_tokens || 0
-          });
+          finalChunk.usage = toOpenAIUsage(chunk.usage, "claude");
         }
 
         results.push(finalChunk);
@@ -147,7 +142,7 @@ export function claudeToOpenAIResponse(chunk, state) {
 
     case "message_stop": {
       if (!state.finishReasonSent) {
-        const finishReason = state.finishReason || (state.toolCalls?.size > 0 ? "tool_calls" : "stop");
+        const finishReason = state.finishReason || (state.toolCalls?.size > 0 ? OPENAI_FINISH.TOOL_CALLS : OPENAI_FINISH.STOP);
         const usageObj = (state.usage && typeof state.usage === 'object') ? {
           usage: {
             prompt_tokens: state.usage.input_tokens || 0,

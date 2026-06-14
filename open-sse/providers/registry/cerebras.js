@@ -1,5 +1,6 @@
 export default {
   id: "cerebras",
+  priority: 60,
   alias: "cerebras",
   display: {
     name: "Cerebras",

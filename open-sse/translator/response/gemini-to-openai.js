@@ -1,13 +1,32 @@
 import { register } from "../index.js";
 import { FORMATS } from "../formats.js";
-import { buildChunk } from "../helpers/chunkBuilder.js";
-import { buildUsage } from "../helpers/usageHelper.js";
-import { reasoningDelta } from "../helpers/reasoningHelper.js";
-import { encodeDataUri } from "../helpers/imageHelper.js";
+import { ROLE, OPENAI_BLOCK, OPENAI_FINISH, DEFAULT_IMAGE_MIME } from "../schema/index.js";
+import { buildChunk } from "../concerns/chunk.js";
+import { toOpenAIUsage } from "../concerns/usage.js";
+import { reasoningDelta } from "../concerns/reasoning.js";
+import { encodeDataUri } from "../concerns/image.js";
+import { toOpenAIFinish } from "../concerns/finishReason.js";
 
 // Build chunk meta for current gemini state
 function chunkMeta(state) {
   return { id: `chatcmpl-${state.messageId}`, created: Math.floor(Date.now() / 1000), model: state.model };
+}
+
+// Build a tool_call chunk from a gemini functionCall part (shared by sig/non-sig branches)
+function emitFunctionCall(functionCall, state) {
+  const rawName = functionCall.name;
+  // Restore original tool name from mapping (AG cloaking)
+  const fcName = state.toolNameMap?.get(rawName) || rawName;
+  const fcArgs = functionCall.args || {};
+  const toolCallIndex = state.functionIndex++;
+  const toolCall = {
+    id: `${fcName}-${Date.now()}-${toolCallIndex}`,
+    index: toolCallIndex,
+    type: OPENAI_BLOCK.FUNCTION,
+    function: { name: fcName, arguments: JSON.stringify(fcArgs) },
+  };
+  state.toolCalls.set(toolCallIndex, toolCall);
+  return buildChunk(chunkMeta(state), { tool_calls: [toolCall] }, null);
 }
 
 // Convert Gemini response chunk to OpenAI format
@@ -27,7 +46,7 @@ export function geminiToOpenAIResponse(chunk, state) {
     state.messageId = response.responseId || `msg_${Date.now()}`;
     state.model = response.modelVersion || "gemini";
     state.functionIndex = 0;
-    results.push(buildChunk(chunkMeta(state), { role: "assistant" }, null));
+    results.push(buildChunk(chunkMeta(state), { role: ROLE.ASSISTANT }, null));
   }
 
   // Process parts
@@ -50,25 +69,7 @@ export function geminiToOpenAIResponse(chunk, state) {
         }
         
         if (hasFunctionCall) {
-          const rawName = part.functionCall.name;
-          // Restore original tool name from mapping (AG cloaking)
-          const fcName = state.toolNameMap?.get(rawName) || rawName;
-          const fcArgs = part.functionCall.args || {};
-          const toolCallIndex = state.functionIndex++;
-          
-          const toolCall = {
-            id: `${fcName}-${Date.now()}-${toolCallIndex}`,
-            index: toolCallIndex,
-            type: "function",
-            function: {
-              name: fcName,
-              arguments: JSON.stringify(fcArgs)
-            }
-          };
-          
-          state.toolCalls.set(toolCallIndex, toolCall);
-          
-          results.push(buildChunk(chunkMeta(state), { tool_calls: [toolCall] }, null));
+          results.push(emitFunctionCall(part.functionCall, state));
         }
         continue;
       }
@@ -87,36 +88,18 @@ export function geminiToOpenAIResponse(chunk, state) {
 
       // Function call
       if (part.functionCall) {
-        const rawName = part.functionCall.name;
-        // Restore original tool name from mapping (AG cloaking)
-        const fcName = state.toolNameMap?.get(rawName) || rawName;
-        const fcArgs = part.functionCall.args || {};
-        const toolCallIndex = state.functionIndex++;
-        
-        const toolCall = {
-          id: `${fcName}-${Date.now()}-${toolCallIndex}`,
-          index: toolCallIndex,
-          type: "function",
-          function: {
-            name: fcName,
-            arguments: JSON.stringify(fcArgs)
-          }
-        };
-        
-        state.toolCalls.set(toolCallIndex, toolCall);
-        
-        results.push(buildChunk(chunkMeta(state), { tool_calls: [toolCall] }, null));
+        results.push(emitFunctionCall(part.functionCall, state));
       }
 
       // Inline data (images)
       const inlineData = part.inlineData || part.inline_data;
       if (inlineData?.data) {
-        const mimeType = inlineData.mimeType || inlineData.mime_type || "image/png";
+        const mimeType = inlineData.mimeType || inlineData.mime_type || DEFAULT_IMAGE_MIME;
         results.push(buildChunk(
           chunkMeta(state),
           {
             images: [{
-              type: "image_url",
+              type: OPENAI_BLOCK.IMAGE_URL,
               image_url: { url: encodeDataUri(mimeType, inlineData.data) }
             }]
           },
@@ -128,33 +111,14 @@ export function geminiToOpenAIResponse(chunk, state) {
 
   // Usage metadata - extract before finish reason so we can include it
   const usageMeta = response.usageMetadata || chunk.usageMetadata;
-  if (usageMeta && typeof usageMeta === "object") {
-    const cachedTokens = typeof usageMeta.cachedContentTokenCount === "number" ? usageMeta.cachedContentTokenCount : 0;
-    const promptTokenCountRaw = typeof usageMeta.promptTokenCount === "number" ? usageMeta.promptTokenCount : 0;
-    const thoughtsTokens = typeof usageMeta.thoughtsTokenCount === "number" ? usageMeta.thoughtsTokenCount : 0;
-    let candidatesTokens = typeof usageMeta.candidatesTokenCount === "number" ? usageMeta.candidatesTokenCount : 0;
-    const totalTokens = typeof usageMeta.totalTokenCount === "number" ? usageMeta.totalTokenCount : 0;
-    
-    // prompt_tokens = promptTokenCount (includes cached tokens, matching claude-to-openai.js behavior)
-    const promptTokens = promptTokenCountRaw;
-    
-    // Fallback calculation if candidatesTokenCount is 0 but totalTokenCount exists
-    if (candidatesTokens === 0 && totalTokens > 0) {
-      candidatesTokens = totalTokens - promptTokenCountRaw - thoughtsTokens;
-      if (candidatesTokens < 0) candidatesTokens = 0;
-    }
-    
-    // completion_tokens = candidatesTokenCount + thoughtsTokenCount (match Go code)
-    const completionTokens = candidatesTokens + thoughtsTokens;
-    
-    state.usage = buildUsage({ promptTokens, completionTokens, totalTokens, cachedTokens, reasoningTokens: thoughtsTokens });
-  }
+  const geminiUsage = toOpenAIUsage(usageMeta, "gemini");
+  if (geminiUsage) state.usage = geminiUsage;
 
   // Finish reason - include usage in final chunk
   if (candidate.finishReason) {
-    let finishReason = candidate.finishReason.toLowerCase();
-    if (finishReason === "stop" && state.toolCalls.size > 0) {
-      finishReason = "tool_calls";
+    let finishReason = toOpenAIFinish(candidate.finishReason, "gemini");
+    if (finishReason === OPENAI_FINISH.STOP && state.toolCalls.size > 0) {
+      finishReason = OPENAI_FINISH.TOOL_CALLS;
     }
     
     const finalChunk = buildChunk(chunkMeta(state), {}, finishReason);

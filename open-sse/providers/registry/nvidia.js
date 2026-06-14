@@ -1,5 +1,7 @@
 export default {
   id: "nvidia",
+  priority: 100,
+  hasFree: true,
   alias: "nvidia",
   display: {
     name: "NVIDIA NIM",

@@ -2,6 +2,8 @@ import { GOOGLE_OAUTH_CLIENT } from "../shared.js";
 
 export default {
   id: "gemini",
+  priority: 10,
+  hasFree: true,
   alias: "gemini",
   display: {
     name: "Gemini",
@@ -12,9 +14,9 @@ export default {
     notice: {
       apiKeyUrl: "https://aistudio.google.com/app/apikey",
     },
-    mediaPriority: 1,
   },
   category: "freeTier",
+  mediaPriority: 1,
   transport: {
     baseUrl: "https://generativelanguage.googleapis.com/v1beta/models",
     format: "gemini",

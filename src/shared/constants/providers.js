@@ -11,7 +11,6 @@ const MEDIA_ENTRY_KEYS = [
 // Build provider UI object from registry entry
 function buildProviderEntry(r) {
   const mediaFields = {};
-  // Support both legacy r.media wrapper and new flat top-level fields (post-migration)
   if (r.media) Object.assign(mediaFields, r.media);
   for (const k of MEDIA_ENTRY_KEYS) {
     if (r[k] !== undefined) mediaFields[k] = r[k];
@@ -21,6 +20,8 @@ function buildProviderEntry(r) {
     id: r.id,
     alias: r.uiAlias || r.alias,
     ...mediaFields,
+    ...(r.priority !== undefined ? { priority: r.priority } : {}),
+    ...(r.hasFree ? { hasFree: true } : {}),
     ...(r.thinkingConfig ? { thinkingConfig: r.thinkingConfig } : {}),
     ...(r.regions ? { regions: r.regions, defaultRegion: r.defaultRegion } : {}),
     ...(r.hasProviderSpecificData ? { hasProviderSpecificData: true } : {}),
@@ -147,7 +148,7 @@ export function getProvidersByKind(kind) {
       if (p.hiddenKinds?.includes(kind)) return false;
       return true;
     })
-    .sort((a, b) => (a.mediaPriority ?? 100) - (b.mediaPriority ?? 100));
+    .sort((a, b) => (a.priority ?? a.mediaPriority ?? 999) - (b.priority ?? b.mediaPriority ?? 999));
 }
 
 // Derive từ registry features flags

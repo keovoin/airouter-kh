@@ -1,5 +1,6 @@
 export default {
   id: "xiaomi-tokenplan",
+  priority: 300,
   alias: "xiaomi-tokenplan",
   aliases: [
     "xmtp",

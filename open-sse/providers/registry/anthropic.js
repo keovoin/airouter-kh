@@ -2,6 +2,7 @@ import { CLAUDE_API_HEADERS } from "../shared.js";
 
 export default {
   id: "anthropic",
+  priority: 30,
   alias: "anthropic",
   display: {
     name: "Anthropic",

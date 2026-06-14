@@ -40,7 +40,8 @@ function buildInfo({ alias, providerId, model, kind, providerInfo }) {
 }
 
 // id format: "{alias}/{modelId}" - alias may also be providerId
-function lookup(fullId) {
+// requestedKind: optional, disambiguates duplicate ids across kinds (e.g. gemini-2.5-pro llm vs stt)
+function lookup(fullId, requestedKind) {
   if (!fullId || !fullId.includes("/")) return null;
   const slash = fullId.indexOf("/");
   const alias = fullId.slice(0, slash);
@@ -50,7 +51,9 @@ function lookup(fullId) {
 
   // PROVIDER_MODELS lookup (by alias key, fallback to providerId)
   const list = PROVIDER_MODELS[alias] || PROVIDER_MODELS[providerId] || [];
-  const m = list.find((x) => x.id === modelId);
+  const m = requestedKind
+    ? list.find((x) => x.id === modelId && (x.kind || x.type || "llm") === requestedKind)
+    : list.find((x) => x.id === modelId);
   if (m) {
     const kind = m.kind || m.type || "llm";
     return buildInfo({ alias, providerId, model: m, kind, providerInfo });
@@ -82,13 +85,14 @@ export async function OPTIONS() {
 export async function GET(request) {
   const { searchParams } = new URL(request.url);
   const id = searchParams.get("id");
+  const kind = searchParams.get("kind");
   if (!id) {
     return Response.json(
       { error: { message: "Missing required query param: id (e.g. ?id=openai/dall-e-3)", type: "invalid_request_error" } },
       { status: 400, headers: { "Access-Control-Allow-Origin": "*" } },
     );
   }
-  const info = lookup(id);
+  const info = lookup(id, kind);
   if (!info) {
     return Response.json(
       { error: { message: `Model not found: ${id}`, type: "not_found" } },

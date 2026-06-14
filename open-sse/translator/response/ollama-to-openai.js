@@ -1,8 +1,10 @@
 import { register } from "../index.js";
 import { FORMATS } from "../formats.js";
-import { buildChunk } from "../helpers/chunkBuilder.js";
-import { buildUsage } from "../helpers/usageHelper.js";
-import { fallbackToolCallId } from "../helpers/toolCallHelper.js";
+import { ROLE, OPENAI_BLOCK, OPENAI_FINISH } from "../schema/index.js";
+import { buildChunk } from "../concerns/chunk.js";
+import { toOpenAIUsage } from "../concerns/usage.js";
+import { fallbackToolCallId } from "../concerns/toolCall.js";
+import { toOpenAIFinish } from "../concerns/finishReason.js";
 
 /**
  * Convert Ollama NDJSON response to OpenAI SSE format
@@ -15,7 +17,7 @@ import { fallbackToolCallId } from "../helpers/toolCallHelper.js";
  * {"id": "...", "object": "chat.completion.chunk", "created": 123, "model": "...",
  *  "choices": [{"index": 0, "delta": {"content": "..."}, "finish_reason": null}]}
  */
-export function ollamaToOpenAI(chunk, state) {
+export function ollamaToOpenAIResponse(chunk, state) {
   if (!chunk || typeof chunk !== "object") return null;
 
   // Initialize state on first chunk
@@ -33,10 +35,10 @@ export function ollamaToOpenAI(chunk, state) {
   if (chunk.done) {
     const usage = extractUsage(chunk);
     
-    // Determine finish_reason based on done_reason and previous tool_calls
-    let finishReason = "stop";
-    if (chunk.done_reason === "tool_calls" || state.hadToolCalls) {
-      finishReason = "tool_calls";
+    // Determine finish_reason: map upstream done_reason, override to tool_calls if tools used
+    let finishReason = toOpenAIFinish(chunk.done_reason, "ollama");
+    if (chunk.done_reason === OPENAI_FINISH.TOOL_CALLS || state.hadToolCalls) {
+      finishReason = OPENAI_FINISH.TOOL_CALLS;
     }
 
     const doneChunk = buildChunk({ id, created, model }, {}, finishReason);
@@ -80,8 +82,7 @@ export function ollamaToOpenAI(chunk, state) {
  * Extract usage stats from Ollama response
  */
 function extractUsage(ollamaChunk) {
-  const inTok = ollamaChunk.prompt_eval_count || 0, outTok = ollamaChunk.eval_count || 0;
-  return buildUsage({ promptTokens: inTok, completionTokens: outTok, totalTokens: inTok + outTok });
+  return toOpenAIUsage(ollamaChunk, "ollama");
 }
 
 /**
@@ -91,7 +92,7 @@ function convertToolCalls(toolCalls) {
   return toolCalls.map((tc, i) => ({
     index: tc.function?.index ?? i,
     id: tc.id || fallbackToolCallId(i),
-    type: "function",
+    type: OPENAI_BLOCK.FUNCTION,
     function: {
       name: tc.function?.name || "",
       arguments: typeof tc.function?.arguments === "string"
@@ -110,14 +111,14 @@ export function ollamaBodyToOpenAI(body) {
   const thinking = msg.thinking || "";
   const toolCalls = Array.isArray(msg.tool_calls) ? msg.tool_calls : [];
 
-  const message = { role: "assistant" };
+  const message = { role: ROLE.ASSISTANT };
   if (content) message.content = content;
   if (thinking) message.reasoning_content = thinking;
   if (toolCalls.length > 0) message.tool_calls = convertToolCalls(toolCalls);
   if (!message.content && !message.tool_calls) message.content = "";
 
-  let finishReason = body.done_reason || "stop";
-  if (toolCalls.length > 0) finishReason = "tool_calls";
+  let finishReason = toOpenAIFinish(body.done_reason, "ollama");
+  if (toolCalls.length > 0) finishReason = OPENAI_FINISH.TOOL_CALLS;
 
   return {
     id: `chatcmpl-${Date.now()}`,
@@ -130,4 +131,4 @@ export function ollamaBodyToOpenAI(body) {
 }
 
 // Register translator
-register(FORMATS.OLLAMA, FORMATS.OPENAI, null, ollamaToOpenAI);
+register(FORMATS.OLLAMA, FORMATS.OPENAI, null, ollamaToOpenAIResponse);

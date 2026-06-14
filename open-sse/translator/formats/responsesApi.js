@@ -1,3 +1,5 @@
+import { ROLE, OPENAI_BLOCK, RESPONSES_ITEM } from "../schema/index.js";
+
 /**
  * Normalize Responses API input to array format.
  * Accepts string or array, returns array of message items.
@@ -9,12 +11,12 @@
 export function normalizeResponsesInput(input) {
   if (typeof input === "string") {
     const text = input.trim() === "" ? "..." : input;
-    return [{ type: "message", role: "user", content: [{ type: "input_text", text }] }];
+    return [{ type: RESPONSES_ITEM.MESSAGE, role: ROLE.USER, content: [{ type: RESPONSES_ITEM.INPUT_TEXT, text }] }];
   }
   if (Array.isArray(input)) {
     // Empty input[] would produce messages:[] which all providers reject (#389)
     if (input.length === 0) {
-      return [{ type: "message", role: "user", content: [{ type: "input_text", text: "..." }] }];
+      return [{ type: RESPONSES_ITEM.MESSAGE, role: ROLE.USER, content: [{ type: RESPONSES_ITEM.INPUT_TEXT, text: "..." }] }];
     }
     return input;
   }
@@ -34,7 +36,7 @@ export function convertResponsesApiFormat(body) {
 
   // Convert instructions to system message
   if (body.instructions) {
-    result.messages.push({ role: "system", content: body.instructions });
+    result.messages.push({ role: ROLE.SYSTEM, content: body.instructions });
   }
 
   // Group items by conversation turn
@@ -48,9 +50,9 @@ export function convertResponsesApiFormat(body) {
   for (const item of inputItems) {
     // Determine item type - Droid CLI sends role-based items without 'type' field
     // Fallback: if no type but has role property, treat as message
-    const itemType = item.type || (item.role ? "message" : null);
+    const itemType = item.type || (item.role ? RESPONSES_ITEM.MESSAGE : null);
 
-    if (itemType === "message") {
+    if (itemType === RESPONSES_ITEM.MESSAGE) {
       // Flush any pending assistant message with tool calls
       if (currentAssistantMsg) {
         result.messages.push(currentAssistantMsg);
@@ -67,22 +69,22 @@ export function convertResponsesApiFormat(body) {
       // Convert content: input_text → text, output_text → text, input_image → image_url
       const content = Array.isArray(item.content)
         ? item.content.map(c => {
-          if (c.type === "input_text") return { type: "text", text: c.text };
-          if (c.type === "output_text") return { type: "text", text: c.text };
-          if (c.type === "input_image") {
+          if (c.type === RESPONSES_ITEM.INPUT_TEXT) return { type: OPENAI_BLOCK.TEXT, text: c.text };
+          if (c.type === RESPONSES_ITEM.OUTPUT_TEXT) return { type: OPENAI_BLOCK.TEXT, text: c.text };
+          if (c.type === RESPONSES_ITEM.INPUT_IMAGE) {
             const url = c.image_url || c.file_id || "";
-            return { type: "image_url", image_url: { url, detail: c.detail || "auto" } };
+            return { type: OPENAI_BLOCK.IMAGE_URL, image_url: { url, detail: c.detail || "auto" } };
           }
           return c;
         })
         : item.content;
       result.messages.push({ role: item.role, content });
     }
-    else if (itemType === "function_call") {
+    else if (itemType === RESPONSES_ITEM.FUNCTION_CALL) {
       // Start or append to assistant message with tool_calls
       if (!currentAssistantMsg) {
         currentAssistantMsg = {
-          role: "assistant",
+          role: ROLE.ASSISTANT,
           content: null,
           tool_calls: []
         };
@@ -91,14 +93,14 @@ export function convertResponsesApiFormat(body) {
       if (!item.name || typeof item.name !== "string" || item.name.trim() === "") continue;
       currentAssistantMsg.tool_calls.push({
         id: item.call_id,
-        type: "function",
+        type: OPENAI_BLOCK.FUNCTION,
         function: {
           name: item.name,
           arguments: item.arguments
         }
       });
     }
-    else if (itemType === "function_call_output") {
+    else if (itemType === RESPONSES_ITEM.FUNCTION_CALL_OUTPUT) {
       // Flush assistant message first if exists
       if (currentAssistantMsg) {
         result.messages.push(currentAssistantMsg);
@@ -106,12 +108,12 @@ export function convertResponsesApiFormat(body) {
       }
       // Add tool result
       pendingToolResults.push({
-        role: "tool",
+        role: ROLE.TOOL,
         tool_call_id: item.call_id,
         content: typeof item.output === "string" ? item.output : JSON.stringify(item.output)
       });
     }
-    else if (itemType === "reasoning") {
+    else if (itemType === RESPONSES_ITEM.REASONING) {
       // Skip reasoning items - they are for display only
       continue;
     }

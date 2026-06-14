@@ -1,5 +1,6 @@
 export default {
   id: "sdwebui",
+  priority: 110,
   alias: "sdwebui",
   display: {
     name: "SD WebUI",

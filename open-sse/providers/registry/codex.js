@@ -2,6 +2,7 @@ import { withCodexReviewModels } from "../models/helpers.js";
 
 export default {
   id: "codex",
+  priority: 30,
   alias: "cx",
   uiAlias: "cx",
   display: {

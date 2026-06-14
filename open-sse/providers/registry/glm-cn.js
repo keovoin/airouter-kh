@@ -1,5 +1,6 @@
 export default {
   id: "glm-cn",
+  priority: 130,
   alias: "glm-cn",
   display: {
     name: "GLM (China)",

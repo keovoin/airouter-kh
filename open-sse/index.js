@@ -30,7 +30,6 @@ export {
 // Services
 export { 
   detectFormat, 
-  getProviderConfig, 
   getTargetFormat 
 } from "./services/provider.js";
 

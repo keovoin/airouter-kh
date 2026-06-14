@@ -1,5 +1,6 @@
 export default {
   id: "xai",
+  priority: 280,
   alias: "xai",
   display: {
     name: "xAI (Grok)",

@@ -1,5 +1,6 @@
 export default {
   id: "mmf",
+  priority: 200,
   display: {
     name: "MMF",
     icon: "hub",

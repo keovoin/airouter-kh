@@ -1,6 +1,7 @@
 // Gemini helper functions for translator
 
-import { safeParseJSON } from "./jsonUtil.js";
+import { safeParseJSON } from "../concerns/json.js";
+import { OPENAI_BLOCK } from "../schema/index.js";
 
 // Unsupported JSON Schema constraints that should be removed for Antigravity
 export const UNSUPPORTED_SCHEMA_CONSTRAINTS = [
@@ -41,9 +42,9 @@ export function convertOpenAIContentToParts(content) {
     parts.push({ text: content });
   } else if (Array.isArray(content)) {
     for (const item of content) {
-      if (item.type === "text") {
+      if (item.type === OPENAI_BLOCK.TEXT) {
         parts.push({ text: item.text });
-      } else if (item.type === "image_url" && item.image_url?.url?.startsWith("data:")) {
+      } else if (item.type === OPENAI_BLOCK.IMAGE_URL && item.image_url?.url?.startsWith("data:")) {
         const url = item.image_url.url;
         const commaIndex = url.indexOf(",");
         if (commaIndex !== -1) {
@@ -55,17 +56,17 @@ export function convertOpenAIContentToParts(content) {
             inlineData: { mime_type: mimeType, data: data }
           });
         }
-      } else if (item.type === "image_url" && item.image_url?.url && (item.image_url.url.startsWith("http://") || item.image_url.url.startsWith("https://"))) {
+      } else if (item.type === OPENAI_BLOCK.IMAGE_URL && item.image_url?.url && (item.image_url.url.startsWith("http://") || item.image_url.url.startsWith("https://"))) {
         parts.push({
           fileData: { fileUri: item.image_url.url, mimeType: "image/*" }
         });
-      } else if (item.type === "input_audio" && item.input_audio?.data) {
+      } else if (item.type === OPENAI_BLOCK.INPUT_AUDIO && item.input_audio?.data) {
         const format = item.input_audio.format || "wav";
         const mimeType = format === "mp3" ? "audio/mpeg" : `audio/${format}`;
         parts.push({
           inlineData: { mime_type: mimeType, data: item.input_audio.data }
         });
-      } else if (item.type === "audio_url" && item.audio_url?.url?.startsWith("data:")) {
+      } else if (item.type === OPENAI_BLOCK.AUDIO_URL && item.audio_url?.url?.startsWith("data:")) {
         const url = item.audio_url.url;
         const commaIndex = url.indexOf(",");
         if (commaIndex !== -1) {
@@ -84,10 +85,10 @@ export function convertOpenAIContentToParts(content) {
 }
 
 // Extract text content from OpenAI content
-export function extractTextContent(content) {
+export function extractTextContent(content, separator = "") {
   if (typeof content === "string") return content;
   if (Array.isArray(content)) {
-    return content.filter(c => c.type === "text").map(c => c.text).join("");
+    return content.filter(c => c.type === OPENAI_BLOCK.TEXT).map(c => c.text).join(separator);
   }
   return "";
 }

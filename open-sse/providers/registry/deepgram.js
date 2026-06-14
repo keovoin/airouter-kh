@@ -1,5 +1,6 @@
 export default {
   id: "deepgram",
+  priority: 20,
   alias: "deepgram",
   aliases: [
     "dg",

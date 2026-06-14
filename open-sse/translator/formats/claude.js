@@ -1,6 +1,7 @@
 // Claude helper functions for translator
 import { DEFAULT_THINKING_CLAUDE_SIGNATURE } from "../../config/defaultThinkingSignature.js";
-import { adjustMaxTokens } from "./maxTokensHelper.js";
+import { ROLE, CLAUDE_BLOCK } from "../schema/index.js";
+import { adjustMaxTokens } from "./maxTokens.js";
 import { applyCloaking } from "../../utils/claudeCloaking.js";
 import { deriveSessionId } from "../../utils/sessionManager.js";
 import { PROVIDERS } from "../../providers/index.js";
@@ -10,9 +11,9 @@ export function hasValidContent(msg) {
   if (typeof msg.content === "string" && msg.content.trim()) return true;
   if (Array.isArray(msg.content)) {
     return msg.content.some(block =>
-      (block.type === "text" && block.text?.trim()) ||
-      block.type === "tool_use" ||
-      block.type === "tool_result"
+      (block.type === CLAUDE_BLOCK.TEXT && block.text?.trim()) ||
+      block.type === CLAUDE_BLOCK.TOOL_USE ||
+      block.type === CLAUDE_BLOCK.TOOL_RESULT
     );
   }
   return false;
@@ -26,18 +27,18 @@ export function fixToolUseOrdering(messages) {
 
   // Pass 1: Fix assistant messages with tool_use - remove text after tool_use
   for (const msg of messages) {
-    if (msg.role === "assistant" && Array.isArray(msg.content)) {
-      const hasToolUse = msg.content.some(b => b.type === "tool_use");
+    if (msg.role === ROLE.ASSISTANT && Array.isArray(msg.content)) {
+      const hasToolUse = msg.content.some(b => b.type === CLAUDE_BLOCK.TOOL_USE);
       if (hasToolUse) {
         // Keep only: thinking blocks + tool_use blocks (remove text blocks after tool_use)
         const newContent = [];
         let foundToolUse = false;
 
         for (const block of msg.content) {
-          if (block.type === "tool_use") {
+          if (block.type === CLAUDE_BLOCK.TOOL_USE) {
             foundToolUse = true;
             newContent.push(block);
-          } else if (block.type === "thinking" || block.type === "redacted_thinking") {
+          } else if (block.type === CLAUDE_BLOCK.THINKING || block.type === CLAUDE_BLOCK.REDACTED_THINKING) {
             newContent.push(block);
           } else if (!foundToolUse) {
             // Keep text blocks BEFORE tool_use
@@ -59,17 +60,17 @@ export function fixToolUseOrdering(messages) {
 
     if (last && last.role === msg.role) {
       // Merge content arrays
-      const lastContent = Array.isArray(last.content) ? last.content : [{ type: "text", text: last.content }];
-      const msgContent = Array.isArray(msg.content) ? msg.content : [{ type: "text", text: msg.content }];
+      const lastContent = Array.isArray(last.content) ? last.content : [{ type: CLAUDE_BLOCK.TEXT, text: last.content }];
+      const msgContent = Array.isArray(msg.content) ? msg.content : [{ type: CLAUDE_BLOCK.TEXT, text: msg.content }];
 
       // Put tool_result first, then other content
-      const toolResults = [...lastContent.filter(b => b.type === "tool_result"), ...msgContent.filter(b => b.type === "tool_result")];
-      const otherContent = [...lastContent.filter(b => b.type !== "tool_result"), ...msgContent.filter(b => b.type !== "tool_result")];
+      const toolResults = [...lastContent.filter(b => b.type === CLAUDE_BLOCK.TOOL_RESULT), ...msgContent.filter(b => b.type === CLAUDE_BLOCK.TOOL_RESULT)];
+      const otherContent = [...lastContent.filter(b => b.type !== CLAUDE_BLOCK.TOOL_RESULT), ...msgContent.filter(b => b.type !== CLAUDE_BLOCK.TOOL_RESULT)];
 
       last.content = [...toolResults, ...otherContent];
     } else {
       // Ensure content is array
-      const content = Array.isArray(msg.content) ? msg.content : [{ type: "text", text: msg.content }];
+      const content = Array.isArray(msg.content) ? msg.content : [{ type: CLAUDE_BLOCK.TEXT, text: msg.content }];
       merged.push({ role: msg.role, content: [...content] });
     }
   }
@@ -97,13 +98,13 @@ export function normalizeClaudePassthrough(body, model = "") {
     const systemBlocks = [];
     const messages = [];
     for (const msg of body.messages) {
-      if (msg.role === "system") {
+      if (msg.role === ROLE.SYSTEM) {
         const text = typeof msg.content === "string"
           ? msg.content
           : Array.isArray(msg.content)
             ? msg.content.map(b => (typeof b === "string" ? b : b?.text || "")).join("\n")
             : "";
-        if (text.trim()) systemBlocks.push({ type: "text", text });
+        if (text.trim()) systemBlocks.push({ type: CLAUDE_BLOCK.TEXT, text });
         continue;
       }
       messages.push(msg);
@@ -191,7 +192,7 @@ export function prepareClaudeRequest(body, provider = null, apiKey = null, conne
         if (!lastAssistantProcessed && msg.content.length > 0) {
           for (let j = msg.content.length - 1; j >= 0; j--) {
             const block = msg.content[j];
-            if (block.type !== "thinking" && block.type !== "redacted_thinking") {
+            if (block.type !== CLAUDE_BLOCK.THINKING && block.type !== CLAUDE_BLOCK.REDACTED_THINKING) {
               block.cache_control = { type: "ephemeral" };
               break;
             }
@@ -206,17 +207,17 @@ export function prepareClaudeRequest(body, provider = null, apiKey = null, conne
 
           // Always replace signature for all thinking blocks
           for (const block of msg.content) {
-            if (block.type === "thinking" || block.type === "redacted_thinking") {
+            if (block.type === CLAUDE_BLOCK.THINKING || block.type === CLAUDE_BLOCK.REDACTED_THINKING) {
               block.signature = DEFAULT_THINKING_CLAUDE_SIGNATURE;
               hasThinking = true;
             }
-            if (block.type === "tool_use") hasToolUse = true;
+            if (block.type === CLAUDE_BLOCK.TOOL_USE) hasToolUse = true;
           }
 
           // Add thinking block if thinking enabled + has tool_use but no thinking
           if (thinkingEnabled && !hasThinking && hasToolUse) {
             msg.content.unshift({
-              type: "thinking",
+              type: CLAUDE_BLOCK.THINKING,
               thinking: ".",
               signature: DEFAULT_THINKING_CLAUDE_SIGNATURE
             });

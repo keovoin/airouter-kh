@@ -1,5 +1,6 @@
 export default {
   id: "stability-ai",
+  priority: 60,
   alias: "stability-ai",
   aliases: [
     "stability",

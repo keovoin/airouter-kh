@@ -1,5 +1,6 @@
 export default {
   id: "deepseek",
+  priority: 110,
   alias: "deepseek",
   aliases: [
     "ds",

@@ -1,5 +1,6 @@
 export default {
   id: "codebuddy",
+  priority: 80,
   display: {
     name: "CodeBuddy",
     icon: "smart_toy",

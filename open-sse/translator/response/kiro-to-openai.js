@@ -4,10 +4,12 @@
  */
 import { register } from "../index.js";
 import { FORMATS } from "../formats.js";
-import { buildChunk } from "../helpers/chunkBuilder.js";
-import { buildUsage } from "../helpers/usageHelper.js";
-import { fallbackToolCallId } from "../helpers/toolCallHelper.js";
-import { reasoningDelta } from "../helpers/reasoningHelper.js";
+import { ROLE, OPENAI_BLOCK } from "../schema/index.js";
+import { buildChunk } from "../concerns/chunk.js";
+import { toOpenAIUsage } from "../concerns/usage.js";
+import { fallbackToolCallId } from "../concerns/toolCall.js";
+import { reasoningDelta } from "../concerns/reasoning.js";
+import { toOpenAIFinish } from "../concerns/finishReason.js";
 
 // Build chunk meta for current kiro state
 function chunkMeta(state) {
@@ -18,7 +20,7 @@ function chunkMeta(state) {
  * Parse Kiro SSE event and convert to OpenAI format
  * Kiro events: assistantResponseEvent, codeEvent, supplementaryWebLinksEvent, etc.
  */
-export function convertKiroToOpenAI(chunk, state) {
+export function kiroToOpenAIResponse(chunk, state) {
   
   if (!chunk) return null;
 
@@ -76,7 +78,7 @@ export function convertKiroToOpenAI(chunk, state) {
     if (!content) return null;
 
     const openaiChunk = buildChunk(chunkMeta(state), {
-      ...(state.chunkIndex === 0 ? { role: "assistant" } : {}),
+      ...(state.chunkIndex === 0 ? { role: ROLE.ASSISTANT } : {}),
       content: content
     }, null);
 
@@ -104,17 +106,18 @@ export function convertKiroToOpenAI(chunk, state) {
 
   // Handle tool use events
   if (eventType === "toolUseEvent" || data.toolUseEvent) {
+    state.hadToolUse = true;
     const toolUse = data.toolUseEvent || data;
     const toolCallId = toolUse.toolUseId || fallbackToolCallId();
     const toolName = toolUse.name || "";
     const toolInput = toolUse.input || {};
 
     const openaiChunk = buildChunk(chunkMeta(state), {
-      ...(state.chunkIndex === 0 ? { role: "assistant" } : {}),
+      ...(state.chunkIndex === 0 ? { role: ROLE.ASSISTANT } : {}),
       tool_calls: [{
         index: 0,
         id: toolCallId,
-        type: "function",
+        type: OPENAI_BLOCK.FUNCTION,
         function: {
           name: toolName,
           arguments: JSON.stringify(toolInput)
@@ -128,9 +131,11 @@ export function convertKiroToOpenAI(chunk, state) {
 
   // Handle completion/done events
   if (eventType === "messageStopEvent" || eventType === "done" || data.messageStopEvent) {
-    state.finishReason = "stop"; // Mark for usage injection in stream.js
-    
-    const openaiChunk = buildChunk(chunkMeta(state), {}, "stop");
+    // tool_calls when a tool was used this turn, else stop (kiro upstream has no explicit reason)
+    const finishReason = toOpenAIFinish(state.hadToolUse ? "tool_use" : "stop", "kiro");
+    state.finishReason = finishReason; // Mark for usage injection in stream.js
+
+    const openaiChunk = buildChunk(chunkMeta(state), {}, finishReason);
 
     // Include usage in final chunk if available
     if (state.usage && typeof state.usage === "object") {
@@ -142,11 +147,8 @@ export function convertKiroToOpenAI(chunk, state) {
 
 // Handle usage events
   if (eventType === "usageEvent" || data.usageEvent) {
-    const usage = data.usageEvent || data;
-    if (usage && typeof usage === 'object') {
-      const inTok = usage.inputTokens || 0, outTok = usage.outputTokens || 0;
-      state.usage = buildUsage({ promptTokens: inTok, completionTokens: outTok, totalTokens: inTok + outTok });
-    }
+    const usage = toOpenAIUsage(data.usageEvent || data, "kiro");
+    if (usage) state.usage = usage;
     return null;
   }
 
@@ -155,4 +157,4 @@ export function convertKiroToOpenAI(chunk, state) {
 }
 
 // Register translator
-register(FORMATS.KIRO, FORMATS.OPENAI, null, convertKiroToOpenAI);
+register(FORMATS.KIRO, FORMATS.OPENAI, null, kiroToOpenAIResponse);

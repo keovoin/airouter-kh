@@ -1,5 +1,6 @@
 export default {
   id: "voyage-ai",
+  priority: 40,
   alias: "voyage-ai",
   uiAlias: "voyage",
   display: {

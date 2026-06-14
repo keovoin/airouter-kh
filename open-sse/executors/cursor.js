@@ -142,7 +142,7 @@ export class CursorExecutor extends BaseExecutor {
 
   transformRequest(model, body, stream, credentials) {
     // Messages are already translated by chatCore (claude→openai→cursor)
-    // Do NOT call buildCursorRequest again — double-translation drops tool_results
+    // Do NOT call openaiToCursorRequest again — double-translation drops tool_results
     const messages = body.messages || [];
     const tools = body.tools || [];
     const reasoningEffort = body.reasoning_effort || null;

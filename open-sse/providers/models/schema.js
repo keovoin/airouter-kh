@@ -1,8 +1,8 @@
 import { deriveModelName } from "./namePatterns.js";
 
-// Model defaults centralized (was scattered as `m.type || "llm"`, `quotaFamily || "normal"`, etc.)
+// Model defaults centralized (was scattered as `m.kind || "llm"`, `quotaFamily || "normal"`, etc.)
 export const MODEL_DEFAULTS = {
-  type: "llm",
+  kind: "llm",
   quotaFamily: "normal",
   strip: [],
   targetFormat: null
@@ -16,9 +16,9 @@ export function normalizeModel(raw) {
   return { ...model, name: deriveModelName(model.id) };
 }
 
-// Resolve a single field with its default (keeps accessor call-sites one-liners)
-export function modelType(model) {
-  return model?.type || MODEL_DEFAULTS.type;
+// Resolve model kind with default (accepts legacy `type` field)
+export function modelKind(model) {
+  return model?.kind || model?.type || MODEL_DEFAULTS.kind;
 }
 export function modelQuotaFamily(model) {
   return model?.quotaFamily || MODEL_DEFAULTS.quotaFamily;

@@ -1,44 +1,31 @@
-
 export default {
-  "id": "vertex",
-  "alias": "vertex",
+  id: "vertex",
+  alias: "vertex",
+  aliases: [
+    "vx",
+  ],
+  uiAlias: "vx",
   display: {
-      "name": "Vertex AI",
-      "icon": "cloud",
-      "color": "#4285F4",
-      "textIcon": "VX",
-      "website": "https://cloud.google.com/vertex-ai",
-      "notice": {
-          "text": "New Google Cloud accounts get $300 free credits. Requires GCP project + Service Account with Vertex AI API enabled.",
-          "apiKeyUrl": "https://console.cloud.google.com/iam-admin/serviceaccounts"
-      }
+    name: "Vertex AI",
+    icon: "cloud",
+    color: "#4285F4",
+    textIcon: "VX",
+    website: "https://cloud.google.com/vertex-ai",
+    notice: {
+      text: "New Google Cloud accounts get $300 free credits. Requires GCP project + Service Account with Vertex AI API enabled.",
+      apiKeyUrl: "https://console.cloud.google.com/iam-admin/serviceaccounts",
+    },
   },
   category: "freeTier",
-  uiAlias: "vx",
-  aliases: ["vx"],
-  "transport": {
-    "baseUrl": "https://aiplatform.googleapis.com",
-    "format": "vertex"
+  transport: {
+    baseUrl: "https://aiplatform.googleapis.com",
+    format: "vertex",
   },
-  media: {
-    serviceKinds: ["llm", "imageToText"]
-  },
-  "models": [
-    {
-      "id": "gemini-3.1-pro-preview",
-      "name": "Gemini 3.1 Pro Preview"
-    },
-    {
-      "id": "gemini-3.1-flash-lite-preview",
-      "name": "Gemini 3.1 Flash Lite Preview"
-    },
-    {
-      "id": "gemini-3-flash-preview",
-      "name": "Gemini 3 Flash Preview"
-    },
-    {
-      "id": "gemini-2.5-flash",
-      "name": "Gemini 2.5 Flash"
-    }
-  ]
+  models: [
+    { id: "gemini-3.1-pro-preview", name: "Gemini 3.1 Pro Preview" },
+    { id: "gemini-3.1-flash-lite-preview", name: "Gemini 3.1 Flash Lite Preview" },
+    { id: "gemini-3-flash-preview", name: "Gemini 3 Flash Preview" },
+    { id: "gemini-2.5-flash", name: "Gemini 2.5 Flash" },
+  ],
+  serviceKinds: ["llm","imageToText"],
 };

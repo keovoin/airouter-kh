@@ -1,51 +1,34 @@
-
 export default {
-  "id": "deepseek",
-  "alias": "deepseek",
+  id: "deepseek",
+  alias: "deepseek",
+  aliases: [
+    "ds",
+  ],
+  uiAlias: "ds",
   display: {
-      "name": "DeepSeek",
-      "icon": "bolt",
-      "color": "#4D6BFE",
-      "textIcon": "DS",
-      "website": "https://deepseek.com",
-      "notice": {
-          "apiKeyUrl": "https://platform.deepseek.com/api_keys"
-      }
+    name: "DeepSeek",
+    icon: "bolt",
+    color: "#4D6BFE",
+    textIcon: "DS",
+    website: "https://deepseek.com",
+    notice: {
+      apiKeyUrl: "https://platform.deepseek.com/api_keys",
+    },
   },
   category: "apikey",
-  uiAlias: "ds",
-  aliases: ["ds"],
-  "transport": {
-    "baseUrl": "https://api.deepseek.com/chat/completions",
-    "validateUrl": "https://api.deepseek.com/models",
-    reasoningInject: { scope: "all" }
+  transport: {
+    baseUrl: "https://api.deepseek.com/chat/completions",
+    validateUrl: "https://api.deepseek.com/models",
+    reasoningInject: {
+      scope: "all",
+    },
   },
-  "models": [
-    {
-      "id": "deepseek-v4-pro",
-      "name": "DeepSeek V4 Pro"
-    },
-    {
-      "id": "deepseek-v4-pro-max",
-      "name": "DeepSeek V4 Pro Max",
-      "upstreamModelId": "deepseek-v4-pro"
-    },
-    {
-      "id": "deepseek-v4-pro-none",
-      "name": "DeepSeek V4 Pro No Thinking",
-      "upstreamModelId": "deepseek-v4-pro"
-    },
-    {
-      "id": "deepseek-v4-flash",
-      "name": "DeepSeek V4 Flash"
-    },
-    {
-      "id": "deepseek-chat",
-      "name": "DeepSeek V3.2 Chat"
-    },
-    {
-      "id": "deepseek-reasoner",
-      "name": "DeepSeek V3.2 Reasoner"
-    }
-  ]
+  models: [
+    { id: "deepseek-v4-pro", name: "DeepSeek V4 Pro" },
+    { id: "deepseek-v4-pro-max", name: "DeepSeek V4 Pro Max", upstreamModelId: "deepseek-v4-pro" },
+    { id: "deepseek-v4-pro-none", name: "DeepSeek V4 Pro No Thinking", upstreamModelId: "deepseek-v4-pro" },
+    { id: "deepseek-v4-flash", name: "DeepSeek V4 Flash" },
+    { id: "deepseek-chat", name: "DeepSeek V3.2 Chat" },
+    { id: "deepseek-reasoner", name: "DeepSeek V3.2 Reasoner" },
+  ],
 };

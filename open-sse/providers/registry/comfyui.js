@@ -1,38 +1,19 @@
-
 export default {
-  "id": "comfyui",
-  "alias": "comfyui",
+  id: "comfyui",
+  alias: "comfyui",
   display: {
-      "name": "ComfyUI",
-      "icon": "account_tree",
-      "color": "#4CAF50",
-      "textIcon": "CF",
-      "website": "https://github.com/comfyanonymous/ComfyUI"
+    name: "ComfyUI",
+    icon: "account_tree",
+    color: "#4CAF50",
+    textIcon: "CF",
+    website: "https://github.com/comfyanonymous/ComfyUI",
   },
   category: "apikey",
-  "transport": null,
-  media: {
-    serviceKinds: ["image"],
-    imageConfig: { baseUrl: "http://localhost:8188" }
-  },
-  "models": [
-    {
-      "id": "flux-dev",
-      "name": "FLUX Dev",
-      "type": "image",
-      "params": [
-        "n",
-        "size"
-      ]
-    },
-    {
-      "id": "sdxl",
-      "name": "SDXL",
-      "type": "image",
-      "params": [
-        "n",
-        "size"
-      ]
-    }
-  ]
+  transport: null,
+  models: [
+    { id: "flux-dev", name: "FLUX Dev", params: ["n","size"], kind: "image" },
+    { id: "sdxl", name: "SDXL", params: ["n","size"], kind: "image" },
+  ],
+  serviceKinds: ["image"],
+  imageConfig: { baseUrl: "http://localhost:8188" },
 };

@@ -1,15 +1,17 @@
-
 export default {
-  "id": "mmf",  display: { name: "MMF", icon: "hub", color: "#6366F1", textIcon: "MF" },
-  category: "apikey",
-  "transport": {
-    "baseUrl": "https://api.xiaomimimo.com/api/free-ai/openai/chat",
-    "noAuth": true
+  id: "mmf",
+  display: {
+    name: "MMF",
+    icon: "hub",
+    color: "#6366F1",
+    textIcon: "MF",
   },
-  "models": [
-    {
-      "id": "mimo-auto",
-      "name": "MiMo Auto"
-    }
-  ]
+  category: "apikey",
+  transport: {
+    baseUrl: "https://api.xiaomimimo.com/api/free-ai/openai/chat",
+    noAuth: true,
+  },
+  models: [
+    { id: "mimo-auto", name: "MiMo Auto" },
+  ],
 };

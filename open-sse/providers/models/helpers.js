@@ -3,7 +3,7 @@ export const CODEX_REVIEW_SUFFIX = "-review";
 
 export function withCodexReviewModels(models) {
   return models.flatMap((model) => {
-    if ((model.type || "llm") !== "llm" || model.id.endsWith(CODEX_REVIEW_SUFFIX)) {
+    if ((model.kind || model.type || "llm") !== "llm" || model.id.endsWith(CODEX_REVIEW_SUFFIX)) {
       return [model];
     }
     return [

@@ -1,13 +1,26 @@
 // Provider definitions
 import REGISTRY from "open-sse/providers/registry/index.js";
 
+const MEDIA_ENTRY_KEYS = [
+  "serviceKinds", "ttsConfig", "sttConfig", "embeddingConfig",
+  "imageConfig", "imageToTextConfig", "videoConfig", "musicConfig",
+  "searchViaChat", "searchConfig", "fetchConfig",
+  "modelsFetcher", "mediaPriority", "hiddenKinds",
+];
+
 // Build provider UI object from registry entry
 function buildProviderEntry(r) {
+  const mediaFields = {};
+  // Support both legacy r.media wrapper and new flat top-level fields (post-migration)
+  if (r.media) Object.assign(mediaFields, r.media);
+  for (const k of MEDIA_ENTRY_KEYS) {
+    if (r[k] !== undefined) mediaFields[k] = r[k];
+  }
   return {
     ...(r.display || {}),
     id: r.id,
     alias: r.uiAlias || r.alias,
-    ...(r.media || {}),
+    ...mediaFields,
     ...(r.thinkingConfig ? { thinkingConfig: r.thinkingConfig } : {}),
     ...(r.regions ? { regions: r.regions, defaultRegion: r.defaultRegion } : {}),
     ...(r.hasProviderSpecificData ? { hasProviderSpecificData: true } : {}),
@@ -17,7 +30,6 @@ function buildProviderEntry(r) {
     ...(r.authModes ? { authModes: r.authModes } : {}),
     ...(r.authType ? { authType: r.authType } : {}),
     ...(r.authHint ? { authHint: r.authHint } : {}),
-    ...(r.hiddenKinds ? { hiddenKinds: r.hiddenKinds } : {}),
   };
 }
 

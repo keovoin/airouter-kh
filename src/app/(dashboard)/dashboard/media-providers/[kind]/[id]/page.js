@@ -613,19 +613,20 @@ function TtsExampleCard({ providerId }) {
             </span>
           </Row>
 
-          {/* Model selector — prefer ttsConfig.models, else providerModels via modelKey */}
-          {config.hasModelSelector && (config.modelKey || AI_PROVIDERS[providerId]?.ttsConfig?.models?.length) && (
+          {/* Model selector — prefer PROVIDER_MODELS[kind=tts], else providerModels via modelKey */}
+          {config.hasModelSelector && (config.modelKey || getModelsByProviderId(providerId).some(m => (m.kind || m.type) === "tts")) && (
             <Row label="Model">
               <select
                 value={selectedModel}
                 onChange={(e) => setSelectedModel(e.target.value)}
                 className="w-full px-3 py-1.5 text-sm border border-border rounded-lg bg-background focus:outline-none focus:border-primary"
               >
-                {((AI_PROVIDERS[providerId]?.ttsConfig?.models?.length
-                  ? AI_PROVIDERS[providerId].ttsConfig.models
-                  : getModelsByProviderId(config.modelKey)) || []).map((m) => (
-                  <option key={m.id} value={m.id}>{m.name || m.id}</option>
-                ))}
+                {(() => {
+                  const ttsModels = getModelsByProviderId(providerId).filter(m => (m.kind || m.type) === "tts");
+                  return (ttsModels.length ? ttsModels : getModelsByProviderId(config.modelKey) || []).map((m) => (
+                    <option key={m.id} value={m.id}>{m.name || m.id}</option>
+                  ));
+                })()}
               </select>
             </Row>
           )}

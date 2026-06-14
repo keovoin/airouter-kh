@@ -52,19 +52,8 @@ function lookup(fullId) {
   const list = PROVIDER_MODELS[alias] || PROVIDER_MODELS[providerId] || [];
   const m = list.find((x) => x.id === modelId);
   if (m) {
-    const kind = m.type || "llm";
+    const kind = m.kind || m.type || "llm";
     return buildInfo({ alias, providerId, model: m, kind, providerInfo });
-  }
-
-  // Sub-configs (TTS/STT/embedding only-in-config)
-  const subs = [
-    ["tts", providerInfo?.ttsConfig],
-    ["stt", providerInfo?.sttConfig],
-    ["embedding", providerInfo?.embeddingConfig],
-  ];
-  for (const [kind, cfg] of subs) {
-    const sm = cfg?.models?.find((x) => x.id === modelId);
-    if (sm) return buildInfo({ alias, providerId, model: sm, kind, providerInfo });
   }
 
   // Web search/fetch — virtual model id "search" / "fetch"

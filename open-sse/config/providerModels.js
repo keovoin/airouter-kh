@@ -42,7 +42,7 @@ export function getModelType(aliasOrId, modelId) {
   const models = PROVIDER_MODELS[aliasOrId];
   if (!models) return null;
   const found = models.find(m => m.id === modelId);
-  return found?.type || null;
+  return found?.kind || found?.type || null;
 }
 
 export function getModelUpstreamId(aliasOrId, modelId) {

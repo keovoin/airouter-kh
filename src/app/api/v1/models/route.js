@@ -316,7 +316,7 @@ export async function buildModelsList(kindFilter) {
 
       const customModelIds = customModels
         .filter((m) => {
-          if (!m?.id || (m.type && m.type !== "llm")) return false;
+          if (!m?.id || ((m.kind || m.type) && (m.kind || m.type) !== "llm")) return false;
           const alias = m.providerAlias;
           return alias === staticAlias || alias === outputAlias || alias === providerId;
         })

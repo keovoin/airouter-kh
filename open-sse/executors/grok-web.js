@@ -1,6 +1,7 @@
 import { BaseExecutor } from "./base.js";
 import { PROVIDERS } from "../config/providers.js";
 import { SSE_DONE, SSE_HEADERS_NO_BUFFER } from "../utils/sseConstants.js";
+import { sseChunk } from "../utils/sse.js";
 
 const GROK_CHAT_API = PROVIDERS["grok-web"].baseUrl;
 const GROK_USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36";
@@ -129,10 +130,6 @@ async function* extractContent(eventStream, isThinkingModel, signal) {
     if (resp.token != null) yield { delta: resp.token, fingerprint, responseId };
   }
   yield { done: true, fingerprint, responseId };
-}
-
-function sseChunk(data) {
-  return `data: ${JSON.stringify(data)}\n\n`;
 }
 
 function buildStreamingResponse(eventStream, model, cid, created, isThinkingModel, signal) {

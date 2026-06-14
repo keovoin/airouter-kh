@@ -1,4 +1,4 @@
-import { PROVIDER_MODELS, PROVIDER_ID_TO_ALIAS } from "@/shared/constants/models";
+import { PROVIDER_MODELS, PROVIDER_ID_TO_ALIAS, getModelKind } from "@/shared/constants/models";
 import {
   AI_PROVIDERS,
   getProviderAlias,
@@ -316,7 +316,7 @@ export async function buildModelsList(kindFilter) {
 
       const customModelIds = customModels
         .filter((m) => {
-          if (!m?.id || ((m.kind || m.type) && (m.kind || m.type) !== "llm")) return false;
+          if (!m?.id || (getModelKind(m) && getModelKind(m) !== "llm")) return false;
           const alias = m.providerAlias;
           return alias === staticAlias || alias === outputAlias || alias === providerId;
         })

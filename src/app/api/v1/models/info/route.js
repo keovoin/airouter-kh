@@ -1,5 +1,6 @@
 import { PROVIDER_MODELS } from "open-sse/config/providerModels.js";
 import { AI_PROVIDERS, ALIAS_TO_ID } from "@/shared/constants/providers";
+import { getModelKind } from "@/shared/constants/models";
 
 const KIND_ENDPOINT = {
   llm: "/v1/chat/completions",
@@ -52,10 +53,10 @@ function lookup(fullId, requestedKind) {
   // PROVIDER_MODELS lookup (by alias key, fallback to providerId)
   const list = PROVIDER_MODELS[alias] || PROVIDER_MODELS[providerId] || [];
   const m = requestedKind
-    ? list.find((x) => x.id === modelId && (x.kind || x.type || "llm") === requestedKind)
+    ? list.find((x) => x.id === modelId && getModelKind(x, "llm") === requestedKind)
     : list.find((x) => x.id === modelId);
   if (m) {
-    const kind = m.kind || m.type || "llm";
+    const kind = getModelKind(m, "llm");
     return buildInfo({ alias, providerId, model: m, kind, providerInfo });
   }
 

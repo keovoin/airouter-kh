@@ -1,6 +1,7 @@
 import { BaseExecutor } from "./base.js";
 import { PROVIDERS } from "../config/providers.js";
 import { SSE_DONE, SSE_HEADERS_NO_BUFFER } from "../utils/sseConstants.js";
+import { sseChunk } from "../utils/sse.js";
 
 const PPLX_SSE_ENDPOINT = PROVIDERS["perplexity-web"].baseUrl;
 const PPLX_API_VERSION = "2.18";
@@ -288,10 +289,6 @@ async function* extractContent(eventStream, signal) {
     if (event.final || event.status === "COMPLETED") break;
   }
   yield { delta: "", answer: fullAnswer, backendUuid: backendUuid ?? undefined, done: true };
-}
-
-function sseChunk(data) {
-  return `data: ${JSON.stringify(data)}\n\n`;
 }
 
 function buildStreamingResponse(eventStream, model, cid, created, history, currentMsg, signal) {

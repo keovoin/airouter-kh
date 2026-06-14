@@ -16,6 +16,10 @@ export default {
   uiAlias: "voyage",
   authType: "apikey",
   "transport": null,
+  media: {
+    serviceKinds: ["embedding"],
+    embeddingConfig: { baseUrl: "https://api.voyageai.com/v1/embeddings" }
+  },
   "models": [
     {
       "id": "voyage-3-large",

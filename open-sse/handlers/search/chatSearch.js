@@ -4,8 +4,10 @@
  */
 import { PROVIDER_MEDIA } from "../../providers/index.js";
 
-// Default search model derives from registry searchViaChat (single source)
+// Default search model + endpoint derive from registry searchViaChat (single source)
 const searchModel = (id) => PROVIDER_MEDIA[id]?.searchViaChat?.defaultModel;
+const searchEndpoint = (id, model) =>
+  (PROVIDER_MEDIA[id]?.searchViaChat?.endpoint || "").replace("{model}", model || "");
 
 const REQUEST_TIMEOUT_MS = 15000;
 const DEFAULT_MAX_RESULTS = 10;
@@ -47,8 +49,7 @@ function normalizeCitation(c) {
  */
 const CHAT_SEARCH_CONFIG = {
   gemini: {
-    endpoint: (model) =>
-      `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,
+    endpoint: (model) => searchEndpoint("gemini", model),
     buildBody: (query) => ({
       contents: [{ role: "user", parts: [{ text: query }] }],
       tools: [{ google_search: {} }]
@@ -73,7 +74,7 @@ const CHAT_SEARCH_CONFIG = {
   },
 
   openai: {
-    endpoint: () => "https://api.openai.com/v1/chat/completions",
+    endpoint: () => searchEndpoint("openai"),
     buildBody: (query, model) => {
       const body = {
         model,
@@ -107,7 +108,7 @@ const CHAT_SEARCH_CONFIG = {
   },
 
   xai: {
-    endpoint: () => "https://api.x.ai/v1/responses",
+    endpoint: () => searchEndpoint("xai"),
     buildBody: (query, model) => ({
       model,
       input: [{ role: "user", content: query }],
@@ -146,7 +147,7 @@ const CHAT_SEARCH_CONFIG = {
   },
 
   kimi: {
-    endpoint: () => "https://api.moonshot.cn/v1/chat/completions",
+    endpoint: () => searchEndpoint("kimi"),
     buildBody: (query, model) => ({
       model,
       messages: [{ role: "user", content: query }],
@@ -195,7 +196,7 @@ const CHAT_SEARCH_CONFIG = {
   },
 
   minimax: {
-    endpoint: () => "https://api.minimaxi.com/v1/text/chatcompletion_v2",
+    endpoint: () => searchEndpoint("minimax"),
     buildBody: (query, model) => ({
       model,
       messages: [{ role: "user", content: query }],
@@ -253,7 +254,7 @@ const CHAT_SEARCH_CONFIG = {
   },
 
   perplexity: {
-    endpoint: () => "https://api.perplexity.ai/chat/completions",
+    endpoint: () => searchEndpoint("perplexity"),
     buildBody: (query, model) => ({
       model,
       messages: [{ role: "user", content: query }]

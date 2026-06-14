@@ -17,6 +17,10 @@ export default {
   authType: "apikey",
   aliases: ["stability"],
   "transport": null,
+  media: {
+    serviceKinds: ["image"],
+    imageConfig: { baseUrl: "https://api.stability.ai/v2beta/stable-image/generate" }
+  },
   "models": [
     {
       "id": "stable-image-ultra",

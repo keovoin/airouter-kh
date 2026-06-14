@@ -18,6 +18,9 @@ export default {
   hiddenKinds: ["tts"],
   aliases: ["hf"],
   "transport": null,
+  media: {
+    imageConfig: { baseUrl: "https://api-inference.huggingface.co/models" }
+  },
   "models": [
     {
       "id": "black-forest-labs/FLUX.1-schnell",

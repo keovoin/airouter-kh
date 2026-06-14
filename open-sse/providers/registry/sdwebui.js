@@ -11,6 +11,10 @@ export default {
   },
   category: "apikey",
   "transport": null,
+  media: {
+    serviceKinds: ["image"],
+    imageConfig: { baseUrl: "http://localhost:7860/sdapi/v1/txt2img" }
+  },
   "models": [
     {
       "id": "stable-diffusion-v1-5",

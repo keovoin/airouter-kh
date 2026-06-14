@@ -25,7 +25,7 @@ export default {
   },
   media: {
     serviceKinds: ["llm", "imageToText", "webSearch", "image"],
-    searchViaChat: { defaultModel: "grok-4.20-reasoning", pricingUrl: "https://x.ai/api#pricing" },
+    searchViaChat: { defaultModel: "grok-4.20-reasoning", endpoint: "https://api.x.ai/v1/responses", pricingUrl: "https://x.ai/api#pricing" },
     imageConfig: { baseUrl: "https://api.x.ai/v1/images/generations", bodyFields: ["model", "prompt", "n", "response_format"] },
     authModes: ["oauth", "apikey"],
     hasOAuth: true

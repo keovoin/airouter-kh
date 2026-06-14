@@ -11,6 +11,10 @@ export default {
   },
   category: "apikey",
   "transport": null,
+  media: {
+    serviceKinds: ["image"],
+    imageConfig: { baseUrl: "http://localhost:8188" }
+  },
   "models": [
     {
       "id": "flux-dev",

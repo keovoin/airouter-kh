@@ -26,6 +26,7 @@ export default {
     embeddingConfig: { baseUrl: "https://openrouter.ai/api/v1/embeddings", authType: "apikey", authHeader: "bearer", headers: { "HTTP-Referer": "https://endpoint-proxy.local", "X-Title": "Endpoint Proxy" }, models: [{ id: "openai/text-embedding-3-small", name: "Text Embedding 3 Small (OpenRouter)", dimensions: 1536 }, { id: "openai/text-embedding-3-large", name: "Text Embedding 3 Large (OpenRouter)", dimensions: 3072 }, { id: "openai/text-embedding-ada-002", name: "Text Embedding Ada 002 (OpenRouter)", dimensions: 1536 }] },
     modelsFetcher: { url: "https://openrouter.ai/api/v1/models", type: "openrouter-free" },
     imageConfig: { baseUrl: "https://openrouter.ai/api/v1/images/generations", headers: { "HTTP-Referer": "https://endpoint-proxy.local", "X-Title": "Endpoint Proxy" } },
+    ttsConfig: { baseUrl: "https://openrouter.ai/api/v1/chat/completions", defaultModel: "openai/gpt-4o-mini-tts", headers: { "HTTP-Referer": "https://endpoint-proxy.local", "X-Title": "Endpoint Proxy" } },
     passthroughModels: true
   },
   "models": [

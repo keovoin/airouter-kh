@@ -17,6 +17,10 @@ export default {
   authType: "apikey",
   aliases: ["runway"],
   "transport": null,
+  media: {
+    serviceKinds: ["image"],
+    imageConfig: { baseUrl: "https://api.dev.runwayml.com/v1" }
+  },
   "models": [
     {
       "id": "gen4_image",

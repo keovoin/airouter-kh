@@ -2,7 +2,9 @@
 import { Buffer } from "node:buffer";
 import { PROVIDER_MEDIA } from "../../providers/index.js";
 
-const KNOWN_MODELS = (PROVIDER_MEDIA["gemini"]?.ttsConfig?.models || []).map((m) => m.id);
+const TTS_CFG = PROVIDER_MEDIA["gemini"]?.ttsConfig || {};
+const TTS_BASE = TTS_CFG.baseUrl;
+const KNOWN_MODELS = (TTS_CFG.models || []).map((m) => m.id);
 const DEFAULT_MODEL = KNOWN_MODELS[0];
 const DEFAULT_VOICE = "Kore";
 
@@ -52,7 +54,7 @@ export default {
   async synthesize(text, model, credentials, _responseFormat, opts = {}) {
     if (!credentials?.apiKey) throw new Error("No Gemini API key configured");
     const { modelId, voiceId } = parseGeminiModelVoice(model);
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelId}:generateContent?key=${credentials.apiKey}`;
+    const url = `${TTS_BASE}/${modelId}:generateContent?key=${credentials.apiKey}`;
     const res = await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },

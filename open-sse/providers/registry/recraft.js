@@ -15,6 +15,10 @@ export default {
   category: "apikey",
   authType: "apikey",
   "transport": null,
+  media: {
+    serviceKinds: ["image"],
+    imageConfig: { baseUrl: "https://external.api.recraft.ai/v1/images/generations" }
+  },
   "models": [
     {
       "id": "recraftv3",

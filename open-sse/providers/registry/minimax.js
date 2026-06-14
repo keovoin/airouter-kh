@@ -27,7 +27,7 @@ export default {
   media: {
     serviceKinds: ["llm", "image", "imageToText", "webSearch", "tts"],
     ttsConfig: { baseUrl: "https://api.minimax.io/v1/t2a_v2", authType: "apikey", authHeader: "bearer", format: "minimax-tts", models: [{ id: "speech-2.8-hd", name: "Speech 2.8 HD" }, { id: "speech-2.8-turbo", name: "Speech 2.8 Turbo" }, { id: "speech-2.6-hd", name: "Speech 2.6 HD" }, { id: "speech-2.6-turbo", name: "Speech 2.6 Turbo" }, { id: "speech-02-hd", name: "Speech 02 HD" }, { id: "speech-02-turbo", name: "Speech 02 Turbo" }, { id: "speech-01-hd", name: "Speech 01 HD" }, { id: "speech-01-turbo", name: "Speech 01 Turbo" }] },
-    searchViaChat: { defaultModel: "MiniMax-M2.7", pricingUrl: "https://www.minimaxi.com/document/price" },
+    searchViaChat: { defaultModel: "MiniMax-M2.7", endpoint: "https://api.minimaxi.com/v1/text/chatcompletion_v2", pricingUrl: "https://www.minimaxi.com/document/price" },
     imageConfig: { baseUrl: "https://api.minimaxi.com/v1/images/generations" }
   },
   models: [

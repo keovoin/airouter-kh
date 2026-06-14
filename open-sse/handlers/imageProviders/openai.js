@@ -1,13 +1,8 @@
 // OpenAI-compatible adapter (used by openai, minimax, openrouter, recraft)
 import { PROVIDER_MEDIA } from "../../providers/index.js";
 
-// media-only providers without a registry file keep their URL here; rest derive from registry media.imageConfig.baseUrl
-const ENDPOINTS = {
-  recraft: "https://external.api.recraft.ai/v1/images/generations",
-};
-
 const imageCfg = (id) => PROVIDER_MEDIA[id]?.imageConfig || {};
-const imageUrl = (id) => imageCfg(id).baseUrl || ENDPOINTS[id];
+const imageUrl = (id) => imageCfg(id).baseUrl;
 
 export default function createOpenAIAdapter(providerId) {
   const cfg = imageCfg(providerId);

@@ -26,7 +26,8 @@ export default {
     ttsConfig: { baseUrl: "https://generativelanguage.googleapis.com/v1beta/models", authType: "apikey", authHeader: "key", format: "gemini-tts", models: [{ id: "gemini-2.5-flash-preview-tts", name: "Gemini 2.5 Flash TTS" }, { id: "gemini-2.5-pro-preview-tts", name: "Gemini 2.5 Pro TTS" }] },
     sttConfig: { baseUrl: "https://generativelanguage.googleapis.com/v1beta/models", authType: "apikey", authHeader: "key", format: "gemini-stt", models: [{ id: "gemini-2.5-pro", name: "Gemini 2.5 Pro (Best)" }, { id: "gemini-2.5-flash", name: "Gemini 2.5 Flash" }, { id: "gemini-2.5-flash-lite", name: "Gemini 2.5 Flash Lite (Cheapest)" }, { id: "gemini-2.0-flash", name: "Gemini 2.0 Flash" }] },
     embeddingConfig: { baseUrl: "https://generativelanguage.googleapis.com/v1beta/models", authType: "apikey", authHeader: "key", models: [{ id: "text-embedding-004", name: "Text Embedding 004", dimensions: 768 }, { id: "embedding-001", name: "Embedding 001", dimensions: 768 }] },
-    searchViaChat: { defaultModel: "gemini-2.5-flash", pricingUrl: "https://ai.google.dev/pricing", freeTier: "Free tier: 15 RPM, 1M tokens/day on gemini-2.5-flash via AI Studio." }
+    searchViaChat: { defaultModel: "gemini-2.5-flash", endpoint: "https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent", pricingUrl: "https://ai.google.dev/pricing", freeTier: "Free tier: 15 RPM, 1M tokens/day on gemini-2.5-flash via AI Studio." },
+    imageConfig: { baseUrl: "https://generativelanguage.googleapis.com/v1beta/models" }
   },
   "models": [
     {

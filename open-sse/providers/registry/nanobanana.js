@@ -20,6 +20,10 @@ export default {
     "baseUrl": "https://api.nanobananaapi.ai/v1/chat/completions",
     "validateUrl": "https://api.nanobananaapi.ai/v1/models"
   },
+  media: {
+    serviceKinds: ["llm", "image"],
+    imageConfig: { baseUrl: "https://api.nanobananaapi.ai/api/v1/nanobanana/generate", pollUrl: "https://api.nanobananaapi.ai/api/v1/nanobanana/record-info" }
+  },
   "models": [
     {
       "id": "nanobanana-flash",

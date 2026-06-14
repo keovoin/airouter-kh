@@ -22,7 +22,7 @@ export default {
   },
   media: {
     serviceKinds: ["llm", "webSearch"],
-    searchViaChat: { defaultModel: "sonar", pricingUrl: "https://docs.perplexity.ai/guides/pricing" }
+    searchViaChat: { defaultModel: "sonar", endpoint: "https://api.perplexity.ai/chat/completions", pricingUrl: "https://docs.perplexity.ai/guides/pricing" }
   },
   "models": [
     {

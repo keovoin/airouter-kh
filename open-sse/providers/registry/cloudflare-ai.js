@@ -22,7 +22,8 @@ export default {
   },
   media: {
     serviceKinds: ["llm", "image"],
-    hasProviderSpecificData: true
+    hasProviderSpecificData: true,
+    imageConfig: { baseUrl: "https://api.cloudflare.com/client/v4/accounts" }
   },
   "models": [
     {

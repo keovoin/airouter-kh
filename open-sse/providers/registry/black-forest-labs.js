@@ -17,6 +17,10 @@ export default {
   authType: "apikey",
   aliases: ["bfl"],
   "transport": null,
+  media: {
+    serviceKinds: ["image"],
+    imageConfig: { baseUrl: "https://api.bfl.ai/v1" }
+  },
   "models": [
     {
       "id": "flux-pro-1.1",

@@ -23,7 +23,7 @@ export default {
   },
   media: {
     serviceKinds: ["llm", "webSearch"],
-    searchViaChat: { defaultModel: "kimi-k2.5", pricingUrl: "https://platform.moonshot.ai/docs/pricing/chat" }
+    searchViaChat: { defaultModel: "kimi-k2.5", endpoint: "https://api.moonshot.cn/v1/chat/completions", pricingUrl: "https://platform.moonshot.ai/docs/pricing/chat" }
   },
   models: [
     { id: "kimi-k2.6", name: "Kimi K2.6" },

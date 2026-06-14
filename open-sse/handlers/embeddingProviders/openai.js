@@ -4,7 +4,6 @@ import { PROVIDER_MEDIA } from "../../providers/index.js";
 
 // media-only providers without a registry file keep URL here; rest derive from registry media.embeddingConfig.baseUrl
 const ENDPOINTS = {
-  "voyage-ai": "https://api.voyageai.com/v1/embeddings",
   "jina-ai": "https://api.jina.ai/v1/embeddings",
 };
 

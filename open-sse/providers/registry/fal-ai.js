@@ -17,6 +17,10 @@ export default {
   authType: "apikey",
   aliases: ["fal"],
   "transport": null,
+  media: {
+    serviceKinds: ["image"],
+    imageConfig: { baseUrl: "https://queue.fal.run" }
+  },
   "models": [
     {
       "id": "fal-ai/flux/schnell",

@@ -1,6 +1,7 @@
+
 export default {
-  "id": "mmf",
-  "alias": "mmf",
+  "id": "mmf",  display: { name: "MMF", icon: "hub", color: "#6366F1", textIcon: "MF" },
+  category: "apikey",
   "transport": {
     "baseUrl": "https://api.xiaomimimo.com/api/free-ai/openai/chat",
     "noAuth": true

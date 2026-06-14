@@ -1,12 +1,32 @@
+
 export default {
   "id": "openrouter",
   "alias": "openrouter",
+  display: {
+      "name": "OpenRouter",
+      "icon": "router",
+      "color": "#F97316",
+      "textIcon": "OR",
+      "website": "https://openrouter.ai",
+      "notice": {
+          "text": "Free tier: 27+ free models, no credit card needed, 200 req/day. After  0 credit: 1,000 req/day.",
+          "apiKeyUrl": "https://openrouter.ai/settings/keys"
+      }
+  },
+  category: "freeTier",
   "transport": {
     "baseUrl": "https://openrouter.ai/api/v1/chat/completions",
     "headers": {
       "HTTP-Referer": "https://endpoint-proxy.local",
       "X-Title": "Endpoint Proxy"
     }
+  },
+  media: {
+    serviceKinds: ["llm", "embedding", "tts", "imageToText"],
+    embeddingConfig: { baseUrl: "https://openrouter.ai/api/v1/embeddings", authType: "apikey", authHeader: "bearer", headers: { "HTTP-Referer": "https://endpoint-proxy.local", "X-Title": "Endpoint Proxy" }, models: [{ id: "openai/text-embedding-3-small", name: "Text Embedding 3 Small (OpenRouter)", dimensions: 1536 }, { id: "openai/text-embedding-3-large", name: "Text Embedding 3 Large (OpenRouter)", dimensions: 3072 }, { id: "openai/text-embedding-ada-002", name: "Text Embedding Ada 002 (OpenRouter)", dimensions: 1536 }] },
+    modelsFetcher: { url: "https://openrouter.ai/api/v1/models", type: "openrouter-free" },
+    imageConfig: { baseUrl: "https://openrouter.ai/api/v1/images/generations", headers: { "HTTP-Referer": "https://endpoint-proxy.local", "X-Title": "Endpoint Proxy" } },
+    passthroughModels: true
   },
   "models": [
     {

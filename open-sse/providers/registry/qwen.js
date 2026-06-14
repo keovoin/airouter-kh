@@ -1,11 +1,18 @@
+
 export default {
-  "id": "qwen",
-  "alias": "qw",
+  "id": "qwen",  alias: "qw",  display: { name: "Qwen Code", icon: "psychology", color: "#10B981", website: "https://chat.qwen.ai", notice: { signupUrl: "https://chat.qwen.ai" } },
+  category: "oauth",
   "transport": {
-    "baseUrl": "https://portal.qwen.ai/v1/chat/completions",
+    "baseUrl": "https://portal.qwen.ai/v1/chat/completions"
+  },
+  "oauth": {
     "clientId": "f0304373b74a44d2b584a3fb70ca9e56",
+    "deviceCodeUrl": "https://chat.qwen.ai/api/v1/oauth2/device/code",
     "tokenUrl": "https://chat.qwen.ai/api/v1/oauth2/token",
-    "authUrl": "https://chat.qwen.ai/api/v1/oauth2/device/code"
+    "scope": "openid profile email model.completion",
+    "codeChallengeMethod": "S256"
+  ,
+    refreshLeadMs: 1200000
   },
   "models": [
     {

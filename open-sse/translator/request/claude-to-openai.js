@@ -56,8 +56,10 @@ export function claudeToOpenAIRequest(model, body, stream) {
     }
   }
 
-  // Fix missing tool responses - OpenAI requires every tool_call to have a response
-  fixMissingToolResponses(result.messages);
+  // Fix missing tool responses - OpenAI requires every tool_call to have a response.
+  // Local variant: scans contiguous tool replies + inserts "[No response received]"
+  // (distinct from the global immediate-next check in toolCallHelper, runs on the openai leg).
+  fixMissingToolResponsesOpenAI(result.messages);
 
   // Tools
   if (body.tools && Array.isArray(body.tools)) {
@@ -80,7 +82,7 @@ export function claudeToOpenAIRequest(model, body, stream) {
 }
 
 // Fix missing tool responses - add empty responses for tool_calls without responses
-function fixMissingToolResponses(messages) {
+function fixMissingToolResponsesOpenAI(messages) {
   for (let i = 0; i < messages.length; i++) {
     const msg = messages[i];
     if (msg.role === "assistant" && msg.tool_calls && msg.tool_calls.length > 0) {

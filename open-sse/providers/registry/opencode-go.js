@@ -1,6 +1,21 @@
+
 export default {
   "id": "opencode-go",
   "alias": "opencode-go",
+  display: {
+      "name": "OpenCode Go",
+      "icon": "terminal",
+      "color": "#E87040",
+      "textIcon": "OC",
+      "website": "https://opencode.ai/auth",
+      "notice": {
+          "text": "OpenCode Go subscription: $5/mo (then  0/mo). Access to Kimi, GLM, Qwen, MiMo, MiniMax models.",
+          "apiKeyUrl": "https://opencode.ai/auth"
+      }
+  },
+  category: "apikey",
+  uiAlias: "ocg",
+  aliases: ["ocg"],
   "transport": {
     "baseUrl": "https://opencode.ai/zen/go/v1/chat/completions",
     "headers": {}

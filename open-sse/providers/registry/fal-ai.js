@@ -1,6 +1,21 @@
+
 export default {
   "id": "fal-ai",
   "alias": "fal-ai",
+  display: {
+    "name": "Fal.ai",
+    "icon": "image",
+    "color": "#2563EB",
+    "textIcon": "FL",
+    "website": "https://fal.ai",
+    "notice": {
+      "apiKeyUrl": "https://fal.ai/dashboard/keys"
+    }
+  },
+  category: "apikey",
+  uiAlias: "fal",
+  authType: "apikey",
+  aliases: ["fal"],
   "transport": null,
   "models": [
     {

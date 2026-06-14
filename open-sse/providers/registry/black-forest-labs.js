@@ -1,6 +1,21 @@
+
 export default {
   "id": "black-forest-labs",
   "alias": "black-forest-labs",
+  display: {
+      "name": "Black Forest Labs",
+      "icon": "image",
+      "color": "#111827",
+      "textIcon": "BF",
+      "website": "https://blackforestlabs.ai",
+      "notice": {
+          "apiKeyUrl": "https://api.bfl.ai"
+      }
+  },
+  category: "apikey",
+  uiAlias: "bfl",
+  authType: "apikey",
+  aliases: ["bfl"],
   "transport": null,
   "models": [
     {

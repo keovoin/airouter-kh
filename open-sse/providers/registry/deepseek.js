@@ -1,8 +1,24 @@
+
 export default {
   "id": "deepseek",
   "alias": "deepseek",
+  display: {
+      "name": "DeepSeek",
+      "icon": "bolt",
+      "color": "#4D6BFE",
+      "textIcon": "DS",
+      "website": "https://deepseek.com",
+      "notice": {
+          "apiKeyUrl": "https://platform.deepseek.com/api_keys"
+      }
+  },
+  category: "apikey",
+  uiAlias: "ds",
+  aliases: ["ds"],
   "transport": {
-    "baseUrl": "https://api.deepseek.com/chat/completions"
+    "baseUrl": "https://api.deepseek.com/chat/completions",
+    "validateUrl": "https://api.deepseek.com/models",
+    reasoningInject: { scope: "all" }
   },
   "models": [
     {

@@ -1,8 +1,23 @@
+
 export default {
   "id": "xiaomi-mimo",
   "alias": "xiaomi-mimo",
+  display: {
+      "name": "Xiaomi MiMo",
+      "icon": "smart_toy",
+      "color": "#FF6900",
+      "textIcon": "XM",
+      "website": "https://xiaomimimo.com",
+      "notice": {
+          "apiKeyUrl": "https://xiaomimimo.com"
+      }
+  },
+  category: "apikey",
+  uiAlias: "mimo",
+  aliases: ["mimo"],
   "transport": {
-    "baseUrl": "https://api.xiaomimimo.com/v1/chat/completions"
+    "baseUrl": "https://api.xiaomimimo.com/v1/chat/completions",
+    "validateUrl": "https://api.xiaomimimo.com/v1/models"
   },
   "models": [
     {

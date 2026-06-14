@@ -3,6 +3,7 @@ import { DEFAULT_THINKING_CLAUDE_SIGNATURE } from "../../config/defaultThinkingS
 import { adjustMaxTokens } from "./maxTokensHelper.js";
 import { applyCloaking } from "../../utils/claudeCloaking.js";
 import { deriveSessionId } from "../../utils/sessionManager.js";
+import { PROVIDERS } from "../../providers/index.js";
 
 // Check if message has valid non-empty content
 export function hasValidContent(msg) {
@@ -122,8 +123,6 @@ export function normalizeClaudePassthrough(body, model = "") {
   return body;
 }
 
-const CLAUDE_FORMAT_PROVIDERS_WITHOUT_OUTPUT_CONFIG = new Set(["minimax", "minimax-cn"]);
-
 // Prepare request for Claude format endpoints
 // - Cleanup cache_control
 // - Filter empty messages
@@ -131,9 +130,8 @@ const CLAUDE_FORMAT_PROVIDERS_WITHOUT_OUTPUT_CONFIG = new Set(["minimax", "minim
 // - Fix tool_use/tool_result ordering
 // - Apply cloaking (billing header + fake user ID) for OAuth tokens
 export function prepareClaudeRequest(body, provider = null, apiKey = null, connectionId = null) {
-  // MiniMax exposes a Claude-compatible endpoint but rejects Anthropic's extended
-  // structured output parameter with a generic 400 "invalid params" response.
-  if (CLAUDE_FORMAT_PROVIDERS_WITHOUT_OUTPUT_CONFIG.has(provider)) {
+  // quirk: MiniMax's Claude-compatible endpoint rejects Anthropic's output_config (400 invalid params)
+  if (PROVIDERS[provider]?.quirks?.dropOutputConfig) {
     delete body.output_config;
   }
 

@@ -1,6 +1,18 @@
+
 export default {
   "id": "cursor",
   "alias": "cu",
+  display: {
+      "name": "Cursor IDE",
+      "icon": "edit_note",
+      "color": "#00D4AA",
+      "website": "https://cursor.com",
+      "notice": {
+          "signupUrl": "https://cursor.com"
+      }
+  },
+  category: "oauth",
+  uiAlias: "cu",
   "transport": {
     "baseUrl": "https://api2.cursor.sh",
     "chatPath": "/aiserver.v1.ChatService/StreamUnifiedChatWithTools",
@@ -12,6 +24,20 @@ export default {
       "User-Agent": "connect-es/1.6.1"
     },
     "clientVersion": "3.1.0"
+  },
+  "oauth": {
+    "apiEndpoint": "https://api2.cursor.sh",
+    "chatEndpoint": "/aiserver.v1.ChatService/StreamUnifiedChatWithTools",
+    "modelsEndpoint": "/aiserver.v1.AiService/GetDefaultModelNudgeData",
+    "api3Endpoint": "https://api3.cursor.sh",
+    "agentEndpoint": "https://agent.api5.cursor.sh",
+    "agentNonPrivacyEndpoint": "https://agentn.api5.cursor.sh",
+    "clientVersion": "3.1.0",
+    "clientType": "ide",
+    "dbKeys": {
+      "accessToken": "cursorAuth/accessToken",
+      "machineId": "storage.serviceMachineId"
+    }
   },
   "models": [
     {

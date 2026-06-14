@@ -1,9 +1,28 @@
+
 export default {
   "id": "kilocode",
   "alias": "kc",
+  display: {
+      "name": "Kilo Code",
+      "icon": "code",
+      "color": "#FF6B35",
+      "textIcon": "KC",
+      "website": "https://kilocode.ai",
+      "notice": {
+          "signupUrl": "https://kilocode.ai"
+      }
+  },
+  category: "oauth",
+  uiAlias: "kc",
   "transport": {
     "baseUrl": "https://api.kilo.ai/api/openrouter/chat/completions",
-    "headers": {}
+    "headers": {},
+      auth: {"combined":true,"header":"Authorization","scheme":"bearer","hooks":["kilocodeOrg"]},
+  },
+  "oauth": {
+    "apiBaseUrl": "https://api.kilo.ai",
+    "initiateUrl": "https://api.kilo.ai/api/device-auth/codes",
+    "pollUrlBase": "https://api.kilo.ai/api/device-auth/codes"
   },
   "models": [
     {
@@ -38,5 +57,5 @@ export default {
       "id": "deepseek/deepseek-reasoner",
       "name": "DeepSeek Reasoner"
     }
-  ]
+  ],
 };

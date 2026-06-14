@@ -1,6 +1,20 @@
+
 export default {
   "id": "github",
   "alias": "gh",
+  display: {
+      "name": "GitHub Copilot",
+      "icon": "code",
+      "color": "#333333",
+      "website": "https://github.com/features/copilot",
+      "notice": {
+          "signupUrl": "https://github.com/features/copilot"
+      },
+      "deprecated": true,
+      "deprecationNotice": "RISK_NOTICE"
+  },
+  category: "oauth",
+  uiAlias: "gh",
   "transport": {
     "baseUrl": "https://api.githubcopilot.com/chat/completions",
     "responsesUrl": "https://api.githubcopilot.com/responses",
@@ -16,7 +30,25 @@ export default {
       "Accept": "application/json",
       "Content-Type": "application/json"
     },
-    "clientId": "Iv1.b507a08c87ecfe98"
+    copilot: { vscodeVersion: "1.110.0", chatVersion: "0.38.0", userAgent: "GitHubCopilotChat/0.38.0", apiVersion: "2025-04-01" },
+    usage: { url: "https://api.github.com/copilot_internal/user" }
+  },
+  "oauth": {
+    "clientId": "Iv1.b507a08c87ecfe98",
+    "authorizeUrl": "https://github.com/login/oauth/authorize",
+    "deviceCodeUrl": "https://github.com/login/device/code",
+    "tokenUrl": "https://github.com/login/oauth/access_token",
+    "userInfoUrl": "https://api.github.com/user",
+    "scopes": "read:user",
+    "apiVersion": "2022-11-28",
+    "copilotTokenUrl": "https://api.github.com/copilot_internal/v2/token",
+    "userAgent": "GitHubCopilotChat/0.26.7",
+    "editorVersion": "vscode/1.85.0",
+    "editorPluginVersion": "copilot-chat/0.26.7"
+  },
+  media: {
+    serviceKinds: ["llm", "embedding"],
+    embeddingConfig: { baseUrl: "https://models.github.ai/inference/embeddings", authType: "apikey", authHeader: "bearer", models: [{ id: "text-embedding-3-small", name: "Text Embedding 3 Small (GitHub)", dimensions: 1536 }, { id: "text-embedding-3-large", name: "Text Embedding 3 Large (GitHub)", dimensions: 3072 }] }
   },
   "models": [
     {
@@ -125,5 +157,6 @@ export default {
       "name": "Text Embedding 3 Large (GitHub)",
       "type": "embedding"
     }
-  ]
+  ],
+  features: {"usage":true},
 };

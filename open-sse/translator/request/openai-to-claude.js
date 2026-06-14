@@ -3,6 +3,7 @@ import { FORMATS } from "../formats.js";
 import { CLAUDE_SYSTEM_PROMPT } from "../../config/appConstants.js";
 import { adjustMaxTokens } from "../helpers/maxTokensHelper.js";
 import { safeParseJSON } from "../helpers/jsonUtil.js";
+import { parseDataUri } from "../helpers/imageHelper.js";
 
 // Empty prefix matches real Claude Code behavior (no tool name prefix).
 // Previously "proxy_" was used but this is a detectable fingerprint difference.
@@ -235,11 +236,11 @@ function getContentBlocksFromMessage(msg, toolNameMap = new Map()) {
           });
         } else if (part.type === "image_url") {
           const url = part.image_url.url;
-          const match = url.match(/^data:([^;]+);base64,(.+)$/);
-          if (match) {
+          const parsed = parseDataUri(url);
+          if (parsed) {
             blocks.push({
               type: "image",
-              source: { type: "base64", media_type: match[1], data: match[2] }
+              source: { type: "base64", media_type: parsed.mimeType, data: parsed.base64 }
             });
           } else if (url.startsWith("http://") || url.startsWith("https://")) {
             blocks.push({

@@ -1,6 +1,20 @@
+
 export default {
   "id": "blackbox",
   "alias": "blackbox",
+  display: {
+      "name": "Blackbox AI",
+      "icon": "smart_toy",
+      "color": "#5B5FEF",
+      "textIcon": "BB",
+      "website": "https://blackbox.ai",
+      "notice": {
+          "apiKeyUrl": "https://www.blackbox.ai/api-management"
+      }
+  },
+  category: "apikey",
+  uiAlias: "bb",
+  aliases: ["bb"],
   "transport": {
     "baseUrl": "https://api.blackbox.ai/chat/completions"
   },

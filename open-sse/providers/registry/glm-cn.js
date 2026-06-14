@@ -1,9 +1,22 @@
+
 export default {
   "id": "glm-cn",
   "alias": "glm-cn",
+  display: {
+      "name": "GLM (China)",
+      "icon": "code",
+      "color": "#DC2626",
+      "textIcon": "GC",
+      "website": "https://open.bigmodel.cn",
+      "notice": {
+          "apiKeyUrl": "https://open.bigmodel.cn/usercenter/apikeys"
+      }
+  },
+  category: "apikey",
   "transport": {
     "baseUrl": "https://open.bigmodel.cn/api/coding/paas/v4/chat/completions",
-    "headers": {}
+    "headers": {},
+    usage: { url: "https://open.bigmodel.cn/api/monitor/usage/quota/limit" }
   },
   "models": [
     {
@@ -26,5 +39,6 @@ export default {
       "id": "glm-4.5-air",
       "name": "GLM-4.5-Air"
     }
-  ]
+  ],
+  features: {"usage":true,"usageApikey":true},
 };

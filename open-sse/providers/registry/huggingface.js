@@ -1,6 +1,22 @@
+
 export default {
   "id": "huggingface",
   "alias": "huggingface",
+  display: {
+      "name": "HuggingFace",
+      "icon": "face",
+      "color": "#FFD21E",
+      "textIcon": "HF",
+      "website": "https://huggingface.co",
+      "notice": {
+          "apiKeyUrl": "https://huggingface.co/settings/tokens"
+      }
+  },
+  category: "apikey",
+  uiAlias: "hf",
+  authType: "apikey",
+  hiddenKinds: ["tts"],
+  aliases: ["hf"],
   "transport": null,
   "models": [
     {

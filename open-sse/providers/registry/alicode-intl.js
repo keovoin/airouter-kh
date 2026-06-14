@@ -1,6 +1,18 @@
+
 export default {
   "id": "alicode-intl",
   "alias": "alicode-intl",
+  display: {
+      "name": "Alibaba Intl",
+      "icon": "cloud",
+      "color": "#FF6A00",
+      "textIcon": "ALi",
+      "website": "https://modelstudio.console.alibabacloud.com",
+      "notice": {
+          "apiKeyUrl": "https://modelstudio.console.alibabacloud.com/?apiKey=1"
+      }
+  },
+  category: "apikey",
   "transport": {
     "baseUrl": "https://coding-intl.dashscope.aliyuncs.com/v1/chat/completions",
     "headers": {}

@@ -5,6 +5,7 @@ import { cloakClaudeTools } from "../utils/claudeCloaking.js";
 import { filterToOpenAIFormat } from "./helpers/openaiHelper.js";
 import { normalizeThinkingConfig } from "../services/provider.js";
 import { AntigravityExecutor } from "../executors/antigravity.js";
+import { PROVIDERS } from "../providers/index.js";
 
 // Registry for translators
 const requestRegistry = new Map();
@@ -122,8 +123,8 @@ export function translateRequest(sourceFormat, targetFormat, model, body, stream
   }
 
   // Claude cloaking: rename client tools with _cc suffix (anti-ban)
-  // Only for claude provider (not anthropic-compatible-*) with OAuth token
-  if (provider === "claude") {
+  // quirk: only providers flagged cloakToolsOnOAuth, and only with an OAuth token
+  if (PROVIDERS[provider]?.quirks?.cloakToolsOnOAuth) {
     const apiKey = credentials?.accessToken || credentials?.apiKey || null;
     if (apiKey?.includes("sk-ant-oat")) {
       const { body: cloakedBody, toolNameMap } = cloakClaudeTools(result);

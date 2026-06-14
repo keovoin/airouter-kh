@@ -1,6 +1,21 @@
+
 export default {
   "id": "runwayml",
   "alias": "runwayml",
+  display: {
+      "name": "Runway ML",
+      "icon": "movie",
+      "color": "#000000",
+      "textIcon": "RW",
+      "website": "https://runwayml.com",
+      "notice": {
+          "apiKeyUrl": "https://dev.runwayml.com"
+      }
+  },
+  category: "apikey",
+  uiAlias: "runway",
+  authType: "apikey",
+  aliases: ["runway"],
   "transport": null,
   "models": [
     {

@@ -1,6 +1,20 @@
+
 export default {
   "id": "vertex-partner",
   "alias": "vertex-partner",
+  display: {
+      "name": "Vertex Partner",
+      "icon": "cloud",
+      "color": "#34A853",
+      "textIcon": "VP",
+      "website": "https://cloud.google.com/vertex-ai/generative-ai/docs/partner-models/use-partner-models",
+      "notice": {
+          "apiKeyUrl": "https://console.cloud.google.com/iam-admin/serviceaccounts"
+      }
+  },
+  category: "apikey",
+  uiAlias: "vxp",
+  aliases: ["vxp"],
   "transport": {
     "baseUrl": "https://aiplatform.googleapis.com"
   },

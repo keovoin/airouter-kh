@@ -1,5 +1,6 @@
 import { register } from "../index.js";
 import { FORMATS } from "../formats.js";
+import { parseDataUri } from "../helpers/imageHelper.js";
 
 /**
  * Convert OpenAI request to Ollama format
@@ -179,10 +180,10 @@ function extractImagesFromContent(content) {
     const url = typeof block.image_url === "string" ? block.image_url : block.image_url?.url;
     if (typeof url !== "string" || !url) continue;
 
-    const m = url.match(/^data:[^;]+;base64,([\s\S]+)$/);
-    if (!m) continue;
+    const parsed = parseDataUri(url);
+    if (!parsed) continue;
 
-    images.push(m[1]);
+    images.push(parsed.base64);
   }
 
   return images;

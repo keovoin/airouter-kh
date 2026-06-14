@@ -12,6 +12,7 @@ import {
   KIRO_AGENTIC_SYSTEM_PROMPT,
   resolveDefaultProfileArn
 } from "../../config/kiroConstants.js";
+import { parseDataUri } from "../helpers/imageHelper.js";
 
 /** Render a single tool call as a readable text line. */
 function toolCallToText(name, input) {
@@ -289,11 +290,10 @@ function convertMessages(messages, tools, model) {
           } else if (c.type === "image_url") {
             // OpenAI format: image_url.url with data URI
             const url = c.image_url?.url || "";
-            const base64Match = url.match(/^data:([^;]+);base64,(.+)$/);
-            if (base64Match) {
-              const mediaType = base64Match[1];
-              const format = mediaType.split("/")[1] || mediaType;
-              pendingImages.push({ format, source: { bytes: base64Match[2] } });
+            const parsed = parseDataUri(url);
+            if (parsed) {
+              const format = parsed.mimeType.split("/")[1] || parsed.mimeType;
+              pendingImages.push({ format, source: { bytes: parsed.base64 } });
             } else if (url.startsWith("http://") || url.startsWith("https://")) {
               // Kiro only supports base64 — fallback to URL text
               textParts.push(`[Image: ${url}]`);

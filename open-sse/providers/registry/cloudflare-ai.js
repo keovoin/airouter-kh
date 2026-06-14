@@ -1,8 +1,28 @@
+
 export default {
   "id": "cloudflare-ai",
   "alias": "cloudflare-ai",
+  display: {
+      "name": "Cloudflare",
+      "icon": "cloud",
+      "color": "#F38020",
+      "textIcon": "CF",
+      "website": "https://developers.cloudflare.com/workers-ai/",
+      "notice": {
+          "text": "Workers AI free tier. Requires a Cloudflare API token and Account ID.",
+          "apiKeyUrl": "https://dash.cloudflare.com/profile/api-tokens"
+      }
+  },
+  category: "freeTier",
+  uiAlias: "cf",
+  hasProviderSpecificData: true,
+  aliases: ["cf"],
   "transport": {
     "baseUrl": "https://api.cloudflare.com/client/v4/accounts/{accountId}/ai/v1/chat/completions"
+  },
+  media: {
+    serviceKinds: ["llm", "image"],
+    hasProviderSpecificData: true
   },
   "models": [
     {

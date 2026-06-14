@@ -1,6 +1,20 @@
+
 export default {
   "id": "kiro",
   "alias": "kr",
+  display: {
+      "name": "Kiro AI",
+      "icon": "psychology_alt",
+      "color": "#FF6B35",
+      "website": "https://kiro.dev",
+      "notice": {
+          "signupUrl": "https://kiro.dev"
+      },
+      "deprecated": true,
+      "deprecationNotice": "RISK_NOTICE"
+  },
+  category: "free",
+  uiAlias: "kr",
   "transport": {
     "baseUrl": "https://runtime.us-east-1.kiro.dev/generateAssistantResponse",
     "baseUrls": [
@@ -20,7 +34,29 @@ export default {
       "X-Amz-User-Agent": "aws-sdk-js/3.0.0 kiro-ide/1.0.0"
     },
     "tokenUrl": "https://prod.us-east-1.auth.desktop.kiro.dev/refreshToken",
-    "authUrl": "https://prod.us-east-1.auth.desktop.kiro.dev"
+    "authUrl": "https://prod.us-east-1.auth.desktop.kiro.dev",
+    usage: {
+      cwHost: "https://codewhisperer.us-east-1.amazonaws.com",
+      qHost: "https://q.us-east-1.amazonaws.com",
+      limitsPath: "/getUsageLimits"
+    }
+  },
+  "oauth": {
+    "ssoOidcEndpoint": "https://oidc.us-east-1.amazonaws.com",
+    "registerClientUrl": "https://oidc.us-east-1.amazonaws.com/client/register",
+    "deviceAuthUrl": "https://oidc.us-east-1.amazonaws.com/device_authorization",
+    "tokenUrl": "https://oidc.us-east-1.amazonaws.com/token",
+    "startUrl": "https://view.awsapps.com/start",
+    "clientName": "kiro-oauth-client",
+    "clientType": "public",
+    "scopes": ["codewhisperer:completions", "codewhisperer:analysis", "codewhisperer:conversations"],
+    "grantTypes": ["urn:ietf:params:oauth:grant-type:device_code", "refresh_token"],
+    "issuerUrl": "https://identitycenter.amazonaws.com/ssoins-722374e8c3c8e6c6",
+    "socialAuthEndpoint": "https://prod.us-east-1.auth.desktop.kiro.dev",
+    "socialLoginUrl": "https://prod.us-east-1.auth.desktop.kiro.dev/login",
+    "socialTokenUrl": "https://prod.us-east-1.auth.desktop.kiro.dev/oauth/token",
+    "socialRefreshUrl": "https://prod.us-east-1.auth.desktop.kiro.dev/refreshToken",
+    "authMethods": ["builder-id", "idc", "google", "github", "import"]
   },
   "models": [
     {
@@ -79,5 +115,6 @@ export default {
       "id": "claude-haiku-4.5-thinking-agentic",
       "name": "Claude Haiku 4.5 (Thinking + Agentic)"
     }
-  ]
+  ],
+  features: {"usage":true},
 };

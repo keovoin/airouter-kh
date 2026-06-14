@@ -1,6 +1,20 @@
+
 export default {
   "id": "grok-web",
   "alias": "grok-web",
+  display: {
+      "name": "Grok Web (Subscription)",
+      "icon": "auto_awesome",
+      "color": "#1DA1F2",
+      "textIcon": "GW",
+      "website": "https://grok.com"
+  },
+  category: "webCookie",
+  uiAlias: "gw",
+  authType: "cookie",
+  authHint: "Paste your sso= cookie value from grok.com",
+  passthroughModels: true,
+  aliases: ["gw"],
   "transport": {
     "baseUrl": "https://grok.com/rest/app-chat/conversations/new",
     "format": "grok-web",

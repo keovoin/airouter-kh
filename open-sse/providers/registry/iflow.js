@@ -1,15 +1,25 @@
+
 export default {
-  "id": "iflow",
-  "alias": "if",
+  "id": "iflow",  alias: "if",  display: { name: "iFlow AI", icon: "water_drop", color: "#6366F1", website: "https://iflow.cn", notice: { signupUrl: "https://iflow.cn" } },
+  category: "oauth",
   "transport": {
     "baseUrl": "https://apis.iflow.cn/v1/chat/completions",
     "headers": {
       "User-Agent": "iFlow-Cli"
-    },
+    }
+  },
+  "oauth": {
     "clientId": "10009311001",
     "clientSecret": "4Z3YjXycVsQvyGF1etiNlIBB4RsqSDtW",
+    "authorizeUrl": "https://iflow.cn/oauth",
     "tokenUrl": "https://iflow.cn/oauth/token",
-    "authUrl": "https://iflow.cn/oauth"
+    "userInfoUrl": "https://iflow.cn/api/oauth/getUserInfo",
+    "extraParams": {
+      "loginMethod": "phone",
+      "type": "phone"
+    }
+  ,
+    refreshLeadMs: 86400000
   },
   "models": [
     {

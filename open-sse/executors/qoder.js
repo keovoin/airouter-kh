@@ -20,8 +20,8 @@
  *     different model upstream, so a missing entry is a hard error.
  */
 
-import { qoderEncodeBody } from "@/lib/qoder/encoding.js";
-import { buildCosyHeaders } from "@/lib/qoder/cosy.js";
+import { qoderEncodeBody } from "../shared/qoder/encoding.js";
+import { buildCosyHeaders } from "../shared/qoder/cosy.js";
 import { v4 as uuidv4 } from "uuid";
 import { createHash } from "crypto";
 
@@ -33,7 +33,7 @@ import { FETCH_CONNECT_TIMEOUT_MS } from "../config/runtimeConfig.js";
 import {
   QODER_CHAT_URL_ENCODED,
   QODER_MODEL_MAP,
-} from "@/lib/qoder/constants.js";
+} from "../shared/qoder/constants.js";
 import { getQoderModelConfig, resolveQoderModels } from "../services/qoderModels.js";
 
 /**

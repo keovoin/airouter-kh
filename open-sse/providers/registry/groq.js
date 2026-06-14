@@ -1,8 +1,25 @@
+
 export default {
   "id": "groq",
   "alias": "groq",
+  display: {
+      "name": "Groq",
+      "icon": "speed",
+      "color": "#F55036",
+      "textIcon": "GQ",
+      "website": "https://groq.com",
+      "notice": {
+          "apiKeyUrl": "https://console.groq.com/keys"
+      }
+  },
+  category: "apikey",
   "transport": {
-    "baseUrl": "https://api.groq.com/openai/v1/chat/completions"
+    "baseUrl": "https://api.groq.com/openai/v1/chat/completions",
+    "validateUrl": "https://api.groq.com/openai/v1/models"
+  },
+  media: {
+    serviceKinds: ["llm", "imageToText", "stt"],
+    sttConfig: { baseUrl: "https://api.groq.com/openai/v1/audio/transcriptions", authType: "apikey", authHeader: "bearer", format: "openai", models: [{ id: "whisper-large-v3", name: "Whisper Large v3" }, { id: "whisper-large-v3-turbo", name: "Whisper Large v3 Turbo" }, { id: "distil-whisper-large-v3-en", name: "Distil Whisper Large v3 EN" }] }
   },
   "models": [
     {

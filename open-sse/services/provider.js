@@ -1,13 +1,14 @@
 import { PROVIDERS } from "../config/providers.js";
+import { OPENAI_COMPAT_BASE, ANTHROPIC_COMPAT_BASE } from "../providers/shared.js";
 
 const OPENAI_COMPATIBLE_PREFIX = "openai-compatible-";
 const OPENAI_COMPATIBLE_DEFAULTS = {
-  baseUrl: "https://api.openai.com/v1",
+  baseUrl: OPENAI_COMPAT_BASE,
 };
 
 const ANTHROPIC_COMPATIBLE_PREFIX = "anthropic-compatible-";
 const ANTHROPIC_COMPATIBLE_DEFAULTS = {
-  baseUrl: "https://api.anthropic.com/v1",
+  baseUrl: ANTHROPIC_COMPAT_BASE,
 };
 
 function isOpenAICompatible(provider) {

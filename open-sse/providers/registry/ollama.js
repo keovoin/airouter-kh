@@ -1,9 +1,26 @@
+
 export default {
   "id": "ollama",
   "alias": "ollama",
+  display: {
+      "name": "Ollama Cloud",
+      "icon": "cloud",
+      "color": "#ffffffff",
+      "textIcon": "OL",
+      "website": "https://ollama.com",
+      "notice": {
+          "text": "Free tier: light usage, 1 cloud model at a time (limits reset every 5h & 7d). Pro $20/mo · Max $100/mo.",
+          "apiKeyUrl": "https://ollama.com/settings/keys"
+      }
+  },
+  category: "freeTier",
   "transport": {
     "baseUrl": "https://ollama.com/api/chat",
+    "validateUrl": "https://ollama.com/api/tags",
     "format": "ollama"
+  },
+  media: {
+    serviceKinds: ["llm"]
   },
   "models": [
     {
@@ -30,5 +47,6 @@ export default {
       "id": "qwen3.5",
       "name": "Qwen3.5"
     }
-  ]
+  ],
+  features: {"usage":true},
 };

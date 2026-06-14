@@ -1,5 +1,5 @@
 // Codex auto-generates a "-review" variant for each llm model (review quota family)
-const CODEX_REVIEW_SUFFIX = "-review";
+export const CODEX_REVIEW_SUFFIX = "-review";
 
 export function withCodexReviewModels(models) {
   return models.flatMap((model) => {

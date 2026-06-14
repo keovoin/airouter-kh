@@ -1,8 +1,25 @@
+
 export default {
   "id": "together",
   "alias": "together",
+  display: {
+      "name": "Together AI",
+      "icon": "group_work",
+      "color": "#0F6FFF",
+      "textIcon": "TG",
+      "website": "https://www.together.ai",
+      "notice": {
+          "apiKeyUrl": "https://api.together.xyz/settings/api-keys"
+      }
+  },
+  category: "apikey",
+  authType: "apikey",
   "transport": {
-    "baseUrl": "https://api.together.xyz/v1/chat/completions"
+    "baseUrl": "https://api.together.xyz/v1/chat/completions",
+    "validateUrl": "https://api.together.xyz/v1/models"
+  },
+  media: {
+    embeddingConfig: { baseUrl: "https://api.together.xyz/v1/embeddings" }
   },
   "models": [
     {

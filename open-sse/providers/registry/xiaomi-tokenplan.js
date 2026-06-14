@@ -1,8 +1,31 @@
+
 export default {
   "id": "xiaomi-tokenplan",
   "alias": "xiaomi-tokenplan",
+  display: {
+      "name": "Xiaomi MiMo (Token Plan)",
+      "icon": "smart_toy",
+      "color": "#FF6700",
+      "textIcon": "XT",
+      "website": "https://mimo.xiaomi.com",
+      "notice": {
+          "text": "Xiaomi MiMo Token Plan subscription (API key starts with tp-). Token Plan keys are cluster-specific — select the region matching your subscription.",
+          "apiKeyUrl": "https://mimo.xiaomi.com"
+      }
+  },
+  category: "apikey",
+  uiAlias: "xmtp",
+  hasProviderSpecificData: true,
+  defaultRegion: "sgp",
+  aliases: ["xmtp"],
   "transport": {
-    "baseUrl": "https://token-plan-sgp.xiaomimimo.com/v1/chat/completions"
+    "baseUrl": "https://token-plan-sgp.xiaomimimo.com/v1/chat/completions",
+    regions: {
+      sgp: "https://token-plan-sgp.xiaomimimo.com/v1",
+      cn: "https://token-plan-cn.xiaomimimo.com/v1",
+      ams: "https://token-plan-ams.xiaomimimo.com/v1"
+    },
+    defaultRegion: "sgp"
   },
   "models": [
     {

@@ -1,6 +1,20 @@
 export default {
   "id": "commandcode",
   "alias": "commandcode",
+  display: {
+      "name": "Command Code",
+      "icon": "smart_toy",
+      "color": "#000000",
+      "textIcon": "CC",
+      "website": "https://commandcode.ai",
+      "notice": {
+          "text": "Use your CommandCode CLI API key (starts with user_...) from ~/.commandcode/auth.json or commandcode.ai/studio.",
+          "apiKeyUrl": "https://commandcode.ai/studio"
+      }
+  },
+  category: "apikey",
+  uiAlias: "cmc",
+  aliases: ["cmc"],
   "transport": {
     "baseUrl": "https://api.commandcode.ai/alpha/generate",
     "format": "commandcode",

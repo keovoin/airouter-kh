@@ -1,6 +1,19 @@
+
 export default {
   "id": "recraft",
   "alias": "recraft",
+  display: {
+      "name": "Recraft",
+      "icon": "image",
+      "color": "#EC4899",
+      "textIcon": "RC",
+      "website": "https://recraft.ai",
+      "notice": {
+          "apiKeyUrl": "https://www.recraft.ai/profile/api"
+      }
+  },
+  category: "apikey",
+  authType: "apikey",
   "transport": null,
   "models": [
     {

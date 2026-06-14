@@ -18,11 +18,7 @@ const ALIAS_TOKENS = [
   "chutes","ark","volcengine-ark","byteplus","bpm","cursor","vx","vertex","vxp","vertex-partner",
   "gw","grok-web","pw","perplexity-web","mimo","xiaomi-mimo","xmtp","xiaomi-tokenplan","cf",
   "cloudflare-ai","fal","fal-ai","stability","stability-ai","bfl","black-forest-labs","recraft",
-  "topaz","runway","runwayml","jina","jina-ai","polly","aws-polly","agentrouter","aimlapi","aiml",
-  "novita","modal","mdl","reka","nlpcloud","nlpc","bazaarlink","bzl","completions","cpl","enally",
-  "enly","freetheai","fta","llm7","lepton","kluster","ai21","inference-net","inet","predibase",
-  "bytez","morph","longcat","lc","puter","pu","uncloseai","unc","scaleway","scw","deepinfra",
-  "sambanova","samba","nscale","baseten","publicai","nous-research","nous","glhf","bb","blackbox",
+  "topaz","runway","runwayml","jina","jina-ai","polly","aws-polly","bb","blackbox",
 ];
 
 // Sort idToAlias by key — runtime accesses by key, order is irrelevant (content-based)

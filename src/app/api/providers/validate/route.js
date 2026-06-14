@@ -363,26 +363,12 @@ export async function POST(request) {
         case "xiaomi-tokenplan":
         case "nvidia": {
           const endpoints = {
-            deepseek: "https://api.deepseek.com/models",
-            groq: "https://api.groq.com/openai/v1/models",
-            xai: "https://api.x.ai/v1/models",
-            mistral: "https://api.mistral.ai/v1/models",
-            perplexity: "https://api.perplexity.ai/models",
-            together: "https://api.together.xyz/v1/models",
-            fireworks: "https://api.fireworks.ai/inference/v1/models",
-            cerebras: "https://api.cerebras.ai/v1/models",
-            cohere: "https://api.cohere.ai/v1/models",
-            nebius: "https://api.studio.nebius.ai/v1/models",
-            siliconflow: "https://api.siliconflow.com/v1/models",
-            hyperbolic: "https://api.hyperbolic.xyz/v1/models",
-            ollama: "https://ollama.com/api/tags",
+            ...Object.fromEntries(
+              Object.entries(PROVIDERS).filter(([, t]) => t.validateUrl).map(([id, t]) => [id, t.validateUrl])
+            ),
+            // dynamic URLs (depend on providerSpecificData) — kept inline
             "ollama-local": `${resolveOllamaLocalHost({ providerSpecificData })}/api/tags`,
-            assemblyai: "https://api.assemblyai.com/v1/account",
-            nanobanana: "https://api.nanobananaapi.ai/v1/models",
-            chutes: "https://llm.chutes.ai/v1/models",
-            nvidia: "https://integrate.api.nvidia.com/v1/models",
-            "xiaomi-mimo": "https://api.xiaomimimo.com/v1/models",
-            "xiaomi-tokenplan": `${resolveXiaomiTokenplanBaseUrl({ providerSpecificData })}/models`
+            "xiaomi-tokenplan": `${resolveXiaomiTokenplanBaseUrl({ providerSpecificData })}/models`,
           };
           const headers = {};
           if (apiKey) headers["Authorization"] = `Bearer ${apiKey}`;

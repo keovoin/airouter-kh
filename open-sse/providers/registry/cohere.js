@@ -1,8 +1,21 @@
+
 export default {
   "id": "cohere",
   "alias": "cohere",
+  display: {
+      "name": "Cohere",
+      "icon": "hub",
+      "color": "#39594D",
+      "textIcon": "CO",
+      "website": "https://cohere.com",
+      "notice": {
+          "apiKeyUrl": "https://dashboard.cohere.com/api-keys"
+      }
+  },
+  category: "apikey",
   "transport": {
-    "baseUrl": "https://api.cohere.ai/v1/chat/completions"
+    "baseUrl": "https://api.cohere.ai/v1/chat/completions",
+    "validateUrl": "https://api.cohere.ai/v1/models"
   },
   "models": [
     {

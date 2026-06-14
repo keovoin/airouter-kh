@@ -1,4 +1,4 @@
-import { PROVIDERS } from "../config/providers.js";
+import { PROVIDERS, PROVIDER_OAUTH } from "../config/providers.js";
 import { OAUTH_ENDPOINTS, GITHUB_COPILOT, REFRESH_LEAD_MS } from "../config/appConstants.js";
 import { proxyAwareFetch } from "../utils/proxyFetch.js";
 
@@ -574,7 +574,7 @@ export async function refreshCopilotToken(githubAccessToken, log) {
   if (!githubAccessToken) return null;
   return dedupRefresh("copilot", githubAccessToken, async () => {
   try {
-    const response = await fetch("https://api.github.com/copilot_internal/v2/token", {
+    const response = await fetch(PROVIDER_OAUTH["github"]?.copilotTokenUrl, {
       headers: {
         "Authorization": `token ${githubAccessToken}`,
         "User-Agent": GITHUB_COPILOT.USER_AGENT,
@@ -790,12 +790,12 @@ export async function refreshVertexToken(saJson, log) {
     const jwt = await new SignJWT({ scope: "https://www.googleapis.com/auth/cloud-platform" })
       .setProtectedHeader({ alg: "RS256" })
       .setIssuer(saJson.client_email)
-      .setAudience("https://oauth2.googleapis.com/token")
+      .setAudience(OAUTH_ENDPOINTS.google.token)
       .setIssuedAt(now)
       .setExpirationTime(now + 3600)
       .sign(privateKey);
 
-    const res = await fetch("https://oauth2.googleapis.com/token", {
+    const res = await fetch(OAUTH_ENDPOINTS.google.token, {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
       body: new URLSearchParams({

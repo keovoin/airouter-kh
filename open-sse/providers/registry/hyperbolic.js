@@ -1,8 +1,24 @@
+
 export default {
   "id": "hyperbolic",
   "alias": "hyperbolic",
+  display: {
+      "name": "Hyperbolic",
+      "icon": "bolt",
+      "color": "#00D4FF",
+      "textIcon": "HY",
+      "website": "https://hyperbolic.xyz",
+      "notice": {
+          "apiKeyUrl": "https://app.hyperbolic.xyz/settings"
+      }
+  },
+  category: "apikey",
+  uiAlias: "hyp",
+  authType: "apikey",
+  aliases: ["hyp"],
   "transport": {
-    "baseUrl": "https://api.hyperbolic.xyz/v1/chat/completions"
+    "baseUrl": "https://api.hyperbolic.xyz/v1/chat/completions",
+    "validateUrl": "https://api.hyperbolic.xyz/v1/models"
   },
   "models": [
     {

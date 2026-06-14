@@ -1,6 +1,15 @@
+
 export default {
   "id": "sdwebui",
   "alias": "sdwebui",
+  display: {
+      "name": "SD WebUI",
+      "icon": "brush",
+      "color": "#FF7043",
+      "textIcon": "SD",
+      "website": "https://github.com/AUTOMATIC1111/stable-diffusion-webui"
+  },
+  category: "apikey",
   "transport": null,
   "models": [
     {

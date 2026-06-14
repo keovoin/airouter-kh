@@ -1,6 +1,19 @@
+
 export default {
   "id": "perplexity-web",
   "alias": "perplexity-web",
+  display: {
+      "name": "Perplexity Web (Pro/Max)",
+      "icon": "search",
+      "color": "#20808D",
+      "textIcon": "PW",
+      "website": "https://www.perplexity.ai"
+  },
+  category: "webCookie",
+  uiAlias: "pw",
+  authType: "cookie",
+  authHint: "Paste your __Secure-next-auth.session-token cookie value from perplexity.ai",
+  aliases: ["pw"],
   "transport": {
     "baseUrl": "https://www.perplexity.ai/rest/sse/perplexity_ask",
     "format": "perplexity-web",

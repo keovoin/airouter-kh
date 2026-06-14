@@ -1,11 +1,36 @@
+
 export default {
   "id": "qoder",
   "alias": "qd",
+  display: {
+      "name": "Qoder",
+      "icon": "water_drop",
+      "color": "#EC4899",
+      "website": "https://qoder.com",
+      "notice": {
+          "signupUrl": "https://qoder.com"
+      },
+      "deprecated": true,
+      "deprecationNotice": "RISK_NOTICE"
+  },
+  category: "free",
+  uiAlias: "qd",
   "transport": {
     "baseUrl": "https://api3.qoder.sh/algo/api/v2/service/pro/sse/agent_chat_generation",
     "headers": {},
     "timeoutMs": 120000,
-    "stallTimeoutMs": 120000
+    "stallTimeoutMs": 120000,
+    usage: { url: "https://openapi.qoder.sh/api/v2/quota/usage" }
+  },
+  "oauth": {
+    "openApiBaseUrl": "https://openapi.qoder.sh",
+    "centerBaseUrl": "https://center.qoder.sh",
+    "chatBaseUrl": "https://api3.qoder.sh",
+    "deviceTokenUrl": "https://openapi.qoder.sh/api/v1/deviceToken/poll",
+    "refreshUrl": "https://center.qoder.sh/algo/api/v3/user/refresh_token",
+    "userInfoUrl": "https://openapi.qoder.sh/api/v1/userinfo",
+    "quotaUsageUrl": "https://openapi.qoder.sh/api/v2/quota/usage",
+    "loginUrl": "https://qoder.com/device/selectAccounts"
   },
   "models": [
     {
@@ -56,5 +81,6 @@ export default {
       "id": "mmodel",
       "name": "MiniMax M2.7 (Qoder)"
     }
-  ]
+  ],
+  features: {"usage":true},
 };

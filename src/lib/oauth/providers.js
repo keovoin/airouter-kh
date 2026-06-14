@@ -200,8 +200,8 @@ const PROVIDERS = {
   codex: {
     config: CODEX_CONFIG,
     flowType: "authorization_code_pkce",
-    fixedPort: 1455,
-    callbackPath: "/auth/callback",
+    fixedPort: CODEX_CONFIG.fixedPort,
+    callbackPath: CODEX_CONFIG.callbackPath,
     buildAuthUrl: (config, redirectUri, state, codeChallenge) => {
       const params = {
         response_type: "code",

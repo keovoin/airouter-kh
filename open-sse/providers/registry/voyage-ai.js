@@ -1,6 +1,20 @@
+
 export default {
   "id": "voyage-ai",
   "alias": "voyage-ai",
+  display: {
+      "name": "Voyage AI",
+      "icon": "data_array",
+      "color": "#0EA5E9",
+      "textIcon": "VG",
+      "website": "https://www.voyageai.com",
+      "notice": {
+          "apiKeyUrl": "https://dash.voyageai.com/api-keys"
+      }
+  },
+  category: "apikey",
+  uiAlias: "voyage",
+  authType: "apikey",
   "transport": null,
   "models": [
     {

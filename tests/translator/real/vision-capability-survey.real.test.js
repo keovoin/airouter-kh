@@ -25,6 +25,11 @@ const PROVIDER_FILTER = (process.env.REAL_PROVIDERS || "")
 const PNG_DATA_URI = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAIAAACQkWg2AAAAFklEQVR4nGO4I2JDEmIY1TCqYfhqAAAeBCwQ8YdREQAAAABJRU5ErkJggg==";
 // Tiny silent WAV (44-byte header, no samples) — enough to probe audioInput acceptance.
 const WAV_B64 = "UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=";
+// Stable public image URL (probe remote-URL handling vs base64).
+const IMAGE_REMOTE_URL = "https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png";
+// Tiny valid PDF (probe file/document handling).
+const PDF_B64 = "JVBERi0xLjEKMSAwIG9iajw8L1R5cGUvQ2F0YWxvZy9QYWdlcyAyIDAgUj4+ZW5kb2JqCjIgMCBvYmo8PC9UeXBlL1BhZ2VzL0tpZHNbMyAwIFJdL0NvdW50IDE+PmVuZG9iagozIDAgb2JqPDwvVHlwZS9QYWdlL1BhcmVudCAyIDAgUi9NZWRpYUJveFswIDAgMjAwIDIwMF0+PmVuZG9iagp4cmVmCjAgNAowMDAwMDAwMDAwIDY1NTM1IGYgCjAwMDAwMDAwMDkgMDAwMDAgbiAKMDAwMDAwMDA1MiAwMDAwMCBuIAowMDAwMDAwMTAxIDAwMDAwIG4gCnRyYWlsZXI8PC9TaXplIDQvUm9vdCAxIDAgUj4+CnN0YXJ0eHJlZgoxNjYKJSVFT0Y=";
+const PDF_DATA_URI = `data:application/pdf;base64,${PDF_B64}`;
 
 // Capability probes: each sends one modality-specific content block. cap = capability flag tested.
 const CAPABILITY_PROBES = {
@@ -40,6 +45,20 @@ const CAPABILITY_PROBES = {
     content: [
       { type: "text", text: "Transcribe this audio. One word." },
       { type: "input_audio", input_audio: { data: WAV_B64, format: "wav" } },
+    ],
+  },
+  imageUrl: {
+    cap: "vision",
+    content: [
+      { type: "text", text: "What is in this image? One word." },
+      { type: "image_url", image_url: { url: IMAGE_REMOTE_URL } },
+    ],
+  },
+  file: {
+    cap: "pdf",
+    content: [
+      { type: "text", text: "Summarize this document. One word." },
+      { type: "file", file: { filename: "doc.pdf", file_data: PDF_DATA_URI } },
     ],
   },
 };

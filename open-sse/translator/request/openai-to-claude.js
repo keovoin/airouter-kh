@@ -4,7 +4,6 @@ import { CLAUDE_SYSTEM_PROMPT } from "../../config/appConstants.js";
 import { adjustMaxTokens } from "../formats/maxTokens.js";
 import { safeParseJSON } from "../concerns/json.js";
 import { parseDataUri } from "../concerns/image.js";
-import { effortToBudget } from "../concerns/thinking.js";
 import { extractTextContent } from "../formats/gemini.js";
 import { ROLE, OPENAI_BLOCK, CLAUDE_BLOCK } from "../schema/index.js";
 
@@ -175,25 +174,7 @@ Respond ONLY with the JSON object, no other text.`);
     result.tool_choice = convertOpenAIToolChoice(body.tool_choice);
   }
 
-  // Thinking configuration
-  if (body.thinking) {
-    result.thinking = {
-      type: body.thinking.type || "enabled",
-      ...(body.thinking.budget_tokens && { budget_tokens: body.thinking.budget_tokens }),
-      ...(body.thinking.max_tokens && { max_tokens: body.thinking.max_tokens })
-    };
-  }
-
-  // Map OpenAI reasoning_effort → Claude thinking.budget_tokens
-  // When client sends reasoning_effort (OpenAI format) but no explicit thinking block,
-  // translate to Claude's native format.
-  if (body.reasoning_effort && !result.thinking) {
-    const budget = effortToBudget(body.reasoning_effort);
-    if (budget) {
-      result.thinking = { type: "enabled", budget_tokens: budget };
-    }
-    // budget === 0 (none) or undefined (unknown) → no thinking
-  }
+  // Thinking is normalized centrally by applyThinking (thinkingUnified.js) after translation.
 
   // Attach toolNameMap to result for response translation
   if (toolNameMap.size > 0) {
@@ -245,6 +226,16 @@ function getContentBlocksFromMessage(msg, toolNameMap = new Map()) {
           }
         } else if (part.type === OPENAI_BLOCK.IMAGE && part.source) {
           blocks.push({ type: CLAUDE_BLOCK.IMAGE, source: part.source });
+        } else if (part.type === OPENAI_BLOCK.FILE && part.file) {
+          // OpenAI file block -> Claude document (PDF only; Claude rejects other mimes).
+          const fileData = part.file.file_data;
+          const parsed = parseDataUri(fileData);
+          if (parsed && parsed.mimeType === "application/pdf") {
+            blocks.push({
+              type: CLAUDE_BLOCK.DOCUMENT,
+              source: { type: "base64", media_type: parsed.mimeType, data: parsed.base64 }
+            });
+          }
         }
       }
     }

@@ -4,6 +4,7 @@ import { prepareClaudeRequest } from "./formats/claude.js";
 import { cloakClaudeTools } from "../utils/claudeCloaking.js";
 import { filterToOpenAIFormat } from "./formats/openai.js";
 import { normalizeThinkingConfig } from "../services/provider.js";
+import { applyThinking, captureThinking } from "./concerns/thinkingUnified.js";
 import { AntigravityExecutor } from "../executors/antigravity.js";
 import { PROVIDERS } from "../providers/index.js";
 
@@ -63,6 +64,10 @@ export function translateRequest(sourceFormat, targetFormat, model, body, stream
   // Fix missing tool responses (insert empty tool_result if needed)
   fixMissingToolResponses(result);
 
+  // Capture thinking intent from the original (pre-translation) body, before any
+  // format conversion strips/renames the fields. Applied after translation.
+  const thinkingIntent = captureThinking(result);
+
   // If same format, skip translation steps
   if (sourceFormat !== targetFormat) {
     // Step 1: source -> openai (if source is not openai)
@@ -83,6 +88,9 @@ export function translateRequest(sourceFormat, targetFormat, model, body, stream
       }
     }
   }
+
+  // Normalize thinking to the target provider-native format (config-driven, capability-aware)
+  applyThinking(targetFormat, model, result, provider, thinkingIntent);
 
   // Always normalize to clean OpenAI format when target is OpenAI
   // This handles hybrid requests (e.g., OpenAI messages + Claude tools)

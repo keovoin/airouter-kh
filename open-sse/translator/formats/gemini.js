@@ -77,6 +77,14 @@ export function convertOpenAIContentToParts(content) {
             inlineData: { mime_type: mimeType, data: data }
           });
         }
+      } else if (item.type === OPENAI_BLOCK.FILE && item.file?.file_data?.startsWith("data:")) {
+        const url = item.file.file_data;
+        const commaIndex = url.indexOf(",");
+        if (commaIndex !== -1) {
+          const mimeType = url.substring(5, commaIndex).split(";")[0];
+          const data = url.substring(commaIndex + 1);
+          parts.push({ inlineData: { mime_type: mimeType, data: data } });
+        }
       }
     }
   }

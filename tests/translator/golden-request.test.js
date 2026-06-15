@@ -42,7 +42,7 @@ describe("GOLDEN request: OpenAI → Claude", () => {
     expect(clean(out)).toMatchSnapshot();
   });
 
-  it("reasoning_effort → thinking budget", () => {
+  it("reasoning_effort → adaptive output_config (claude 4.6+)", () => {
     const body = { messages: [{ role: "user", content: "hi" }], reasoning_effort: "high" };
     const out = translateRequest(FORMATS.OPENAI, FORMATS.CLAUDE, "claude-opus-4-6", body, true, { apiKey: "sk-x" }, "anthropic");
     expect(clean(out)).toMatchSnapshot();

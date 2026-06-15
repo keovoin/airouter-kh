@@ -19,6 +19,7 @@ export default {
   category: "apikey",
   transport: {
     baseUrl: "https://api.blackbox.ai/chat/completions",
+    thinkingFormat: "openai",
   },
   models: [
     { id: "gpt-4o", name: "GPT-4o" },

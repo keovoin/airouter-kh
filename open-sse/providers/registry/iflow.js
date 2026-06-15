@@ -15,6 +15,7 @@ export default {
   category: "oauth",
   transport: {
     baseUrl: "https://apis.iflow.cn/v1/chat/completions",
+    thinkingFormat: "openai",
     headers: {
       "User-Agent": "iFlow-Cli",
     },

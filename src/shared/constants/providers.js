@@ -1,5 +1,6 @@
 // Provider definitions
 import REGISTRY from "open-sse/providers/registry/index.js";
+import { RISK_NOTICE } from "@/shared/constants/providersDisplay";
 
 const MEDIA_ENTRY_KEYS = [
   "serviceKinds", "ttsConfig", "sttConfig", "embeddingConfig",
@@ -15,8 +16,10 @@ function buildProviderEntry(r) {
   for (const k of MEDIA_ENTRY_KEYS) {
     if (r[k] !== undefined) mediaFields[k] = r[k];
   }
+  const display = { ...(r.display || {}) };
+  if (display.deprecationNotice === "RISK_NOTICE") display.deprecationNotice = RISK_NOTICE;
   return {
-    ...(r.display || {}),
+    ...display,
     id: r.id,
     alias: r.uiAlias || r.alias,
     ...(r.hidden ? { hidden: true } : {}),

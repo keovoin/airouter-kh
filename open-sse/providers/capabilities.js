@@ -41,6 +41,11 @@ export const DEFAULT_CAPABILITIES = {
   search: false,        // built-in web search tool / grounding
   tools: true,          // function / tool calling
   reasoning: false,     // thinking / reasoning
+  // thinking wire format (only meaningful when reasoning:true). null → derive from transport.format.
+  // enum: openai|claude-adaptive|claude-budget|gemini-level|gemini-budget|zai|qwen|deepseek|kimi|minimax|hunyuan|step
+  thinkingFormat: null,
+  thinkingCanDisable: true,  // false → model cannot turn thinking off (clamp to min instead of disable)
+  thinkingRange: null,       // { min, max } for budget formats; null = no clamp
   // limits (tokens)
   contextWindow: 200000,
   maxOutput: 64000,
@@ -51,22 +56,22 @@ export const DEFAULT_CAPABILITIES = {
  * otherwise mis-match. Only declare deltas vs DEFAULT.
  */
 export const MODEL_CAPABILITIES = {
-  // Claude 4.6/4.7 have 1M context (override generic claude pattern at 200k)
-  "claude-opus-4.6":   { vision: true, reasoning: true, search: true, contextWindow: 1000000, maxOutput: 128000 },
-  "claude-opus-4.7":   { vision: true, reasoning: true, search: true, contextWindow: 1000000, maxOutput: 128000 },
-  "claude-opus-4-6":   { vision: true, reasoning: true, search: true, contextWindow: 1000000, maxOutput: 128000 },
-  "claude-sonnet-4.6": { vision: true, reasoning: true, search: true, contextWindow: 1000000, maxOutput: 64000 },
-  "claude-sonnet-4-6": { vision: true, reasoning: true, search: true, contextWindow: 1000000, maxOutput: 64000 },
+  // Claude 4.6/4.7 have 1M context + adaptive thinking (override generic claude pattern)
+  "claude-opus-4.6":   { vision: true, reasoning: true, search: true, thinkingFormat: "claude-adaptive", contextWindow: 1000000, maxOutput: 128000 },
+  "claude-opus-4.7":   { vision: true, reasoning: true, search: true, thinkingFormat: "claude-adaptive", contextWindow: 1000000, maxOutput: 128000 },
+  "claude-opus-4-6":   { vision: true, reasoning: true, search: true, thinkingFormat: "claude-adaptive", contextWindow: 1000000, maxOutput: 128000 },
+  "claude-sonnet-4.6": { vision: true, reasoning: true, search: true, thinkingFormat: "claude-adaptive", contextWindow: 1000000, maxOutput: 64000 },
+  "claude-sonnet-4-6": { vision: true, reasoning: true, search: true, thinkingFormat: "claude-adaptive", contextWindow: 1000000, maxOutput: 64000 },
 
   // Gemini image-gen / OpenAI image / xai image variants
   "gpt-image-1":       { imageOutput: true, tools: false },
 
   // GLM vision variant (text GLM has no vision)
-  "glm-4.6v":          { vision: true, reasoning: true, contextWindow: 128000 },
+  "glm-4.6v":          { vision: true, reasoning: true, thinkingFormat: "zai", contextWindow: 128000 },
 
   // Qwen plain coder/text (no vision) — registry "vision-model" / "coder-model" aliases
-  "vision-model":      { vision: true, reasoning: true, contextWindow: 1000000 },
-  "coder-model":       { reasoning: true, contextWindow: 1000000 },
+  "vision-model":      { vision: true, reasoning: true, thinkingFormat: "qwen", contextWindow: 1000000 },
+  "coder-model":       { reasoning: true, thinkingFormat: "qwen", contextWindow: 1000000 },
 };
 
 /**
@@ -81,19 +86,25 @@ export const PROVIDER_CAPABILITIES = {};
  * a broad family pattern swallowing an exception (e.g. glm-4.6v vs glm-5).
  */
 export const PATTERN_CAPABILITIES = [
-  // ── Claude (4.x+ = vision + thinking + web search) ───────────────
-  { pattern: "*claude*opus*",   caps: { vision: true, reasoning: true, search: true } },
-  { pattern: "*claude*sonnet*", caps: { vision: true, reasoning: true, search: true } },
-  { pattern: "*claude*haiku*",  caps: { vision: true, reasoning: true, search: true } },
-  { pattern: "*claude*fable*",  caps: { vision: true, reasoning: true, search: true, contextWindow: 1000000, maxOutput: 128000 } },
-  { pattern: "*claude*mythos*", caps: { vision: true, reasoning: true, search: true, contextWindow: 1000000, maxOutput: 128000 } },
+  // ── Claude (4.6+ = adaptive thinking; older/haiku = budget) ──────
+  { pattern: "*claude*opus-4.6*",   caps: { vision: true, reasoning: true, search: true, thinkingFormat: "claude-adaptive" } },
+  { pattern: "*claude*opus-4.7*",   caps: { vision: true, reasoning: true, search: true, thinkingFormat: "claude-adaptive" } },
+  { pattern: "*claude*opus-4.8*",   caps: { vision: true, reasoning: true, search: true, thinkingFormat: "claude-adaptive" } },
+  { pattern: "*claude*sonnet-4.6*", caps: { vision: true, reasoning: true, search: true, thinkingFormat: "claude-adaptive" } },
+  { pattern: "*claude*sonnet-4.7*", caps: { vision: true, reasoning: true, search: true, thinkingFormat: "claude-adaptive" } },
+  { pattern: "*claude*haiku*",  caps: { vision: true, reasoning: true, search: true, thinkingFormat: "claude-budget" } },
+  { pattern: "*claude*opus*",   caps: { vision: true, reasoning: true, search: true, thinkingFormat: "claude-budget" } },
+  { pattern: "*claude*sonnet*", caps: { vision: true, reasoning: true, search: true, thinkingFormat: "claude-budget" } },
+  { pattern: "*claude*fable*",  caps: { vision: true, reasoning: true, search: true, thinkingFormat: "claude-budget", contextWindow: 1000000, maxOutput: 128000 } },
+  { pattern: "*claude*mythos*", caps: { vision: true, reasoning: true, search: true, thinkingFormat: "claude-budget", contextWindow: 1000000, maxOutput: 128000 } },
   { pattern: "*claude-3*",      caps: { vision: true } },
-  { pattern: "*claude*",        caps: { vision: true, reasoning: true, search: true } },
+  { pattern: "*claude*",        caps: { vision: true, reasoning: true, search: true, thinkingFormat: "claude-budget" } },
 
   // ── Gemini (all 2.0+ multimodal + google_search grounding, 1M ctx) ─
   { pattern: "*gemini*image*",  caps: { vision: true, imageOutput: true, contextWindow: 1048576 } },
-  { pattern: "*gemini-3*pro*",  caps: { vision: true, audioInput: true, videoInput: true, reasoning: true, search: true, contextWindow: 1048576, maxOutput: 65535 } },
-  { pattern: "*gemini-3*",      caps: { vision: true, audioInput: true, videoInput: true, search: true, contextWindow: 1048576, maxOutput: 65536 } },
+  { pattern: "*gemini-3*pro*",  caps: { vision: true, audioInput: true, videoInput: true, reasoning: true, search: true, thinkingFormat: "gemini-level", thinkingCanDisable: false, contextWindow: 1048576, maxOutput: 65535 } },
+  { pattern: "*gemini-3*",      caps: { vision: true, audioInput: true, videoInput: true, reasoning: true, search: true, thinkingFormat: "gemini-level", thinkingCanDisable: false, contextWindow: 1048576, maxOutput: 65536 } },
+  { pattern: "*gemini-2.5*",    caps: { vision: true, audioInput: true, videoInput: true, reasoning: true, search: true, thinkingFormat: "gemini-budget", thinkingRange: { min: 0, max: 24576 }, contextWindow: 1048576, maxOutput: 65536 } },
   { pattern: "*gemini-2*",      caps: { vision: true, audioInput: true, videoInput: true, search: true, contextWindow: 1048576, maxOutput: 65536 } },
   { pattern: "*gemini*",        caps: { vision: true, search: true, contextWindow: 1048576 } },
   { pattern: "*gemma*",         caps: { vision: true, contextWindow: 128000 } },
@@ -101,58 +112,59 @@ export const PATTERN_CAPABILITIES = [
 
   // ── OpenAI GPT-5.x (vision + thinking + web search) ──────────────
   { pattern: "*gpt-5*image*",   caps: { imageOutput: true } },
-  { pattern: "*gpt-5*codex*",   caps: { reasoning: true, search: true, contextWindow: 400000, maxOutput: 128000 } },
-  { pattern: "*gpt-5*",         caps: { vision: true, reasoning: true, search: true, contextWindow: 400000, maxOutput: 128000 } },
+  { pattern: "*gpt-5*codex*",   caps: { reasoning: true, search: true, thinkingFormat: "openai", contextWindow: 400000, maxOutput: 128000 } },
+  { pattern: "*gpt-5*",         caps: { vision: true, reasoning: true, search: true, thinkingFormat: "openai", contextWindow: 400000, maxOutput: 128000 } },
   { pattern: "*gpt-4o*",        caps: { vision: true, search: true, contextWindow: 128000, maxOutput: 16384 } },
   { pattern: "*gpt-4.1*",       caps: { vision: true, contextWindow: 1000000, maxOutput: 32768 } },
   { pattern: "*gpt-4-turbo*",   caps: { vision: true, contextWindow: 128000 } },
   { pattern: "*gpt-4*",         caps: { contextWindow: 128000 } },
   { pattern: "*gpt-3.5*",       caps: { contextWindow: 16385, maxOutput: 4096 } },
-  { pattern: "*gpt-oss*",       caps: { reasoning: true, contextWindow: 128000 } },
+  { pattern: "*gpt-oss*",       caps: { reasoning: true, thinkingFormat: "openai", contextWindow: 128000 } },
 
   // ── OpenAI o-series (reasoning, vision) ──────────────────────────
-  { pattern: "*o1-mini*",       caps: { reasoning: true, contextWindow: 128000 } },
-  { pattern: "*o1*",            caps: { vision: true, reasoning: true, contextWindow: 200000, maxOutput: 100000 } },
-  { pattern: "*o3*",            caps: { vision: true, reasoning: true, contextWindow: 200000, maxOutput: 100000 } },
-  { pattern: "*o4*",            caps: { vision: true, reasoning: true, contextWindow: 200000, maxOutput: 100000 } },
+  { pattern: "*o1-mini*",       caps: { reasoning: true, thinkingFormat: "openai", contextWindow: 128000 } },
+  { pattern: "*o1*",            caps: { vision: true, reasoning: true, thinkingFormat: "openai", contextWindow: 200000, maxOutput: 100000 } },
+  { pattern: "*o3*",            caps: { vision: true, reasoning: true, thinkingFormat: "openai", contextWindow: 200000, maxOutput: 100000 } },
+  { pattern: "*o4*",            caps: { vision: true, reasoning: true, thinkingFormat: "openai", contextWindow: 200000, maxOutput: 100000 } },
 
   // ── Grok (vision + Live Search) ──────────────────────────────────
   { pattern: "*grok*image*",    caps: { imageOutput: true } },
-  { pattern: "*grok-code*",     caps: { reasoning: true, contextWindow: 256000 } },
-  { pattern: "*grok-4*",        caps: { vision: true, reasoning: true, search: true, contextWindow: 256000 } },
-  { pattern: "*grok-3*",        caps: { vision: true, reasoning: true, search: true, contextWindow: 131072 } },
-  { pattern: "*grok*",          caps: { vision: true, reasoning: true, search: true, contextWindow: 256000 } },
+  { pattern: "*grok-code*",     caps: { reasoning: true, thinkingFormat: "openai", contextWindow: 256000 } },
+  { pattern: "*grok-4*",        caps: { vision: true, reasoning: true, search: true, thinkingFormat: "openai", contextWindow: 256000 } },
+  { pattern: "*grok-3*",        caps: { vision: true, reasoning: true, search: true, thinkingFormat: "openai", contextWindow: 131072 } },
+  { pattern: "*grok*",          caps: { vision: true, reasoning: true, search: true, thinkingFormat: "openai", contextWindow: 256000 } },
 
-  // ── Qwen (VL = vision; max/plus = vision+1M; coder/text last) ─────
-  { pattern: "*qwen*vl*",       caps: { vision: true, reasoning: true, contextWindow: 262144 } },
-  { pattern: "*qwen*max*",      caps: { vision: true, reasoning: true, contextWindow: 1000000, maxOutput: 65536 } },
-  { pattern: "*qwen*plus*",     caps: { vision: true, reasoning: true, contextWindow: 1000000, maxOutput: 65536 } },
-  { pattern: "*qwen*235b*",     caps: { reasoning: true, contextWindow: 262144 } },
-  { pattern: "*qwen*coder*",    caps: { reasoning: true, contextWindow: 1000000 } },
-  { pattern: "*qwq*",           caps: { reasoning: true, contextWindow: 131072 } },
-  { pattern: "*qwen*",          caps: { reasoning: true, contextWindow: 262144 } },
+  // ── Qwen (enable_thinking + thinking_budget; QwQ = thinking-only) ─
+  { pattern: "*qwen*vl*",       caps: { vision: true, reasoning: true, thinkingFormat: "qwen", contextWindow: 262144 } },
+  { pattern: "*qwen*max*",      caps: { vision: true, reasoning: true, thinkingFormat: "qwen", contextWindow: 1000000, maxOutput: 65536 } },
+  { pattern: "*qwen*plus*",     caps: { vision: true, reasoning: true, thinkingFormat: "qwen", contextWindow: 1000000, maxOutput: 65536 } },
+  { pattern: "*qwen*235b*",     caps: { reasoning: true, thinkingFormat: "qwen", contextWindow: 262144 } },
+  { pattern: "*qwen*coder*",    caps: { reasoning: true, thinkingFormat: "qwen", contextWindow: 1000000 } },
+  { pattern: "*qwq*",           caps: { reasoning: true, thinkingFormat: "qwen", thinkingCanDisable: false, contextWindow: 131072 } },
+  { pattern: "*qwen*",          caps: { reasoning: true, thinkingFormat: "qwen", contextWindow: 262144 } },
 
-  // ── Kimi (K2.x = vision + thinking, 262K) ────────────────────────
-  { pattern: "*kimi*k2*",       caps: { vision: true, reasoning: true, contextWindow: 262144, maxOutput: 262144 } },
-  { pattern: "*kimi*",          caps: { reasoning: true, contextWindow: 262144 } },
+  // ── Kimi (enabled→reasoning_effort; K2.7-code cannot disable) ─────
+  { pattern: "*kimi*k2.7*code*", caps: { vision: true, reasoning: true, thinkingFormat: "kimi", thinkingCanDisable: false, contextWindow: 262144, maxOutput: 262144 } },
+  { pattern: "*kimi*k2*",       caps: { vision: true, reasoning: true, thinkingFormat: "kimi", contextWindow: 262144, maxOutput: 262144 } },
+  { pattern: "*kimi*",          caps: { reasoning: true, thinkingFormat: "kimi", contextWindow: 262144 } },
 
-  // ── GLM (4.6V vision handled by exact id; text GLM = reasoning) ───
-  { pattern: "*glm-5*",         caps: { reasoning: true, contextWindow: 200000, maxOutput: 128000 } },
-  { pattern: "*glm-4.7*",       caps: { reasoning: true, contextWindow: 200000, maxOutput: 128000 } },
-  { pattern: "*glm-4*",         caps: { reasoning: true, contextWindow: 200000 } },
-  { pattern: "*glm*",           caps: { reasoning: true, contextWindow: 200000 } },
+  // ── GLM / Z.ai (thinking.enabled; disable via enable_thinking:false) ─
+  { pattern: "*glm-5*",         caps: { reasoning: true, thinkingFormat: "zai", contextWindow: 200000, maxOutput: 128000 } },
+  { pattern: "*glm-4.7*",       caps: { reasoning: true, thinkingFormat: "zai", contextWindow: 200000, maxOutput: 128000 } },
+  { pattern: "*glm-4*",         caps: { reasoning: true, thinkingFormat: "zai", contextWindow: 200000 } },
+  { pattern: "*glm*",           caps: { reasoning: true, thinkingFormat: "zai", contextWindow: 200000 } },
 
-  // ── DeepSeek (NO vision; v4 = 1M ctx; r1/reasoner = thinking) ─────
-  { pattern: "*deepseek-v4*",   caps: { reasoning: true, contextWindow: 1000000, maxOutput: 384000 } },
-  { pattern: "*reasoner*",      caps: { reasoning: true, contextWindow: 128000 } },
-  { pattern: "*deepseek-r*",    caps: { reasoning: true, contextWindow: 128000 } },
+  // ── DeepSeek (thinking.enabled + reasoning_effort; r1 = thinking-only) ─
+  { pattern: "*deepseek-v4*",   caps: { reasoning: true, thinkingFormat: "deepseek", contextWindow: 1000000, maxOutput: 384000 } },
+  { pattern: "*reasoner*",      caps: { reasoning: true, thinkingFormat: "deepseek", thinkingCanDisable: false, contextWindow: 128000 } },
+  { pattern: "*deepseek-r*",    caps: { reasoning: true, thinkingFormat: "deepseek", thinkingCanDisable: false, contextWindow: 128000 } },
   { pattern: "*deepseek*",      caps: { contextWindow: 128000 } },
 
-  // ── MiniMax (M3 = 1M/512K; M2.x = 200K) ──────────────────────────
+  // ── MiniMax (M3 = adaptive; M2.x cannot disable) ─────────────────
   { pattern: "*minimax*image*", caps: { imageOutput: true } },
-  { pattern: "*minimax-m3*",    caps: { reasoning: true, contextWindow: 1048576, maxOutput: 512000 } },
-  { pattern: "*minimax-m2.7*",  caps: { reasoning: true, contextWindow: 204800, maxOutput: 131072 } },
-  { pattern: "*minimax*",       caps: { reasoning: true, contextWindow: 200000, maxOutput: 131072 } },
+  { pattern: "*minimax-m3*",    caps: { reasoning: true, thinkingFormat: "minimax", contextWindow: 1048576, maxOutput: 512000 } },
+  { pattern: "*minimax-m2.7*",  caps: { reasoning: true, thinkingFormat: "minimax", thinkingCanDisable: false, contextWindow: 204800, maxOutput: 131072 } },
+  { pattern: "*minimax*",       caps: { reasoning: true, thinkingFormat: "minimax", thinkingCanDisable: false, contextWindow: 200000, maxOutput: 131072 } },
 
   // ── Xiaomi MiMo (vision, 1M / 262K ctx) ──────────────────────────
   { pattern: "*mimo*v2.5*",     caps: { vision: true, contextWindow: 1048576, maxOutput: 131072 } },
@@ -178,9 +190,9 @@ export const PATTERN_CAPABILITIES = [
   { pattern: "*perplexity*",    caps: { search: true, contextWindow: 128000 } },
 
   // ── Others ───────────────────────────────────────────────────────
-  { pattern: "*hunyuan*",       caps: { reasoning: true, contextWindow: 262144, maxOutput: 262144 } },
-  { pattern: "hy3*",            caps: { reasoning: true, contextWindow: 262144, maxOutput: 262144 } },
-  { pattern: "*step-*",         caps: { reasoning: true, contextWindow: 128000 } },
+  { pattern: "*hunyuan*",       caps: { reasoning: true, thinkingFormat: "hunyuan", contextWindow: 262144, maxOutput: 262144 } },
+  { pattern: "hy3*",            caps: { reasoning: true, thinkingFormat: "hunyuan", contextWindow: 262144, maxOutput: 262144 } },
+  { pattern: "*step-*",         caps: { reasoning: true, thinkingFormat: "step", contextWindow: 128000 } },
   { pattern: "*nemotron*",      caps: { reasoning: true, contextWindow: 128000 } },
   { pattern: "*ling-*",         caps: { reasoning: true, contextWindow: 128000 } },
 ];

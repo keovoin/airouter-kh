@@ -7,7 +7,7 @@ import { FORMATS } from "../formats.js";
 import { buildChunk } from "../concerns/chunk.js";
 import { buildUsage } from "../concerns/usage.js";
 import { fallbackToolCallId } from "../concerns/toolCall.js";
-import { reasoningDelta } from "../concerns/reasoning.js";
+import { reasoningDelta, extractReasoningText } from "../concerns/reasoning.js";
 import { ROLE, OPENAI_BLOCK, RESPONSES_ITEM, OPENAI_FINISH, MODEL_FALLBACK } from "../schema/index.js";
 
 /**
@@ -62,10 +62,11 @@ export function openaiToOpenAIResponsesResponse(chunk, state) {
     });
   }
 
-  // Handle reasoning_content
-  if (delta.reasoning_content) {
+  // Handle reasoning across vendor shapes (reasoning_content / reasoning / reasoning_details)
+  const reasoningText = extractReasoningText(delta);
+  if (reasoningText) {
     startReasoning(state, emit, idx);
-    emitReasoningDelta(state, emit, delta.reasoning_content);
+    emitReasoningDelta(state, emit, reasoningText);
   }
 
   // Handle text content

@@ -20,6 +20,7 @@ export default {
   category: "apikey",
   transport: {
     baseUrl: "https://ai-gateway.vercel.sh/v1/chat/completions",
+    thinkingFormat: "openai",
     retry: {
       "429": 2,
     },

@@ -22,6 +22,7 @@ export default {
   hasProviderSpecificData: true,
   transport: {
     baseUrl: "https://api.cloudflare.com/client/v4/accounts/{accountId}/ai/v1/chat/completions",
+    thinkingFormat: "openai",
   },
   models: [
     { id: "@cf/meta/llama-3.2-1b-instruct", name: "Llama 3.2 1B Instruct" },

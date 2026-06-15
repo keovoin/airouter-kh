@@ -17,6 +17,7 @@ export default {
   category: "freeTier",
   transport: {
     baseUrl: "https://openrouter.ai/api/v1/chat/completions",
+    thinkingFormat: "openai",
     headers: {
       "HTTP-Referer": "https://endpoint-proxy.local",
       "X-Title": "Endpoint Proxy",

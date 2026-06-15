@@ -40,6 +40,7 @@ export default {
     },
     usage: {
       url: "https://chatgpt.com/backend-api/wham/usage",
+      resetCreditsConsumeUrl: "https://chatgpt.com/backend-api/wham/rate-limit-reset-credits/consume",
     },
   },
   models: [

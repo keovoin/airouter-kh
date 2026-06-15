@@ -2,6 +2,7 @@ import { register } from "../index.js";
 import { FORMATS } from "../formats.js";
 import { ROLE, CLAUDE_BLOCK, MODEL_FALLBACK } from "../schema/index.js";
 import { fromOpenAIFinish } from "../concerns/finishReason.js";
+import { extractReasoningText } from "../concerns/reasoning.js";
 
 // Legacy "proxy_" prefix used by older request translators. Response strips it
 // defensively so tool names from such turns resolve back (e.g. proxy_Read → Read
@@ -134,8 +135,8 @@ export function openaiToClaudeResponse(chunk, state) {
     });
   }
 
-  // Handle reasoning_content (thinking) - GLM, DeepSeek, etc.
-  const reasoningContent = delta?.reasoning_content || delta?.reasoning;
+  // Handle reasoning (thinking) across vendor shapes - GLM/DeepSeek/Qwen/MiniMax/etc.
+  const reasoningContent = extractReasoningText(delta);
   if (reasoningContent) {
     stopTextBlock(state, results);
 

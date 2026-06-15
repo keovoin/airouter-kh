@@ -16,6 +16,7 @@ export default {
   transport: {
     baseUrl: "https://api.siliconflow.com/v1/chat/completions",
     validateUrl: "https://api.siliconflow.com/v1/models",
+    thinkingFormat: "openai",
   },
   models: [
     { id: "deepseek-ai/DeepSeek-V4-Pro", name: "DeepSeek V4 Pro" },

@@ -207,10 +207,11 @@ export const PATTERN_PRICING = [
 ];
 
 /**
- * Match a model ID against a glob pattern (* = wildcard).
+ * Match a model ID against a glob pattern (* = wildcard). Case-insensitive:
+ * registry ids mix casing (e.g. "MiniMax-M2.5" vs "minimax-m2.5").
  */
-function matchPattern(pattern, model) {
-  const regex = new RegExp("^" + pattern.split("*").map(s => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join(".*") + "$");
+export function matchPattern(pattern, model) {
+  const regex = new RegExp("^" + pattern.split("*").map(s => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join(".*") + "$", "i");
   return regex.test(model);
 }
 

@@ -3,7 +3,7 @@ import { DEFAULT_THINKING_CLAUDE_SIGNATURE } from "../../config/defaultThinkingS
 import { ROLE, CLAUDE_BLOCK } from "../schema/index.js";
 import { adjustMaxTokens } from "./maxTokens.js";
 import { applyCloaking } from "../../utils/claudeCloaking.js";
-import { deriveSessionId } from "../../utils/sessionManager.js";
+import { resolveSessionId } from "../../utils/sessionManager.js";
 import { PROVIDERS } from "../../providers/index.js";
 
 // Check if message has valid non-empty content
@@ -252,7 +252,7 @@ export function prepareClaudeRequest(body, provider = null, apiKey = null, conne
   // Apply cloaking for OAuth tokens (billing header + fake user ID)
   // session_id in user_id must match X-Claude-Code-Session-Id for fingerprint consistency
   if ((provider === "claude" || provider?.startsWith("anthropic-compatible")) && apiKey) {
-    const sessionId = connectionId ? deriveSessionId(connectionId) : null;
+    const sessionId = resolveSessionId({ body, connectionId, scope: "claude" });
     body = applyCloaking(body, apiKey, sessionId);
   }
 

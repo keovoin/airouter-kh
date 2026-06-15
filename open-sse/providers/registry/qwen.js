@@ -1,6 +1,7 @@
 export default {
   id: "qwen",
-  priority: 240,
+  hidden: true,
+  priority: 130,
   alias: "qw",
   display: {
     name: "Qwen Code",

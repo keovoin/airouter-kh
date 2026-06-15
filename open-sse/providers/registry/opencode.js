@@ -1,6 +1,6 @@
 export default {
   id: "opencode",
-  priority: 110,
+  priority: 40,
   hasFree: true,
   alias: "oc",
   uiAlias: "oc",

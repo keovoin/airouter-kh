@@ -1,6 +1,6 @@
 export default {
   id: "qoder",
-  priority: 230,
+  priority: 30,
   alias: "qd",
   uiAlias: "qd",
   display: {

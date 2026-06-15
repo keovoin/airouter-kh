@@ -12,7 +12,7 @@ export default {
       apiKeyUrl: "https://console.x.ai",
     },
   },
-  category: "apikey",
+  category: "oauth",
   authModes: [
     "oauth",
     "apikey",

@@ -1,6 +1,6 @@
 export default {
   id: "cursor",
-  priority: 40,
+  priority: 50,
   alias: "cu",
   uiAlias: "cu",
   display: {

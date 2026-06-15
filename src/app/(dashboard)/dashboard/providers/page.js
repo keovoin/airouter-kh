@@ -284,24 +284,26 @@ export default function ProvidersPage() {
   const freeEntries = Object.entries(FREE_PROVIDERS).filter(
     ([, info]) => !info.hidden && matchSearch(info.name),
   );
-  const freeTierEntries = Object.entries(FREE_TIER_PROVIDERS)
-    .filter(([, info]) => !info.hidden && matchSearch(info.name))
-    .sort(([, a], [, b]) => {
-      // hasFree providers first, then by priority
-      const fa = a.hasFree ? 0 : 1;
-      const fb = b.hasFree ? 0 : 1;
-      if (fa !== fb) return fa - fb;
-      return (a.priority ?? 999) - (b.priority ?? 999);
-    });
-  const apikeyEntries = sortByPriority(
-    Object.entries(APIKEY_PROVIDERS).filter(
+  const freeTierEntries = sortByPriority(
+    Object.entries(FREE_TIER_PROVIDERS).filter(
+      ([, info]) => !info.hidden && matchSearch(info.name),
+    ),
+    "freeTier",
+  );
+  // API Key: connected providers first, then alphabetical by name
+  const apikeyEntries = Object.entries(APIKEY_PROVIDERS)
+    .filter(
       ([, info]) =>
         !info.hidden &&
         (info.serviceKinds ?? ["llm"]).includes("llm") &&
         matchSearch(info.name),
-    ),
-    "apikey",
-  );
+    )
+    .sort(([ka, a], [kb, b]) => {
+      const ca = getProviderStats(ka, "apikey").total > 0 ? 0 : 1;
+      const cb = getProviderStats(kb, "apikey").total > 0 ? 0 : 1;
+      if (ca !== cb) return ca - cb;
+      return (a.name || "").localeCompare(b.name || "");
+    });
   const isApikeySearching = !!searchQuery.trim();
   const visibleApikeyEntries =
     isApikeySearching || showAllApikey

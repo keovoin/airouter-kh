@@ -19,6 +19,7 @@ function buildProviderEntry(r) {
     ...(r.display || {}),
     id: r.id,
     alias: r.uiAlias || r.alias,
+    ...(r.hidden ? { hidden: true } : {}),
     ...mediaFields,
     ...(r.priority !== undefined ? { priority: r.priority } : {}),
     ...(r.hasFree ? { hasFree: true } : {}),

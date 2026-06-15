@@ -97,8 +97,10 @@ function convertGeminiContent(content) {
     }
 
     if (part.functionCall) {
+      // Gemini lacks a native call id; derive a deterministic one from the name so the
+      // matching functionResponse maps to the same tool_call_id (providers require pairing).
       toolCalls.push({
-        id: `call_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+        id: part.functionCall.id || `call_${part.functionCall.name}`,
         type: OPENAI_BLOCK.FUNCTION,
         function: {
           name: part.functionCall.name,
@@ -110,7 +112,7 @@ function convertGeminiContent(content) {
     if (part.functionResponse) {
       return {
         role: ROLE.TOOL,
-        tool_call_id: part.functionResponse.id || part.functionResponse.name,
+        tool_call_id: part.functionResponse.id || `call_${part.functionResponse.name}`,
         content: JSON.stringify(part.functionResponse.response?.result || part.functionResponse.response || {})
       };
     }

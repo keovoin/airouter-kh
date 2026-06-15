@@ -160,7 +160,8 @@ function convertContent(content) {
     // Function call
     if (part.functionCall) {
       toolCalls.push({
-        id: part.functionCall.id || `call_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+        // Deterministic id from name so the matching functionResponse pairs correctly.
+        id: part.functionCall.id || `call_${part.functionCall.name}`,
         type: OPENAI_BLOCK.FUNCTION,
         function: {
           name: part.functionCall.name,
@@ -173,7 +174,7 @@ function convertContent(content) {
     if (part.functionResponse) {
       toolResults.push({
         role: ROLE.TOOL,
-        tool_call_id: part.functionResponse.id || part.functionResponse.name,
+        tool_call_id: part.functionResponse.id || `call_${part.functionResponse.name}`,
         content: JSON.stringify(part.functionResponse.response?.result || part.functionResponse.response || {})
       });
     }

@@ -1,6 +1,7 @@
 export default {
   id: "iflow",
-  priority: 170,
+  hidden: true,
+  priority: 110,
   alias: "if",
   display: {
     name: "iFlow AI",

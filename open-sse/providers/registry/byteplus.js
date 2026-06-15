@@ -1,6 +1,6 @@
 export default {
   id: "byteplus",
-  priority: 150,
+  priority: 70,
   alias: "byteplus",
   aliases: [
     "bpm",

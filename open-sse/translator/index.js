@@ -7,15 +7,16 @@ import { normalizeThinkingConfig } from "../services/provider.js";
 import { AntigravityExecutor } from "../executors/antigravity.js";
 import { PROVIDERS } from "../providers/index.js";
 
-// Registry for translators
-const requestRegistry = new Map();
-const responseRegistry = new Map();
-
-// Track initialization state
-let initialized = false;
+// Registry for translators. Lazy-init guards against circular-import order:
+// translator modules call register() (side-effect) before this module's body runs.
+// var (not let): hoisted as undefined so register() can run during circular import (no TDZ).
+var requestRegistry;
+var responseRegistry;
 
 // Register translator
 export function register(from, to, requestFn, responseFn) {
+  requestRegistry ??= new Map();
+  responseRegistry ??= new Map();
   const key = `${from}:${to}`;
   if (requestFn) {
     requestRegistry.set(key, requestFn);
@@ -25,35 +26,8 @@ export function register(from, to, requestFn, responseFn) {
   }
 }
 
-// Lazy load translators (called once on first use)
-function ensureInitialized() {
-  if (initialized) return;
-  initialized = true;
-
-  // Request translators - sync require pattern for bundler
-  require("./request/claude-to-openai.js");
-  require("./request/openai-to-claude.js");
-  require("./request/gemini-to-openai.js");
-  require("./request/openai-to-gemini.js");
-  require("./request/openai-to-vertex.js");
-  require("./request/antigravity-to-openai.js");
-  require("./request/openai-responses.js");
-  require("./request/openai-to-kiro.js");
-  require("./request/openai-to-cursor.js");
-  require("./request/openai-to-ollama.js");
-  require("./request/openai-to-commandcode.js");
-
-  // Response translators
-  require("./response/claude-to-openai.js");
-  require("./response/openai-to-claude.js");
-  require("./response/gemini-to-openai.js");
-  require("./response/openai-to-antigravity.js");
-  require("./response/openai-responses.js");
-  require("./response/kiro-to-openai.js");
-  require("./response/cursor-to-openai.js");
-  require("./response/ollama-to-openai.js");
-  require("./response/commandcode-to-openai.js");
-}
+// No-op: translators self-register via the static imports at the bottom of this file.
+function ensureInitialized() {}
 
 // Strip specific content types from messages (explicit opt-in via strip[] in PROVIDER_MODELS)
 function stripContentTypes(body, stripList = []) {
@@ -246,7 +220,29 @@ export function initState(sourceFormat) {
   return base;
 }
 
-// Initialize all translators (kept for backward compatibility)
+// Kept for backward compatibility; translators are already registered at import time.
 export function initTranslators() {
   ensureInitialized();
 }
+
+// Static side-effect imports: each module calls register() at load (works in ESM + bundler).
+import "./request/claude-to-openai.js";
+import "./request/openai-to-claude.js";
+import "./request/gemini-to-openai.js";
+import "./request/openai-to-gemini.js";
+import "./request/openai-to-vertex.js";
+import "./request/antigravity-to-openai.js";
+import "./request/openai-responses.js";
+import "./request/openai-to-kiro.js";
+import "./request/openai-to-cursor.js";
+import "./request/openai-to-ollama.js";
+import "./request/openai-to-commandcode.js";
+import "./response/claude-to-openai.js";
+import "./response/openai-to-claude.js";
+import "./response/gemini-to-openai.js";
+import "./response/openai-to-antigravity.js";
+import "./response/openai-responses.js";
+import "./response/kiro-to-openai.js";
+import "./response/cursor-to-openai.js";
+import "./response/ollama-to-openai.js";
+import "./response/commandcode-to-openai.js";

@@ -1,6 +1,6 @@
 export default {
   id: "vertex",
-  priority: 140,
+  priority: 40,
   alias: "vertex",
   aliases: [
     "vx",

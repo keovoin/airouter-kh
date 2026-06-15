@@ -2,7 +2,7 @@ import { GOOGLE_OAUTH_CLIENT } from "../shared.js";
 
 export default {
   id: "gemini",
-  priority: 10,
+  priority: 50,
   hasFree: true,
   alias: "gemini",
   display: {

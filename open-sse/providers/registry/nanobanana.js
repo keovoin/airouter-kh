@@ -27,7 +27,7 @@ export default {
     { id: "nanobanana-flash", name: "NanoBanana Flash", params: ["n","size"], kind: "image" },
     { id: "nanobanana-pro", name: "NanoBanana Pro", params: ["n","size"], kind: "image" },
   ],
-  serviceKinds: ["llm","image"],
+  serviceKinds: ["image"],
   imageConfig: {
     baseUrl: "https://api.nanobananaapi.ai/api/v1/nanobanana/generate",
     pollUrl: "https://api.nanobananaapi.ai/api/v1/nanobanana/record-info",

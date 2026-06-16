@@ -39,15 +39,16 @@ export function reorderByCapabilities(models, required) {
  */
 const comboRotationState = new Map();
 
-// Last array item whose role is "user" (current turn), or the last item when no
-// role is present. History media (older turns) must not pin the combo to a vision
-// model — those get stripped + placeholdered downstream instead.
-function lastUserItem(arr) {
-  if (!Array.isArray(arr) || arr.length === 0) return null;
-  for (let i = arr.length - 1; i >= 0; i--) {
-    if (!arr[i]?.role || arr[i].role === "user") return arr[i];
-  }
-  return arr[arr.length - 1];
+// Trailing run of items after the last assistant/model turn = the current user
+// turn. It may span several messages (e.g. text + image split across blocks),
+// so we return all of them. History media (older turns) must not pin the combo
+// to a vision model — those get stripped + placeholdered downstream instead.
+function trailingUserItems(arr) {
+  if (!Array.isArray(arr) || arr.length === 0) return [];
+  const isAssistant = (r) => r === "assistant" || r === "model";
+  let i = arr.length - 1;
+  while (i >= 0 && !isAssistant(arr[i]?.role)) i--;
+  return arr.slice(i + 1);
 }
 
 // Detect which capabilities a request needs. Modalities (vision/pdf) are scanned
@@ -72,14 +73,11 @@ export function detectRequiredCapabilities(body) {
     if (Array.isArray(content)) for (const b of content) scanBlock(b);
   };
 
-  // Modalities: current user turn only (last item across each known shape).
-  const lastMsg = lastUserItem(body.messages);     // openai / claude
-  if (lastMsg) scanContent(lastMsg.content);
-  const lastInput = lastUserItem(body.input);      // responses
-  if (lastInput) scanContent(lastInput.content);
-  const contents = body.contents || body.request?.contents; // gemini / antigravity
-  const lastContent = lastUserItem(contents);
-  if (lastContent) scanContent(lastContent.parts);
+  // Modalities: current user turn only (trailing user run across each known shape).
+  for (const m of trailingUserItems(body.messages)) scanContent(m.content);      // openai / claude
+  for (const it of trailingUserItems(body.input)) scanContent(it.content);       // responses
+  const contents = body.contents || body.request?.contents;                      // gemini / antigravity
+  for (const c of trailingUserItems(contents)) scanContent(c.parts);
 
   // search: temporarily disabled in auto-switch (feature not wired yet).
 

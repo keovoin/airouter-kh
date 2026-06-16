@@ -5,6 +5,7 @@ import { cloakClaudeTools } from "../utils/claudeCloaking.js";
 import { filterToOpenAIFormat } from "./formats/openai.js";
 import { normalizeThinkingConfig } from "../services/provider.js";
 import { applyThinking, captureThinking } from "./concerns/thinkingUnified.js";
+import { captureSessionId } from "../utils/sessionManager.js";
 import { AntigravityExecutor } from "../executors/antigravity.js";
 import { PROVIDERS } from "../providers/index.js";
 
@@ -68,6 +69,11 @@ export function translateRequest(sourceFormat, targetFormat, model, body, stream
   // format conversion strips/renames the fields. Applied after translation.
   const thinkingIntent = captureThinking(result);
 
+  // Capture session id from the original body (envelope still intact, e.g. antigravity request.sessionId)
+  const clientSessionId = captureSessionId(result, credentials, connectionId, targetFormat);
+  // Expose to downstream translators (gemini-cli/antigravity envelopes) that run after envelope is stripped
+  if (credentials) credentials._clientSessionId = clientSessionId;
+
   // If same format, skip translation steps
   if (sourceFormat !== targetFormat) {
     // Step 1: source -> openai (if source is not openai)
@@ -101,7 +107,7 @@ export function translateRequest(sourceFormat, targetFormat, model, body, stream
   // Final step: prepare request for Claude format endpoints
   if (targetFormat === FORMATS.CLAUDE) {
     const apiKey = credentials?.accessToken || credentials?.apiKey || null;
-    result = prepareClaudeRequest(result, provider, apiKey, connectionId);
+    result = prepareClaudeRequest(result, provider, apiKey, connectionId, credentials?.rawHeaders, clientSessionId);
   }
 
   // Claude cloaking: rename client tools with _cc suffix (anti-ban)

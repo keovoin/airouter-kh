@@ -12,7 +12,7 @@ import { CLAUDE_AUTOPING_CONFIG } from "@/shared/constants/config";
 const C = CLAUDE_AUTOPING_CONFIG;
 const PING_URL = "https://api.anthropic.com/v1/messages?beta=true";
 
-const g = (global.__claudeAutoPing ??= { interval: null, running: false });
+const g = (global.__claudeAutoPing ??= { interval: null, running: false, resetCache: {} });
 
 function buildProxyOptions(cfg) {
   return {
@@ -43,6 +43,10 @@ async function sendPing(accessToken, proxyOptions) {
 }
 
 async function pingConnection(conn) {
+  // Cached resetAt is stable for the whole 5h window; skip usage poll until near reset
+  const cachedReset = g.resetCache[conn.id];
+  if (cachedReset && Date.now() < new Date(cachedReset).getTime() - C.refreshAheadMs) return;
+
   const proxyCfg = await resolveConnectionProxyConfig(conn.providerSpecificData);
   const proxyOptions = buildProxyOptions(proxyCfg);
 
@@ -59,6 +63,9 @@ async function pingConnection(conn) {
   const usage = await getClaudeUsage(connection.accessToken, proxyOptions);
   const resetAt = usage?.quotas?.[C.fiveHourKey]?.resetAt;
   if (!resetAt) return;
+
+  // Cache resetAt to gate future ticks
+  g.resetCache[conn.id] = resetAt;
 
   const resetMs = new Date(resetAt).getTime();
   const now = Date.now();

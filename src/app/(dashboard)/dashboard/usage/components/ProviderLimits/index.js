@@ -50,6 +50,7 @@ export default function ProviderLimits() {
   const [loading, setLoading] = useState({});
   const [errors, setErrors] = useState({});
   const [autoRefresh, setAutoRefresh] = useState(true);
+  const [autoPingMap, setAutoPingMap] = useState({});
   const [lastUpdated, setLastUpdated] = useState(null);
   const [hasHydratedAutoRefresh, setHasHydratedAutoRefresh] = useState(false);
   const [refreshingAll, setRefreshingAll] = useState(false);
@@ -423,6 +424,31 @@ export default function ProviderLimits() {
     window.localStorage.setItem(AUTO_REFRESH_STORAGE_KEY, String(autoRefresh));
   }, [autoRefresh, hasHydratedAutoRefresh]);
 
+  // Load Claude auto-ping per-connection map
+  useEffect(() => {
+    fetch("/api/settings", { cache: "no-store" })
+      .then((r) => (r.ok ? r.json() : {}))
+      .then((s) => setAutoPingMap(s?.claudeAutoPing?.connections || {}))
+      .catch(() => {});
+  }, []);
+
+  const toggleAutoPing = useCallback(async (connectionId, on) => {
+    const next = { ...autoPingMap, [connectionId]: on };
+    setAutoPingMap(next);
+    try {
+      const r = await fetch("/api/settings", { cache: "no-store" });
+      const s = r.ok ? await r.json() : {};
+      const cfg = { ...(s.claudeAutoPing || {}), connections: next };
+      await fetch("/api/settings", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ claudeAutoPing: cfg }),
+      });
+    } catch {
+      setAutoPingMap(autoPingMap);
+    }
+  }, [autoPingMap]);
+
   // Auto-refresh interval
   useEffect(() => {
     if (!hasHydratedAutoRefresh || !autoRefresh) {
@@ -793,6 +819,7 @@ export default function ProviderLimits() {
             )}
           </button>
 
+
           {/* Refresh all button */}
           <button
             type="button"
@@ -895,6 +922,18 @@ export default function ProviderLimits() {
                             {isResettingLimit ? "progress_activity" : "bolt"}
                           </span>
                           <span className="hidden lg:inline">Reset limit</span>
+                        </button>
+                      </Tooltip>
+                    )}
+                    {conn.provider === "claude" && conn.authType === "oauth" && (
+                      <Tooltip text="When your 5h quota runs out, auto-sends a request the moment it resets so a new window starts right away.">
+                        <button
+                          type="button"
+                          onClick={() => toggleAutoPing(conn.id, !(autoPingMap[conn.id] === true))}
+                          aria-label="Toggle auto-ping"
+                          className={`flex h-8 w-8 items-center justify-center rounded-lg transition-colors hover:bg-black/5 dark:hover:bg-white/5 ${autoPingMap[conn.id] === true ? "text-primary" : "text-text-muted"}`}
+                        >
+                          <span className="material-symbols-outlined text-[18px]">bolt</span>
                         </button>
                       </Tooltip>
                     )}

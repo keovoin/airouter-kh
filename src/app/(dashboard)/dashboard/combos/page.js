@@ -160,11 +160,11 @@ export default function CombosPage() {
           <ul className="text-sm text-text-muted mt-2 flex flex-col gap-1">
             <li><span className="font-medium text-text-main">Fallback</span> — tries models in order (next on failure)</li>
             <li><span className="font-medium text-text-main">Round Robin</span> — rotates models across requests to spread load</li>
-            <li><span className="font-medium text-text-main">Fusion</span> — queries all models in parallel, then a judge synthesizes one answer</li>
-            <li><span className="font-medium text-text-main">Capacity auto-switch</span> — reorders models per request so images/PDFs route to capable models first</li>
+            <li><span className="font-medium text-text-main">Fusion</span> — queries all models in parallel, then a judge synthesizes one answer. Best quality, but costs the most: every request bills all panel models + the judge (N+1 calls)</li>
+            <li><span className="font-medium text-text-main">Capacity auto-switch</span> — sends image/PDF/audio requests to a model that supports them first</li>
           </ul>
         </div>
-        <Button icon="add" onClick={() => setShowCreateModal(true)} className="w-full sm:w-auto">
+        <Button icon="add" onClick={() => setShowCreateModal(true)} className="w-full sm:w-auto whitespace-nowrap">
           Create Combo
         </Button>
       </div>

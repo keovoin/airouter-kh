@@ -57,6 +57,18 @@ function kiroMethodLabel(conn) {
   return conn.authType === "api_key" ? "API Key" : "OAuth";
 }
 
+function getConnectionSecondaryLabel(connection) {
+  if (connection.name?.trim() && connection.email?.trim() && connection.name.trim() !== connection.email.trim()) {
+    return connection.email.trim();
+  }
+
+  if (connection.name?.trim() && connection.displayName?.trim() && connection.name.trim() !== connection.displayName.trim()) {
+    return connection.displayName.trim();
+  }
+
+  return null;
+}
+
 // Region is stored for builder-id/idc/api_key flows; social and imported flows
 // omit it, so fall back to the region segment of the profileArn
 // (arn:aws:codewhisperer:<region>:...).
@@ -916,6 +928,11 @@ export default function ProviderLimits() {
                       {getConnectionLabel(conn) ? (
                         <p className="text-xs text-text-muted truncate">
                           {getConnectionLabel(conn)}
+                        </p>
+                      ) : null}
+                      {getConnectionSecondaryLabel(conn) ? (
+                        <p className="text-[11px] text-text-muted/80 truncate">
+                          {getConnectionSecondaryLabel(conn)}
                         </p>
                       ) : null}
                       {isCodex && (

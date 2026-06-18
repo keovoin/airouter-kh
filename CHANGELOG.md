@@ -1,4 +1,4 @@
-# v0.5.3 (2026-06-18)
+# v0.5.4 (2026-06-18)
 
 ## Fixes
 - **Kiro**: honor thinking effort budgets

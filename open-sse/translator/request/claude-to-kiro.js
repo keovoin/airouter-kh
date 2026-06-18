@@ -30,6 +30,7 @@ import {
   isThinkingEnabled,
   buildThinkingSystemPrefix,
   KIRO_AGENTIC_SYSTEM_PROMPT,
+  resolveDefaultProfileArn,
 } from "../../config/kiroConstants.js";
 import { DEFAULT_IMAGE_MIME } from "../schema/index.js";
 import { ROLE, CLAUDE_BLOCK } from "../schema/index.js";
@@ -397,7 +398,11 @@ export function claudeToKiroRequest(model, body, stream, credentials) {
     reconcileOrphanedToolResults(history, currentMessage);
   }
 
-  const profileArn = credentials?.providerSpecificData?.profileArn || "";
+  // API-key auth must never use the shared default ARN (403); OAuth/social fall back to it.
+  const authMethod = credentials?.providerSpecificData?.authMethod;
+  const profileArn = authMethod === "api_key"
+    ? (credentials?.providerSpecificData?.profileArn || "")
+    : (credentials?.providerSpecificData?.profileArn || resolveDefaultProfileArn(authMethod));
 
   let finalContent = currentMessage?.userInputMessage?.content || "";
 

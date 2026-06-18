@@ -44,7 +44,7 @@ export default function RootLayout({ children }) {
             {children}
           </RuntimeI18nProvider>
         </ThemeProvider>
-        {gaId && <GoogleAnalytics gaId={"G-LC959F603F"} />}
+        <GoogleAnalytics gaId={"G-LC959F603F"} />
       </body>
     </html>
   );

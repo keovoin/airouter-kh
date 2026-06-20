@@ -1,19 +1,45 @@
 import { execSync } from "child_process";
+import path from "path";
 
-const EXTENDED_PATH = `/usr/local/bin:/opt/homebrew/bin:/usr/bin:/bin:${process.env.PATH || ""}`;
-const PYTHON_CANDIDATES = ["python3.13", "python3.12", "python3.11", "python3.10", "python3"];
+const IS_WIN = process.platform === "win32";
+const WHICH_CMD = IS_WIN ? "where" : "which";
+
+// Extra bin dirs often missing from a packaged/launchd PATH (Python installs headroom here).
+const EXTRA_BINS = IS_WIN
+  ? [
+      `${process.env.LOCALAPPDATA || ""}\\Programs\\Python\\Python313\\Scripts`,
+      `${process.env.LOCALAPPDATA || ""}\\Programs\\Python\\Python312\\Scripts`,
+      `${process.env.LOCALAPPDATA || ""}\\Programs\\Python\\Python311\\Scripts`,
+      `${process.env.LOCALAPPDATA || ""}\\Programs\\Python\\Python310\\Scripts`,
+      `${process.env.APPDATA || ""}\\Python\\Python313\\Scripts`,
+    ]
+  : [
+      "/usr/local/bin",
+      "/opt/homebrew/bin",
+      "/Library/Frameworks/Python.framework/Versions/3.13/bin",
+      "/Library/Frameworks/Python.framework/Versions/3.12/bin",
+      "/Library/Frameworks/Python.framework/Versions/3.11/bin",
+      "/Library/Frameworks/Python.framework/Versions/3.10/bin",
+      `${process.env.HOME || ""}/.local/bin`,
+      "/usr/bin",
+      "/bin",
+    ];
+
+const EXTENDED_PATH = [...EXTRA_BINS, process.env.PATH || ""].filter(Boolean).join(path.delimiter);
+const PYTHON_CANDIDATES = ["python3.13", "python3.12", "python3.11", "python3.10", "python3", "python"];
 const MIN_VERSION = [3, 10];
 const HEADROOM_HEALTH_TIMEOUT_MS = 1500;
 
 // Detect whether the headroom CLI is installed and where its binary lives.
 export function findHeadroomBinary() {
   try {
-    const path = execSync("which headroom", {
+    const out = execSync(`${WHICH_CMD} headroom`, {
       stdio: ["ignore", "pipe", "ignore"],
       windowsHide: true,
       env: { ...process.env, PATH: EXTENDED_PATH },
     }).toString().trim();
-    return path || null;
+    // Windows `where` may return multiple lines — take the first.
+    return out ? out.split(/\r?\n/)[0].trim() : null;
   } catch {
     return null;
   }

@@ -16,6 +16,8 @@ export default {
     },
   },
   category: "oauth",
+  authModes: ["oauth", "apikey"],
+  hasOAuth: true,
   transport: {
     baseUrl: "https://copilot.tencent.com/v2/chat/completions",
     forceStream: true,
@@ -35,6 +37,11 @@ export default {
       combined: true,
       header: "Authorization",
       scheme: "bearer",
+    },
+    // Quota endpoint differs from the chat gateway: POST returns nested Tencent
+    // billing payload (data.Response.Data.Accounts[]). See services/usage/codebuddy-cn.js.
+    usage: {
+      url: "https://copilot.tencent.com/v2/billing/meter/get-user-resource",
     },
   },
   models: [
@@ -62,5 +69,9 @@ export default {
     userAgent: "CLI/2.63.2 CodeBuddy/2.63.2",
     platform: "CLI",
     pollInterval: 5000,
+  },
+  features: {
+    usage: true,
+    usageApikey: true,
   },
 };

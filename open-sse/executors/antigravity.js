@@ -29,6 +29,11 @@ const ANTIGRAVITY_REQUEST_BLACKLIST = [
   "thinkingConfig",
 ];
 
+// Strip blacklisted fields from an object (used for both body.request and top-level body)
+const stripBlacklisted = obj => {
+  for (const key of ANTIGRAVITY_REQUEST_BLACKLIST) delete obj[key];
+};
+
 // Image generation model name patterns
 const IMAGE_MODEL_PATTERNS = [
   /image/i,
@@ -179,7 +184,7 @@ export class AntigravityExecutor extends BaseExecutor {
 
     // Strip tools/toolConfig (handled separately) and blacklisted fields that Google rejects
     const { tools: _originalTools, toolConfig: _originalToolConfig, ...requestWithoutTools } = body.request || {};
-    for (const key of ANTIGRAVITY_REQUEST_BLACKLIST) delete requestWithoutTools[key];
+    stripBlacklisted(requestWithoutTools);
     const generationConfig = { ...(requestWithoutTools.generationConfig || {}) };
     if (generationConfig.maxOutputTokens > MAX_ANTIGRAVITY_OUTPUT_TOKENS) {
       generationConfig.maxOutputTokens = MAX_ANTIGRAVITY_OUTPUT_TOKENS;
@@ -194,6 +199,9 @@ export class AntigravityExecutor extends BaseExecutor {
       safetySettings: undefined,
       ...(tools?.length > 0 && { toolConfig: { functionCallingConfig: { mode: "VALIDATED" } } })
     };
+
+    // Strip blacklisted thinking fields from top-level body (set by thinkingUnified.js at root, not body.request)
+    stripBlacklisted(body);
 
     this._lastSessionId = transformedRequest.sessionId; // cached for buildHeaders (base.execute order)
 

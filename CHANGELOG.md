@@ -1,10 +1,14 @@
-# v0.5.7 (2026-06-21)
+# v0.5.8 (2026-06-21)
 
 ## Features
+- **Antigravity**: native image generation support (image models tagged kind:image, hiển thị trong media-providers UI)
 - **CodeBuddy CN**: API key auth + credit quota tracker
 - **CodeBuddy CN**: short model prefix alias "cbcn"
 
 ## Fixes
+- **MiniMax-M3**: enable vision capability
+- **Headroom**: support Docker sidecar proxy
+- **Antigravity**: image executor fixes
 - **mimo-free**: Chrome User-Agent rotation to bypass anti-abuse gate
 - **cloudflare-ai**: flatten content-part arrays to string to avoid oneOf 400 (#1926)
 - **Translator**: normalize tools to Anthropic-native shape for non-Anthropic providers

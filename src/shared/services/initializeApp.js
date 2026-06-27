@@ -17,6 +17,17 @@ import { getMitmStatus, startMitm, loadEncryptedPassword, initDbHooks, restoreTo
 import { startClaudeAutoPing } from "@/shared/services/claudeAutoPing";
 import { syncToJson as syncMitmAliasCache } from "@/lib/mitmAliasCache";
 
+// Lazy-import digest scheduler (only activates if TELEGRAM_BOT_TOKEN is set)
+function startDigestSchedulerSafe() {
+  if (!process.env.TELEGRAM_BOT_TOKEN) return;
+  import("@/lib/telegram/scheduler.js")
+    .then(({ startDigestScheduler }) => {
+      startDigestScheduler();
+      console.log("[InitApp] Digest scheduler started");
+    })
+    .catch((e) => console.log("[InitApp] Digest scheduler skipped:", e.message));
+}
+
 // Inject correct paths and DB hooks into manager.js (CJS) from ESM context
 (function bootstrapMitm() {
   if (!process.env.MITM_SERVER_PATH) {
@@ -90,6 +101,7 @@ export async function initializeApp() {
     startNetworkMonitor();
     autoStartMitm();
     startClaudeAutoPing();
+    startDigestSchedulerSafe();
   } catch (error) {
     console.error("[InitApp] Error:", error);
   }

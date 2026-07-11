@@ -1,6 +1,6 @@
 {
   "name": "9router-app",
-  "version": "0.5.12",
+  "version": "0.5.18",
   "description": "9Router web dashboard",
   "private": true,
   "scripts": {
@@ -44,9 +44,7 @@
     "sql.js": "^1.14.1",
     "undici": "^7.19.2",
     "uuid": "^13.0.0",
-    "zustand": "^5.0.10",
-    "@napi-rs/canvas": "^0.1.83",
-    "chart.js": "^4.5.0"
+    "zustand": "^5.0.10"
   },
   "optionalDependencies": {
     "better-sqlite3": "^12.6.2"
